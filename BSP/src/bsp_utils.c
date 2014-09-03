@@ -83,7 +83,7 @@ void BSP_Printf( const int8_t* format, ... )
     len = vsnprintf(buffer,len,format,arg);
     va_end (arg);
 	
-    Uart_write(id_,len,(uint8_t*)&buffer[0],TRUE);
+    Uart_write(id_,len,(uint8_t*)&buffer[0]);
 		
     free(buffer);
 }
