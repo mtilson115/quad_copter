@@ -1,0 +1,31 @@
+build/default/debug/app/src/app.o:  \
+app/src/app.cpp  \
+app/inc/includes.h  \
+ app/inc/app_cfg.h  \
+app/inc/lib_cfg.h  \
+uC-CPU/inc/cpu.h  \
+ uC-CPU/inc/cpu_def.h  \
+app/inc/cpu_cfg.h  \
+uC-LIB/inc/lib_def.h  \
+ uC-LIB/inc/lib_ascii.h  \
+uC-LIB/inc/lib_math.h  \
+uC-CPU/inc/cpu_core.h  \
+ uC-LIB/inc/lib_mem.h  \
+uC-LIB/inc/lib_str.h  \
+uCOS-III/inc/os.h  \
+ app/inc/os_cfg.h  \
+uCOS-III/inc/os_type.h  \
+uCOS-III/inc/os_cpu.h  \
+ app/inc/os_cfg_app.h  \
+CPU/inc/INT.h  \
+drivers/inc/type_defs.h  \
+ CPU/inc/CoreTimer.h  \
+CPU/inc/INT.h  \
+CPU/inc/ports.h  \
+BSP/inc/bsp.h  \
+ BSP/inc/bsp_peripherals.h  \
+app/inc/app_accel_gyro.h  \
+ app/inc/button_reader.h  \
+drivers/inc/driver_i2c.h  \
+drivers/inc/type_defs.h  \
+ drivers/inc/perif_sfr_map.h 

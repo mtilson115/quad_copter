@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configurationDescriptor version="62">
+  <logicalFolder name="root" displayName="root" projectFiles="true">
+    <logicalFolder name="app" displayName="app" projectFiles="true">
+      <logicalFolder name="inc" displayName="inc" projectFiles="true">
+        <itemPath>app/inc/app_cfg.h</itemPath>
+        <itemPath>app/inc/button_reader.h</itemPath>
+        <itemPath>app/inc/cpu_cfg.h</itemPath>
+        <itemPath>app/inc/includes.h</itemPath>
+        <itemPath>app/inc/lib_cfg.h</itemPath>
+        <itemPath>app/inc/os_app_hooks.h</itemPath>
+        <itemPath>app/inc/os_cfg.h</itemPath>
+        <itemPath>app/inc/os_cfg_app.h</itemPath>
+        <itemPath>app/inc/app_accel_gyro.h</itemPath>
+      </logicalFolder>
+      <logicalFolder name="src" displayName="src" projectFiles="true">
+        <itemPath>app/src/os_app_hooks.c</itemPath>
+        <itemPath>app/src/button_reader.cpp</itemPath>
+        <itemPath>app/src/app.cpp</itemPath>
+        <itemPath>app/src/app_accel_gyro.cpp</itemPath>
+      </logicalFolder>
+    </logicalFolder>
+    <logicalFolder name="BSP" displayName="BSP" projectFiles="true">
+      <logicalFolder name="inc" displayName="inc" projectFiles="true">
+        <itemPath>BSP/inc/bsp.h</itemPath>
+        <itemPath>BSP/inc/bsp_peripherals.h</itemPath>
+        <itemPath>BSP/inc/bsp_utils.h</itemPath>
+        <itemPath>BSP/inc/bsp_accel_gyro.h</itemPath>
+      </logicalFolder>
+      <logicalFolder name="src" displayName="src" projectFiles="true">
+        <itemPath>BSP/src/bsp.c</itemPath>
+        <itemPath>BSP/src/bsp_a.S</itemPath>
+        <itemPath>BSP/src/crt0.S</itemPath>
+        <itemPath>BSP/src/bsp_utils.c</itemPath>
+        <itemPath>BSP/src/bsp_accel_gyro.cpp</itemPath>
+      </logicalFolder>
+    </logicalFolder>
+    <logicalFolder name="CPU" displayName="CPU" projectFiles="true">
+      <logicalFolder name="inc" displayName="inc" projectFiles="true">
+        <itemPath>CPU/inc/adc10.h</itemPath>
+        <itemPath>CPU/inc/CoreTimer.h</itemPath>
+        <itemPath>CPU/inc/INT.h</itemPath>
+        <itemPath>CPU/inc/osc.h</itemPath>
+        <itemPath>CPU/inc/ports.h</itemPath>
+        <itemPath>CPU/inc/system.h</itemPath>
+        <itemPath>CPU/inc/timer.h</itemPath>
+        <itemPath>CPU/inc/uart.h</itemPath>
+      </logicalFolder>
+      <logicalFolder name="src" displayName="src" projectFiles="true">
+        <itemPath>CPU/src/PIC32INTlib.c</itemPath>
+      </logicalFolder>
+    </logicalFolder>
+    <logicalFolder name="drivers" displayName="drivers" projectFiles="true">
+      <logicalFolder name="inc" displayName="inc" projectFiles="true">
+        <itemPath>drivers/inc/driver_uart.h</itemPath>
+        <itemPath>drivers/inc/perif_sfr_map.h</itemPath>
+        <itemPath>drivers/inc/type_defs.h</itemPath>
+        <itemPath>drivers/inc/driver_i2c.h</itemPath>
+      </logicalFolder>
+      <logicalFolder name="src" displayName="src" projectFiles="true">
+        <itemPath>drivers/src/driver_i2c.cpp</itemPath>
+        <itemPath>drivers/src/driver_uart.c</itemPath>
+      </logicalFolder>
+    </logicalFolder>
+    <logicalFolder name="HeaderFiles"
+                   displayName="Header Files"
+                   projectFiles="true">
+    </logicalFolder>
+    <logicalFolder name="LinkerScript"
+                   displayName="Linker Files"
+                   projectFiles="true">
+    </logicalFolder>
+    <logicalFolder name="SourceFiles"
+                   displayName="Source Files"
+                   projectFiles="true">
+    </logicalFolder>
+    <logicalFolder name="uC-CPU" displayName="uC-CPU" projectFiles="true">
+      <logicalFolder name="inc" displayName="inc" projectFiles="true">
+        <itemPath>uC-CPU/inc/cpu.h</itemPath>
+        <itemPath>uC-CPU/inc/cpu_core.h</itemPath>
+        <itemPath>uC-CPU/inc/cpu_def.h</itemPath>
+      </logicalFolder>
+      <logicalFolder name="src" displayName="src" projectFiles="true">
+        <itemPath>uC-CPU/src/cpu_a.s</itemPath>
+        <itemPath>uC-CPU/src/cpu_c.c</itemPath>
+        <itemPath>uC-CPU/src/cpu_core.c</itemPath>
+      </logicalFolder>
+    </logicalFolder>
+    <logicalFolder name="uC-LIB" displayName="uC-LIB" projectFiles="true">
+      <logicalFolder name="inc" displayName="inc" projectFiles="true">
+        <itemPath>uC-LIB/inc/lib_ascii.h</itemPath>
+        <itemPath>uC-LIB/inc/lib_def.h</itemPath>
+        <itemPath>uC-LIB/inc/lib_math.h</itemPath>
+        <itemPath>uC-LIB/inc/lib_mem.h</itemPath>
+        <itemPath>uC-LIB/inc/lib_str.h</itemPath>
+      </logicalFolder>
+      <logicalFolder name="src" displayName="src" projectFiles="true">
+        <itemPath>uC-LIB/src/lib_ascii.c</itemPath>
+        <itemPath>uC-LIB/src/lib_math.c</itemPath>
+        <itemPath>uC-LIB/src/lib_mem.c</itemPath>
+        <itemPath>uC-LIB/src/lib_str.c</itemPath>
+      </logicalFolder>
+    </logicalFolder>
+    <logicalFolder name="uCOS-III" displayName="uCOS-III" projectFiles="true">
+      <logicalFolder name="inc" displayName="inc" projectFiles="true">
+        <itemPath>uCOS-III/inc/os.h</itemPath>
+        <itemPath>uCOS-III/inc/os_cpu.h</itemPath>
+        <itemPath>uCOS-III/inc/os_type.h</itemPath>
+      </logicalFolder>
+      <logicalFolder name="src" displayName="src" projectFiles="true">
+        <itemPath>uCOS-III/src/os_cfg_app.c</itemPath>
+        <itemPath>uCOS-III/src/os_core.c</itemPath>
+        <itemPath>uCOS-III/src/os_cpu_a.S</itemPath>
+        <itemPath>uCOS-III/src/os_cpu_c.c</itemPath>
+        <itemPath>uCOS-III/src/os_dbg.c</itemPath>
+        <itemPath>uCOS-III/src/os_flag.c</itemPath>
+        <itemPath>uCOS-III/src/os_int.c</itemPath>
+        <itemPath>uCOS-III/src/os_mem.c</itemPath>
+        <itemPath>uCOS-III/src/os_msg.c</itemPath>
+        <itemPath>uCOS-III/src/os_mutex.c</itemPath>
+        <itemPath>uCOS-III/src/os_pend_multi.c</itemPath>
+        <itemPath>uCOS-III/src/os_prio.c</itemPath>
+        <itemPath>uCOS-III/src/os_q.c</itemPath>
+        <itemPath>uCOS-III/src/os_sem.c</itemPath>
+        <itemPath>uCOS-III/src/os_stat.c</itemPath>
+        <itemPath>uCOS-III/src/os_task.c</itemPath>
+        <itemPath>uCOS-III/src/os_tick.c</itemPath>
+        <itemPath>uCOS-III/src/os_time.c</itemPath>
+        <itemPath>uCOS-III/src/os_tmr.c</itemPath>
+        <itemPath>uCOS-III/src/os_var.c</itemPath>
+      </logicalFolder>
+    </logicalFolder>
+    <logicalFolder name="ExternalFiles"
+                   displayName="Important Files"
+                   projectFiles="false">
+      <itemPath>Makefile</itemPath>
+    </logicalFolder>
+  </logicalFolder>
+  <sourceRootList>
+    <Elem>app</Elem>
+    <Elem>BSP</Elem>
+    <Elem>CPU</Elem>
+    <Elem>drivers</Elem>
+    <Elem>uC-CPU</Elem>
+    <Elem>uC-LIB</Elem>
+    <Elem>uCOS-III</Elem>
+  </sourceRootList>
+  <projectmakefile>Makefile</projectmakefile>
+  <confs>
+    <conf name="default" type="2">
+      <toolsSet>
+        <developmentServer>localhost</developmentServer>
+        <targetDevice>PIC32MX795F512L</targetDevice>
+        <targetHeader></targetHeader>
+        <targetPluginBoard></targetPluginBoard>
+        <platformTool>SKDEPIC32PlatformTool</platformTool>
+        <languageToolchain>XC32</languageToolchain>
+        <languageToolchainVersion>1.31</languageToolchainVersion>
+        <platform>2</platform>
+      </toolsSet>
+      <compileType>
+        <linkerTool>
+          <linkerLibItems>
+          </linkerLibItems>
+        </linkerTool>
+        <loading>
+          <useAlternateLoadableFile>false</useAlternateLoadableFile>
+          <alternateLoadableFile></alternateLoadableFile>
+        </loading>
+      </compileType>
+      <makeCustomizationType>
+        <makeCustomizationPreStepEnabled>false</makeCustomizationPreStepEnabled>
+        <makeCustomizationPreStep></makeCustomizationPreStep>
+        <makeCustomizationPostStepEnabled>false</makeCustomizationPostStepEnabled>
+        <makeCustomizationPostStep></makeCustomizationPostStep>
+        <makeCustomizationPutChecksumInUserID>false</makeCustomizationPutChecksumInUserID>
+        <makeCustomizationEnableLongLines>false</makeCustomizationEnableLongLines>
+        <makeCustomizationNormalizeHexFile>false</makeCustomizationNormalizeHexFile>
+      </makeCustomizationType>
+      <C32>
+        <property key="additional-warnings" value="false"/>
+        <property key="enable-app-io" value="false"/>
+        <property key="enable-omit-frame-pointer" value="false"/>
+        <property key="enable-symbols" value="true"/>
+        <property key="enable-unroll-loops" value="false"/>
+        <property key="exclude-floating-point" value="false"/>
+        <property key="extra-include-directories"
+                  value="app/inc;BSP/inc;CPU/inc;drivers/inc;uC-CPU/inc;uC-LIB/inc;uCOS-III/inc"/>
+        <property key="generate-16-bit-code" value="false"/>
+        <property key="isolate-each-function" value="false"/>
+        <property key="make-warnings-into-errors" value="false"/>
+        <property key="optimization-level" value=""/>
+        <property key="place-data-into-section" value="false"/>
+        <property key="post-instruction-scheduling" value="default"/>
+        <property key="pre-instruction-scheduling" value="default"/>
+        <property key="preprocessor-macros" value=""/>
+        <property key="strict-ansi" value="false"/>
+        <property key="support-ansi" value="false"/>
+        <property key="use-cci" value="false"/>
+        <property key="use-indirect-calls" value="false"/>
+      </C32>
+      <C32-AS>
+      </C32-AS>
+      <C32-LD>
+        <property key="additional-options-use-response-files" value="false"/>
+        <property key="enable-check-sections" value="false"/>
+        <property key="exclude-floating-point-library" value="false"/>
+        <property key="exclude-standard-libraries" value="false"/>
+        <property key="extra-lib-directories" value=""/>
+        <property key="generate-16-bit-code" value="false"/>
+        <property key="generate-cross-reference-file" value="false"/>
+        <property key="heap-size" value="128"/>
+        <property key="input-libraries" value=""/>
+        <property key="linker-symbols" value=""/>
+        <property key="map-file" value="${DISTDIR}/${PROJECTNAME}.${IMAGE_TYPE}.map"/>
+        <property key="no-startup-files" value="true"/>
+        <property key="oXC32ld-extra-opts" value=""/>
+        <property key="optimization-level" value=""/>
+        <property key="preprocessor-macros" value=""/>
+        <property key="remove-unused-sections" value="false"/>
+        <property key="report-memory-usage" value="false"/>
+        <property key="stack-size" value=""/>
+        <property key="symbol-stripping" value=""/>
+        <property key="trace-symbols" value=""/>
+        <property key="warn-section-align" value="false"/>
+      </C32-LD>
+      <C32CPP>
+        <property key="additional-warnings" value="false"/>
+        <property key="check-new" value="false"/>
+        <property key="eh-specs" value="true"/>
+        <property key="enable-app-io" value="false"/>
+        <property key="enable-omit-frame-pointer" value="false"/>
+        <property key="enable-symbols" value="true"/>
+        <property key="enable-unroll-loops" value="false"/>
+        <property key="exceptions" value="true"/>
+        <property key="exclude-floating-point" value="false"/>
+        <property key="extra-include-directories"
+                  value="app/inc;BSP/inc;CPU/inc;drivers/inc;uC-CPU/inc;uC-LIB/inc;uCOS-III/inc"/>
+        <property key="generate-16-bit-code" value="false"/>
+        <property key="isolate-each-function" value="false"/>
+        <property key="make-warnings-into-errors" value="false"/>
+        <property key="optimization-level" value=""/>
+        <property key="place-data-into-section" value="false"/>
+        <property key="post-instruction-scheduling" value="default"/>
+        <property key="pre-instruction-scheduling" value="default"/>
+        <property key="preprocessor-macros" value=""/>
+        <property key="rtti" value="true"/>
+        <property key="strict-ansi" value="false"/>
+        <property key="use-cci" value="false"/>
+        <property key="use-indirect-calls" value="false"/>
+      </C32CPP>
+      <C32Global>
+      </C32Global>
+      <SKDEPIC32PlatformTool>
+      </SKDEPIC32PlatformTool>
+    </conf>
+  </confs>
+</configurationDescriptor>
