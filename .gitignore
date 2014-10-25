@@ -1,2 +1,8 @@
 # Make file
 Makefile
+
+# object file types
+*.o
+*.obj
+*.out
+
