@@ -11,3 +11,4 @@ build/
 quad_copter.X/
 nbproject/
 debug/
+dist/
