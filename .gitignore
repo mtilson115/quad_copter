@@ -6,6 +6,11 @@ Makefile
 *.obj
 *.out
 
+# project files
+*.mk
+*.xml
+#.properties
+
 # Folders
 build/
 quad_copter.X/
