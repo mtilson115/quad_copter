@@ -4,8 +4,8 @@
   <defaultConf>0</defaultConf>
   <confs>
     <conf name="default" type="2">
-      <platformToolSN>:=MPLABCommUSB:=04D8:=00E0:=0000:=Microchip Technology Inc.:=Microchip Custom USB Device:=BUR122632049:=x:=en</platformToolSN>
-      <languageToolchainDir>/opt/microchip/xc32/v1.31/bin</languageToolchainDir>
+      <platformToolSN></platformToolSN>
+      <languageToolchainDir>/Applications/microchip/xc32/v1.31/bin</languageToolchainDir>
       <mdbdebugger version="1">
         <placeholder1>place holder 1</placeholder1>
         <placeholder2>place holder 2</placeholder2>

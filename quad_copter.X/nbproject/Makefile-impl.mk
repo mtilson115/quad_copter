@@ -24,7 +24,7 @@ CLEAN_SUBPROJECTS=${CLEAN_SUBPROJECTS_${SUBPROJECTS}}
 
 
 # Project Name
-PROJECTNAME=QuadController
+PROJECTNAME=quad_copter.X
 
 # Active Configuration
 DEFAULTCONF=default
