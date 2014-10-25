@@ -6,3 +6,8 @@ Makefile
 *.obj
 *.out
 
+# Folders
+build/
+quad_copter.X/
+nbproject/
+debug/
