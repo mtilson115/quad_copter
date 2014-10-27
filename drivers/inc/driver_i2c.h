@@ -56,11 +56,11 @@ public:
 private:
 
     typedef struct {
-      uint8_t     dev_addr;
-      uint8_t     reg_addr;
-      uint8_t     dir;
-      uint8_t*    data;
-      uint32_t    count;
+      unsigned char       dev_addr;
+      unsigned char       reg_addr;
+      unsigned char       dir;
+      unsigned char*      data;
+      unsigned int        count;
     } I2C_MSG;
 
     typedef enum {
