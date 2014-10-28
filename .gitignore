@@ -1,19 +1,19 @@
 # Make file
 Makefile
 
-# object file types
-*.o
-*.obj
-*.out
+# Folders
+# quad_copter.X/
+nbproject/
+build/
 
-# project files
+# Object Files
+*.o
+*.o.d
+*.map
+*.elf
+*.hex
+
+# Project Crap
+*.properties
 *.mk
 *.xml
-#.properties
-
-# Folders
-build/
-quad_copter.X/
-nbproject/
-debug/
-dist/
