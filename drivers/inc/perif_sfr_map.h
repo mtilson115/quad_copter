@@ -34,14 +34,14 @@
  * Type Defs
  ******************************************************************************/
 // General typedefs
-typedef volatile unsigned int REG;
+typedef volatile uint32_t REG;
 
 typedef struct
 {
-  volatile unsigned int     reg;
-  volatile unsigned int     clr;
-  volatile unsigned int     set;
-  volatile unsigned int     inv;
+  volatile uint32_t reg;
+  volatile uint32_t	clr;
+  volatile uint32_t	set;
+  volatile uint32_t	inv;
 }REG_SET;
 
 /*******************************************************************************
@@ -115,7 +115,7 @@ typedef struct
 
 #define			I2C_STAT_TBF(x)			(x << 0)
 #define			I2C_STAT_RBF(x)			(x << 1)
-#define                 I2C_STAT_RW(x)			(x << 2)
+#define     I2C_STAT_RW(x)			(x << 2)
 #define			I2C_STAT_S(x)				(x << 3)
 #define			I2C_STAT_P(x)				(x << 4)
 #define			I2C_STAT_DA(x)			(x << 5)
