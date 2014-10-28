@@ -139,7 +139,6 @@ static  void  App_TaskStart (void *p_arg)
 
     App_ObjCreate();                                            /* Create Applicaiton kernel objects                    */
 
-
     while (DEF_TRUE) {                                          /* Task body, always written as an infinite loop.       */
         // LED_Toggle(1);
         OSTimeDlyHMSM(0u, 0u, 2u, 0u,
