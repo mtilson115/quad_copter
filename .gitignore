@@ -2,7 +2,7 @@
 Makefile
 
 # Folders
-# quad_copter.X/
+quad_copter.X/
 nbproject/
 build/
 
