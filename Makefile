@@ -13,7 +13,7 @@ OUT:=$(CURRENT_DIR)/OUT
 BIN:=$(CURRENT_DIR)/BIN
 
 # Compiler
-export CC=/opt/microchip/xc32/v1.40/bin/xc32
+export CC=/Applications/microchip/xc32/v1.31/bin/xc32
 
 # Linker
 LD=$(CC)-g++
