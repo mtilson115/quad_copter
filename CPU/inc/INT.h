@@ -1,5 +1,4 @@
 /********************************************************************
-/********************************************************************
  * FileName:		INT.h
  * Dependencies:
  * Processor:		PICxx
@@ -65,7 +64,7 @@ extern inline uint32_t __attribute__((always_inline)) INTDisableInterrupts(void)
 {
     uint32_t status = 0;
     
-    asm volatile("di    %0" : "=r"(status));
+    __asm__ volatile("di    %0" : "=r"(status));
 
     return status;
 }
@@ -87,7 +86,7 @@ extern inline uint32_t __attribute__((always_inline)) INTEnableInterrupts(void)
 {
     uint32_t status = 0;
     
-    asm volatile("ei    %0" : "=r"(status));
+    __asm__ volatile("ei    %0" : "=r"(status));
 
     return status;
 }
@@ -108,9 +107,9 @@ extern inline uint32_t __attribute__((always_inline)) INTEnableInterrupts(void)
 extern inline void __attribute__((always_inline)) INTRestoreInterrupts(uint32_t status)
 {
     if(status & 0x00000001)
-        asm volatile("ei");
+        __asm__ volatile("ei");
     else
-        asm volatile("di");
+        __asm__ volatile("di");
 }
 /*********************************************************************
  * Function:        void INTEnableSystemMultiVectoredInt(void)

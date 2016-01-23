@@ -241,7 +241,7 @@ CPU_TS_TMR  CPU_TS_TmrRd (void)
     CPU_TS_TMR  ts_tmr_cnts;
 
 
-    asm volatile("mfc0   %0, $9" : "=r"(ts_tmr_cnts));
+    __asm__ volatile("mfc0   %0, $9" : "=r"(ts_tmr_cnts));
     
     return (ts_tmr_cnts);
 }

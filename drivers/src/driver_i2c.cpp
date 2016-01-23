@@ -715,8 +715,8 @@ void I2C_Class::disable( void )
     regs_->con.clr = I2C_CON_ON(1);
 
     // Delay to avoid anything accessing the SFRs after clearin the ON bit
-    asm volatile("nop");
-    asm volatile("nop");
+    __asm__ volatile("nop");
+    __asm__ volatile("nop");
 
     // set the enabled flag
     enabled_ = FALSE;

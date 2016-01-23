@@ -392,7 +392,7 @@ void  BSP_Dly (CPU_INT32U  us)
     dly = us * BSP_DLY_CONST;
     
     while (dly--) {
-        asm("NOP");
+        __asm__("NOP");
     }    
 }    
     

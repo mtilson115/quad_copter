@@ -256,7 +256,7 @@ typedef  CPU_ADDR               CPU_STK_SIZE;                   /* Defines CPU s
 *
 *           (2) Critical section macro's most likely require inline assembly.  If the compiler does NOT
 *               allow inline assembly in C source files, critical section macro's MUST call an assembly
-*               subroutine defined in a 'cpu_a.asm' file located in the following software directory :
+*               subroutine defined in a 'cpu_a.__asm__' file located in the following software directory :
 *
 *                   \<CPU-Compiler Directory>\<cpu>\<compiler>\
 *

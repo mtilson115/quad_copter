@@ -201,10 +201,10 @@ CPU_STK  *OSTaskStkInit (OS_TASK_PTR    p_task,
 
     (void)opt;                                 /* Prevent compiler warning for unused arguments        */              
 
-    asm volatile("mfc0   %0,$12"   : "=r"(sr_val));
+    __asm__ volatile("mfc0   %0,$12"   : "=r"(sr_val));
     sr_val |= 0x00000003;
 
-    asm volatile("addi   %0,$28,0" : "=r"(gp_val));
+    __asm__ volatile("addi   %0,$28,0" : "=r"(gp_val));
 
     pstk     = &p_stk_base[stk_size - 1u]; 
 

@@ -5,6 +5,8 @@ Makefile
 quad_copter.X/
 nbproject/
 build/
+OUT/
+BIN/
 
 # Object Files
 *.o
@@ -17,3 +19,9 @@ build/
 *.properties
 *.mk
 *.xml
+
+# Tags
+tags
+
+# dependencies files
+.depend

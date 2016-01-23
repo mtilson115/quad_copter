@@ -202,5 +202,5 @@ private:
 extern I2C_Class I2C1;
 extern I2C_Class I2C2;
 
-#endif	/* DRIVER_UART_H */
+#endif	/* DRIVER_I2C_H*/
 

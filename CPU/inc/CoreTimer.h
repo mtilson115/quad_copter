@@ -64,9 +64,9 @@
 extern inline void __attribute__((always_inline)) OpenCoreTimer(uint32_t period)
 {
     // clear the count reg
-    asm volatile("mtc0   $0,$9");
+    __asm__ volatile("mtc0   $0,$9");
     // set up the period in the compare reg
-    asm volatile("mtc0   %0,$11" : "+r"(period));
+    __asm__ volatile("mtc0   %0,$11" : "+r"(period));
 }
 /*********************************************************************
  * Core Timer
@@ -88,10 +88,10 @@ extern inline void __attribute__((always_inline)) UpdateCoreTimer(uint32_t perio
     uint32_t old_period;
 
     // get the old compare time
-    asm volatile("mfc0   %0, $9" : "=r"(old_period));
+    __asm__ volatile("mfc0   %0, $9" : "=r"(old_period));
     period += old_period;
     // set up the period in the compare reg
-    asm volatile("mtc0   %0,$11" : "+r"(period));
+    __asm__ volatile("mtc0   %0,$11" : "+r"(period));
 }
 /******************************************************************************
  * Parameter values to be used with ConfigIntCoreTimer()
@@ -201,7 +201,7 @@ extern inline uint32_t __attribute__((always_inline)) ReadCoreTimer(void)
     uint32_t timer;
 
     // get the count reg
-    asm volatile("mfc0   %0, $9" : "=r"(timer));
+    __asm__ volatile("mfc0   %0, $9" : "=r"(timer));
 
     return timer;
 }
@@ -224,7 +224,7 @@ extern inline uint32_t __attribute__((always_inline)) ReadCoreTimer(void)
 extern inline void __attribute__((always_inline)) WriteCoreTimer(uint32_t timer)
 {
     // get the count reg
-    asm volatile("mtc0   %0, $9": "+r"(timer));
+    __asm__ volatile("mtc0   %0, $9": "+r"(timer));
 
 }
 

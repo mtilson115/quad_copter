@@ -63,9 +63,9 @@ void INTEnableSystemMultiVectoredInt(void)
     uint32_t val;
 
     // set the CP0 cause IV bit high
-    asm volatile("mfc0   %0,$13" : "=r"(val));
+    __asm__ volatile("mfc0   %0,$13" : "=r"(val));
     val |= 0x00800000;
-    asm volatile("mtc0   %0,$13" : "+r"(val));
+    __asm__ volatile("mtc0   %0,$13" : "+r"(val));
 
     // set the CP0 status IE bit high to turn on interrupts
     INTEnableInterrupts();
@@ -89,14 +89,14 @@ void INTEnableSystemSingleVectoredInt(void)
     uint32_t val;
 
     // set the CP0 cause IV bit high
-    asm volatile("mfc0   %0,$13" : "=r"(val));
+    __asm__ volatile("mfc0   %0,$13" : "=r"(val));
     val |= 0x00800000;
-    asm volatile("mtc0   %0,$13" : "+r"(val));
+    __asm__ volatile("mtc0   %0,$13" : "+r"(val));
 
-    asm volatile("mfc0   %0, $12" : "=r"(val));
+    __asm__ volatile("mfc0   %0, $12" : "=r"(val));
     // set the CP0 status IM0 -IM7 bits high
     val |= 0x00000400;
-    asm volatile("mtc0   %0, $12" : "+r"(val));
+    __asm__ volatile("mtc0   %0, $12" : "+r"(val));
     // set the CP0 status IE bit high to turn on interrupts
     INTEnableInterrupts();
 }
@@ -118,9 +118,9 @@ void INTDisableSystemSingleVectoredInt(void)
 {
     uint32_t val;
 
-    asm volatile("mfc0   %0, $12" : "=r"(val));
+    __asm__ volatile("mfc0   %0, $12" : "=r"(val));
     val &= 0xFFFF00FF;
-    asm volatile("mtc0   %0, $12" : "+r"(val));
+    __asm__ volatile("mtc0   %0, $12" : "+r"(val));
     INTDisableInterrupts();
 }
 /*********************************************************************

@@ -113,8 +113,8 @@ void Uart_disable( UART_ID id )
     UART[id]->mode.clr = MODE_ON(1);
     // Wait two clock cycles just in case (the manual says not to write
     // the registers directly after clearing ON when the PBCLK divisor is 1:1)
-    asm volatile("nop");
-    asm volatile("nop");
+    __asm__ volatile("nop");
+    __asm__ volatile("nop");
     UART[id]->sta.clr = STA_URXEN(1);
     UART[id]->sta.clr = STA_UTXEN(1);
     UART_ctrl[id].enabled  = FALSE;
@@ -165,7 +165,7 @@ int32_t Uart_read( UART_ID id, int32_t byte_count, uint8_t* buffer, BOOL block )
 /*******************************************************************************
  * Uart_write
  *
- * Description:     Writes data frome the passed buffer
+ * Description:     Writes data from the passed buffer
  *
  * Inputs:      UART_ID id - the uart to write
  *              int32_t byte_count - the number of bytes to write
@@ -233,8 +233,8 @@ void uart_mode_setup( UART_ID id )
 
     // Wait two clock cycles just in case (the manual says not to write
     // the registers directly after clearing ON when the PBCLK divisor is 1:1)
-    asm volatile("nop");
-    asm volatile("nop");
+    __asm__ volatile("nop");
+    __asm__ volatile("nop");
 
     UART[id]->mode.clr = MODE_SIDL(1);      // continue operation in idle mode
     UART[id]->mode.clr = MODE_IREN(1);      // disable IrDa mode

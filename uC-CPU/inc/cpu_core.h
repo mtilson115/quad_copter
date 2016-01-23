@@ -494,7 +494,7 @@ CPU_CORE_EXT  CPU_TS_TMR       CPU_IntDisMeasMax_cnts;          /* ... non-reset
 *
 *           (2) CPU_CntLeadZeros() prototyped/defined respectively in :
 *
-*               (a) 'cpu.h'/'cpu_a.asm',       if CPU_CFG_LEAD_ZEROS_ASM_PRESENT      #define'd in 'cpu.h'/
+*               (a) 'cpu.h'/'cpu_a.__asm__',       if CPU_CFG_LEAD_ZEROS_ASM_PRESENT      #define'd in 'cpu.h'/
 *                                                 'cpu_cfg.h' to enable assembly-version function
 *
 *               (b) 'cpu_core.h'/'cpu_core.c', if CPU_CFG_LEAD_ZEROS_ASM_PRESENT  NOT #define'd in 'cpu.h'/
