@@ -15,7 +15,7 @@ A binary (same as a .elf) and a .hex file will be placed in the BIN directory
 
 **Modifying what is included in the build**
 
-In side the make file, you can modify the DIRS variable to include new folders to compile.
+In side Makefile, you can modify the DIRS variable to include new folders to compile.
 
 **Required directory structure**
 If you do add new folders to the build, you must use the ./src and ./inc file naming structure for the
