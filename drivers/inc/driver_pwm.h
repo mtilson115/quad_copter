@@ -56,13 +56,45 @@ typedef enum {
  * Returns:     None
  * 
  * Revision:    Initial Creation 01/24/2016 - Mitchell S. Tilson
+ * Revision:    01/25/2016 - Mitchell S. Tilson - Update to use pwm_set_cfg_pointer,
+ *              rearrange items, and to disable the peripheral first.
  * 
  * Notes:       None
  *          
  ******************************************************************************/
 void PWM_init( pwm_num_e pwm, pwm_init_t init_settings );
 
-// PWM_start( pwm_num_e pwm );
+/*******************************************************************************
+ * PWM_start
+ * 
+ * Description: Starts the selected PWM
+ * 
+ * Inputs:      pwm_num_e pwm - the pwm start
+ * 
+ * Returns:     None
+ * 
+ * Revision:    Initial Creation 01/25/2016 - Mitchell S. Tilson
+ * 
+ * Notes:       Need to add check to see if it is initialized first
+ *          
+ ******************************************************************************/
+void PWM_start( pwm_num_e pwm );
+
+/*******************************************************************************
+ * PWM_stop
+ * 
+ * Description: Stop the selected PWM
+ * 
+ * Inputs:      pwm_num_e pwm - the pwm start
+ * 
+ * Returns:     None
+ * 
+ * Revision:    Initial Creation 01/25/2016 - Mitchell S. Tilson
+ * 
+ * Notes:       Need to add check to see if it is initialized first
+ *          
+ ******************************************************************************/
+void PWM_stop( pwm_num_e pwm );
 
 #ifdef	__cplusplus
 }
