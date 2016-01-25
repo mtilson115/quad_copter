@@ -140,7 +140,9 @@ bool Accel_Gyro::Init( void )
  ******************************************************************************/
 bool Accel_Gyro::TestConnection( void ) 
 {
-    return (GetDeviceID() == 0x34);
+    uint8_t device_id = GetDeviceID();
+    BSP_Printf( "0x%X",device_id );
+    return ( device_id == 0x34);
 }
 
 /*******************************************************************************

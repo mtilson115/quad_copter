@@ -5,6 +5,13 @@ RM=rm -R -f
 # quad controller project
 PROJECT=quad_controller
 
+# current directory
+CURRENT_DIR= $(shell pwd)
+
+# output file locations
+OUT:=$(CURRENT_DIR)/OUT
+BIN:=$(CURRENT_DIR)/BIN
+
 # Compiler
 export CC=/opt/microchip/xc32/v1.40/bin/xc32
 
@@ -17,14 +24,7 @@ CFLAGS=-g -mprocessor=32MX795F512L -nostartfiles
 CPPFLAGS=-g -mprocessor=32MX795F512L -nostartfiles
 
 # LD flags --defsym=_min_heap_size=1024
-LDFLAGS=-mprocessor=32MX795F512L -nostartfiles -Wl,--defsym=_min_heap_size=0x400
-
-# current directory
-CURRENT_DIR= $(shell pwd)
-
-# output file locations
-OUT:=$(CURRENT_DIR)/OUT
-BIN:=$(CURRENT_DIR)/BIN
+LDFLAGS=-mprocessor=32MX795F512L -nostartfiles -Wl,--defsym=_min_heap_size=0x400 -Wl,-Map=$(BIN)/$(PROJECT).map
 
 # Directories of the project
 DIRS= BSP CPU app drivers uC-CPU uC-LIB uCOS-III
