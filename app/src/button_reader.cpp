@@ -6,6 +6,7 @@
 #include "bsp_accel_gyro.h"
 #include "type_defs.h"
 #include "bsp_utils.h"
+#include "driver_pwm.h"
 
 static  OS_TCB    reader_TCB;
 static  CPU_STK   reaer_stack[APP_BUTTON_READER_STK_SIZE];
@@ -14,6 +15,16 @@ void start_reader( void )
 {
     // Initialize the AccelGyro
     AclGyro.Init();
+
+    // Initialize the pwm driver
+    pwm_init_t init_settings = {
+        16384,
+        50,
+    };
+    PWM_init( PWM0, init_settings );
+
+    // Start the PWM
+    PWM_start( PWM0 );
 
 		
     OS_ERR err;
@@ -34,9 +45,19 @@ void start_reader( void )
 }
 static  void  reader_task   (void  *p_arg)
 {
+    uint32_t duty_cycle = 0;
     while(DEF_ON)
     {
         AclGyro.PrintMotion6Data();
+        if( duty_cycle <= 100 )
+        {
+            PWM_chg_duty( PWM0, duty_cycle );
+            duty_cycle++;
+        }
+        else
+        {
+            duty_cycle = 0;
+        }
         // AclGyro.PrintOffsets();
         OS_ERR err;
         OSTimeDlyHMSM(0u, 0u, 0u, 500u,OS_OPT_TIME_HMSM_STRICT,&err);

@@ -180,6 +180,33 @@ void PWM_stop( pwm_num_e pwm )
 }
 
 /*******************************************************************************
+ * PWM_chg_duty
+ * 
+ * Description: changes the duty cycle
+ * 
+ * Inputs:      pwm_num_e pwm - the pwm start
+ *              uint32_t duty - duty cycle (0 to 100)
+ * 
+ * Returns:     None
+ * 
+ * Revision:    Initial Creation 01/25/2016 - Mitchell S. Tilson
+ * 
+ * Notes:       Need to add check to see if it is initialized first
+ *          
+ ******************************************************************************/
+void PWM_chg_duty( pwm_num_e pwm, uint32_t duty_cycle )
+{
+    if( -1 == pwm_set_cfg_pointer( pwm ) )
+    {
+        return;
+    }
+    
+    float percentage = (float)duty_cycle/100.0;
+    float clk_val = (float)(*curr_pwm_cfg_p->PRy)*percentage;
+    *curr_pwm_cfg_p->OCxRS = (uint32_t)(clk_val + 0.5);
+}
+
+/*******************************************************************************
  * pwm_set_cfg_pointer
  * 
  * Description: Sets the configuration pointer
