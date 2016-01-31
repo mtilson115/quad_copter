@@ -26,3 +26,6 @@ tags-he
 
 # dependencies files
 .depend
+
+# Swap files
+*.swp
