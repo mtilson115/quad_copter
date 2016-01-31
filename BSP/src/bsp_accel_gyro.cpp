@@ -11,12 +11,12 @@
  *				oxygen or what ever it is, is removed.  If this software becomes useful to others,
  *				I might add my own.
  ********************************************************************************
- * The source code is from the Arduino developers and has been ported to the 
+ * The source code is from the Arduino developers and has been ported to the
  * PIC32MX... platform.  Below are the comments from the Arduino developers.
  * Hopefully the driver is sufficient for what I want.  If it is not, I will update
  * it.
  ********************************************************************************
- * 
+ *
  * I2Cdev library collection - MPU6050 I2C device class
  * Based on InvenSense MPU-6050 register map document rev. 2.0, 5/19/2011 (RM-MPU-6000A-00)
  * 8/24/2011 by Jeff Rowberg <jeff@rowberg.net>
@@ -33,17 +33,17 @@
  ********************************************************************************
  * I2Cdev device library code is placed under the MIT license
  * Copyright (c) 2012 Jeff Rowberg
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -66,7 +66,7 @@
  * Public Objects Section
  ******************************************************************************/
 Accel_Gyro AccelGyro;
- 
+
 /*******************************************************************************
  * Public Methods Section
  ******************************************************************************/
@@ -79,11 +79,11 @@ Accel_Gyro AccelGyro;
  * Inputs: address - the I2C address
  *
  * Returns: none
- * 
+ *
  * Revision: Initial Creation 3/26/2014 - Mitchell S. Tilson
  *
  ******************************************************************************/
-void Accel_Gyro::SetI2CAddress(uint8_t address) 
+void Accel_Gyro::SetI2CAddress(uint8_t address)
 {
     devAddr = address;
 }
@@ -106,9 +106,9 @@ void Accel_Gyro::SetI2CAddress(uint8_t address)
  * the clock source to use the X Gyro for reference, which is slightly better than
  * the default internal clock source.
  ******************************************************************************/
-bool Accel_Gyro::Init( void ) 
+bool Accel_Gyro::Init( void )
 {
-		
+
     // Initialize the I2C 1
     I2C1.Init( I2C_Class::I2C_1, 400000.0 );
 
@@ -130,7 +130,7 @@ bool Accel_Gyro::Init( void )
  * Inputs: none
  *
  * Return: true if connection is valid, false otherwise
- 
+
  * Revision: Initial Creation Arduino
  *
  * Notes:
@@ -138,7 +138,7 @@ bool Accel_Gyro::Init( void )
  * Make sure the device is connected and responds as expected.
  *
  ******************************************************************************/
-bool Accel_Gyro::TestConnection( void ) 
+bool Accel_Gyro::TestConnection( void )
 {
     uint8_t device_id = GetDeviceID();
     BSP_Printf( "0x%X",device_id );
@@ -157,7 +157,7 @@ bool Accel_Gyro::TestConnection( void )
  * Inputs: none
  *
  * Return: I2C supply voltage level (0=VLOGIC, 1=VDD)
- 
+
  * Revision: Initial Creation Arduino
  *					 03/26/2014 - Mitchell Tilson - added my I2C code.
  *
@@ -167,7 +167,7 @@ bool Accel_Gyro::TestConnection( void )
  * 0, the auxiliary I2C bus high logic level is VLOGIC. This does not apply to
  * the MPU-6000, which does not have a VLOGIC pin.
  ******************************************************************************/
-uint8_t Accel_Gyro::GetAuxVDDIOLevel( void ) 
+uint8_t Accel_Gyro::GetAuxVDDIOLevel( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_YG_OFFS_TC, MPU6050_TC_PWR_MODE_BIT, buffer);
     return buffer[0];
@@ -181,7 +181,7 @@ uint8_t Accel_Gyro::GetAuxVDDIOLevel( void )
  * Inputs: level - I2C supply voltage level (0=VLOGIC, 1=VDD)
  *
  * Return: none
- 
+
  * Revision: Initial Creation Arduino
  *					 03/26/2014 - Mitchell Tilson - added my I2C code.
  *
@@ -191,7 +191,7 @@ uint8_t Accel_Gyro::GetAuxVDDIOLevel( void )
  * 0, the auxiliary I2C bus high logic level is VLOGIC. This does not apply to
  * the MPU-6000, which does not have a VLOGIC pin.
  ******************************************************************************/
-void Accel_Gyro::SetAuxVDDIOLevel(uint8_t level) 
+void Accel_Gyro::SetAuxVDDIOLevel(uint8_t level)
 {
     I2C1.WriteRegBitB(devAddr, MPU6050_RA_YG_OFFS_TC, MPU6050_TC_PWR_MODE_BIT, level);
 }
@@ -208,7 +208,7 @@ void Accel_Gyro::SetAuxVDDIOLevel(uint8_t level)
  * Inputs: none
  *
  * Return: Current sample rate
- 
+
  * Revision: Initial Creation Arduino
  *					 03/26/2014 - Mitchell Tilson - added my I2C code.
  *
@@ -231,7 +231,7 @@ void Accel_Gyro::SetAuxVDDIOLevel(uint8_t level)
  * For a diagram of the gyroscope and accelerometer signal paths, see Section 8
  * of the MPU-6000/MPU-6050 Product Specification document.
  ******************************************************************************/
-uint8_t Accel_Gyro::GetGyroRateDiv( void ) 
+uint8_t Accel_Gyro::GetGyroRateDiv( void )
 {
     I2C1.ReadRegByte(devAddr, MPU6050_RA_SMPLRT_DIV, buffer);
     return buffer[0];
@@ -245,7 +245,7 @@ uint8_t Accel_Gyro::GetGyroRateDiv( void )
  * Inputs: rate - New sample rate divider
  *
  * Return: None
- 
+
  * Revision: Initial Creation Arduino
  *					 03/26/2014 - Mitchell Tilson - added my I2C code.
  *
@@ -254,7 +254,7 @@ uint8_t Accel_Gyro::GetGyroRateDiv( void )
  * see GetGyroRateDiv()
  * see MPU6050_RA_SMPLRT_DIV
  ******************************************************************************/
-void Accel_Gyro::SetGyroRateDiv( uint8_t rate ) 
+void Accel_Gyro::SetGyroRateDiv( uint8_t rate )
 {
     I2C1.WriteRegByte(devAddr, MPU6050_RA_SMPLRT_DIV, rate);
 }
@@ -271,7 +271,7 @@ void Accel_Gyro::SetGyroRateDiv( uint8_t rate )
  * Inputs: None
  *
  * Return: FSYNC configuration value
- 
+
  * Revision: Initial Creation Arduino
  *					 03/26/2014 - Mitchell Tilson - added my I2C code.
  *
@@ -300,7 +300,7 @@ void Accel_Gyro::SetGyroRateDiv( uint8_t rate )
  * 7            | ACCEL_ZOUT_L[0]
  *
  ******************************************************************************/
-uint8_t Accel_Gyro::GetExternalFrameSync( void ) 
+uint8_t Accel_Gyro::GetExternalFrameSync( void )
 {
   I2C1.ReadRegBitsB(devAddr, MPU6050_RA_CONFIG, MPU6050_CFG_EXT_SYNC_SET_BIT, MPU6050_CFG_EXT_SYNC_SET_LENGTH, buffer);
   return buffer[0];
@@ -314,7 +314,7 @@ uint8_t Accel_Gyro::GetExternalFrameSync( void )
  * Inputs: sync - New FSYNC configuration value
  *
  * Return: none
- 
+
  * Revision: Initial Creation Arduino
  *					 03/26/2014 - Mitchell Tilson - added my I2C code.
  *
@@ -323,7 +323,7 @@ uint8_t Accel_Gyro::GetExternalFrameSync( void )
  * see GetExternalFrameSync()
  * see MPU6050_RA_CONFIG
  ******************************************************************************/
-void Accel_Gyro::SetExternalFrameSync(uint8_t sync) 
+void Accel_Gyro::SetExternalFrameSync(uint8_t sync)
 {
 	I2C1.WriteRegBitsB(devAddr, MPU6050_RA_CONFIG, MPU6050_CFG_EXT_SYNC_SET_BIT, MPU6050_CFG_EXT_SYNC_SET_LENGTH, sync);
 }
@@ -336,7 +336,7 @@ void Accel_Gyro::SetExternalFrameSync(uint8_t sync)
  * Inputs: none
  *
  * Return: DLFP configuration
- 
+
  * Revision: Initial Creation Arduino
  *					 03/26/2014 - Mitchell Tilson - added my I2C code.
  *
@@ -366,7 +366,7 @@ void Accel_Gyro::SetExternalFrameSync(uint8_t sync)
  * see MPU6050_CFG_DLPF_CFG_BIT
  * see MPU6050_CFG_DLPF_CFG_LENGTH
  ******************************************************************************/
-uint8_t Accel_Gyro::GetDLPFMode( void ) 
+uint8_t Accel_Gyro::GetDLPFMode( void )
 {
     I2C1.ReadRegBitsB(devAddr, MPU6050_RA_CONFIG, MPU6050_CFG_DLPF_CFG_BIT, MPU6050_CFG_DLPF_CFG_LENGTH, buffer);
     return buffer[0];
@@ -392,7 +392,7 @@ uint8_t Accel_Gyro::GetDLPFMode( void )
  * see MPU6050_CFG_DLPF_CFG_BIT
  * see MPU6050_CFG_DLPF_CFG_LENGTH
  ******************************************************************************/
-void Accel_Gyro::SetDLPFMode( uint8_t mode ) 
+void Accel_Gyro::SetDLPFMode( uint8_t mode )
 {
 	I2C1.WriteRegBitsB(devAddr, MPU6050_RA_CONFIG, MPU6050_CFG_DLPF_CFG_BIT, MPU6050_CFG_DLPF_CFG_LENGTH, mode);
 }
@@ -454,7 +454,7 @@ uint8_t Accel_Gyro::GetFullScaleGyroRange( void )
  * see MPU6050_GCONFIG_FS_SEL_BIT
  * see MPU6050_GCONFIG_FS_SEL_LENGTH
  ******************************************************************************/
-void Accel_Gyro::SetFullScaleGyroRange( uint8_t range ) 
+void Accel_Gyro::SetFullScaleGyroRange( uint8_t range )
 {
 	I2C1.WriteRegBitsB(devAddr, MPU6050_RA_GYRO_CONFIG, MPU6050_GCONFIG_FS_SEL_BIT, MPU6050_GCONFIG_FS_SEL_LENGTH, range);
 }
@@ -479,7 +479,7 @@ void Accel_Gyro::SetFullScaleGyroRange( uint8_t range )
  * Get self-test enabled setting for accelerometer X axis.
  * see MPU6050_RA_ACCEL_CONFIG
  ******************************************************************************/
-bool Accel_Gyro::GetAccelXSelfTest( void ) 
+bool Accel_Gyro::GetAccelXSelfTest( void )
 {
 	I2C1.ReadRegBitB(devAddr, MPU6050_RA_ACCEL_CONFIG, MPU6050_ACONFIG_XA_ST_BIT, buffer);
 	return (bool)buffer[0];
@@ -501,7 +501,7 @@ bool Accel_Gyro::GetAccelXSelfTest( void )
  * Set self-test enabled setting for accelerometer X axis.
  * see MPU6050_RA_ACCEL_CONFIG
  ******************************************************************************/
-void Accel_Gyro::SetAccelXSelfTest( bool enabled ) 
+void Accel_Gyro::SetAccelXSelfTest( bool enabled )
 {
 	I2C1.WriteRegBitB(devAddr, MPU6050_RA_ACCEL_CONFIG, MPU6050_ACONFIG_XA_ST_BIT, enabled);
 }
@@ -522,7 +522,7 @@ void Accel_Gyro::SetAccelXSelfTest( bool enabled )
  * Get self-test enabled value for accelerometer Y axis.
  * see MPU6050_RA_ACCEL_CONFIG
  ******************************************************************************/
-bool Accel_Gyro::GetAccelYSelfTest( void ) 
+bool Accel_Gyro::GetAccelYSelfTest( void )
 {
 	I2C1.ReadRegBitB(devAddr, MPU6050_RA_ACCEL_CONFIG, MPU6050_ACONFIG_YA_ST_BIT, buffer);
 	return (bool)buffer[0];
@@ -544,7 +544,7 @@ bool Accel_Gyro::GetAccelYSelfTest( void )
  * Set self-test enabled value for accelerometer Y axis.
  * see MPU6050_RA_ACCEL_CONFIG
  ******************************************************************************/
-void Accel_Gyro::SetAccelYSelfTest( bool enabled ) 
+void Accel_Gyro::SetAccelYSelfTest( bool enabled )
 {
 	I2C1.WriteRegBitB(devAddr, MPU6050_RA_ACCEL_CONFIG, MPU6050_ACONFIG_YA_ST_BIT, enabled);
 }
@@ -565,7 +565,7 @@ void Accel_Gyro::SetAccelYSelfTest( bool enabled )
  * Get self-test enabled value for accelerometer Z axis.
  * see MPU6050_RA_ACCEL_CONFIG
  ******************************************************************************/
-bool Accel_Gyro::GetAccelZSelfTest( void ) 
+bool Accel_Gyro::GetAccelZSelfTest( void )
 {
 	I2C1.ReadRegBitB(devAddr, MPU6050_RA_ACCEL_CONFIG, MPU6050_ACONFIG_ZA_ST_BIT, buffer);
 	return (bool)buffer[0];
@@ -587,7 +587,7 @@ bool Accel_Gyro::GetAccelZSelfTest( void )
  * Set self-test enabled value for accelerometer Z axis.
  * see MPU6050_RA_ACCEL_CONFIG
  ******************************************************************************/
-void Accel_Gyro::SetAccelZSelfTest( bool enabled ) 
+void Accel_Gyro::SetAccelZSelfTest( bool enabled )
 {
 	I2C1.WriteRegBitB(devAddr, MPU6050_RA_ACCEL_CONFIG, MPU6050_ACONFIG_ZA_ST_BIT, enabled);
 }
@@ -619,7 +619,7 @@ void Accel_Gyro::SetAccelZSelfTest( bool enabled )
  * see MPU6050_ACONFIG_AFS_SEL_BIT
  * see MPU6050_ACONFIG_AFS_SEL_LENGTH
  ******************************************************************************/
-uint8_t Accel_Gyro::GetFullScaleAccelRange( void ) 
+uint8_t Accel_Gyro::GetFullScaleAccelRange( void )
 {
 	I2C1.ReadRegBitsB( devAddr, MPU6050_RA_ACCEL_CONFIG, MPU6050_ACONFIG_AFS_SEL_BIT, MPU6050_ACONFIG_AFS_SEL_LENGTH, buffer );
 	return buffer[0];
@@ -641,7 +641,7 @@ uint8_t Accel_Gyro::GetFullScaleAccelRange( void )
  * Set full-scale accelerometer range.
  * see GetFullScaleAccelRange()
  ******************************************************************************/
-void Accel_Gyro::SetFullScaleAccelRange( uint8_t range ) 
+void Accel_Gyro::SetFullScaleAccelRange( uint8_t range )
 {
 	I2C1.WriteRegBitsB(devAddr, MPU6050_RA_ACCEL_CONFIG, MPU6050_ACONFIG_AFS_SEL_BIT, MPU6050_ACONFIG_AFS_SEL_LENGTH, range);
 }
@@ -690,7 +690,7 @@ void Accel_Gyro::SetFullScaleAccelRange( uint8_t range )
  * see MPU6050_DHPF_RESET
  * see MPU6050_RA_ACCEL_CONFIG
  ******************************************************************************/
-uint8_t Accel_Gyro::GetDHPFMode( void ) 
+uint8_t Accel_Gyro::GetDHPFMode( void )
 {
 	I2C1.ReadRegBitsB(devAddr, MPU6050_RA_ACCEL_CONFIG, MPU6050_ACONFIG_ACCEL_HPF_BIT, MPU6050_ACONFIG_ACCEL_HPF_LENGTH, buffer);
 	return buffer[0];
@@ -714,7 +714,7 @@ uint8_t Accel_Gyro::GetDHPFMode( void )
  * see MPU6050_DHPF_RESET
  * see MPU6050_RA_ACCEL_CONFIG
  ******************************************************************************/
-void Accel_Gyro::SetDHPFMode( uint8_t bandwidth ) 
+void Accel_Gyro::SetDHPFMode( uint8_t bandwidth )
 {
 	I2C1.WriteRegBitsB( devAddr, MPU6050_RA_ACCEL_CONFIG, MPU6050_ACONFIG_ACCEL_HPF_BIT, MPU6050_ACONFIG_ACCEL_HPF_LENGTH, bandwidth );
 }
@@ -750,7 +750,7 @@ void Accel_Gyro::SetDHPFMode( uint8_t bandwidth )
  *
  * see MPU6050_RA_FF_THR
  ******************************************************************************/
-uint8_t Accel_Gyro::GetFreefallDetectionThreshold( void ) 
+uint8_t Accel_Gyro::GetFreefallDetectionThreshold( void )
 {
     I2C1.ReadRegByte(devAddr, MPU6050_RA_FF_THR, buffer);
     return buffer[0];
@@ -773,7 +773,7 @@ uint8_t Accel_Gyro::GetFreefallDetectionThreshold( void )
  * see GetFreefallDetectionThreshold()
  * see MPU6050_RA_FF_THR
  ******************************************************************************/
-void Accel_Gyro::SetFreefallDetectionThreshold( uint8_t threshold ) 
+void Accel_Gyro::SetFreefallDetectionThreshold( uint8_t threshold )
 {
 	I2C1.WriteRegByte(devAddr, MPU6050_RA_FF_THR, threshold);
 }
@@ -811,7 +811,7 @@ void Accel_Gyro::SetFreefallDetectionThreshold( uint8_t threshold )
  *
  * see MPU6050_RA_FF_DUR
  ******************************************************************************/
-uint8_t Accel_Gyro::GetFreefallDetectionDuration( void ) 
+uint8_t Accel_Gyro::GetFreefallDetectionDuration( void )
 {
 	I2C1.ReadRegByte( devAddr, MPU6050_RA_FF_DUR, buffer );
 	return buffer[0];
@@ -834,7 +834,7 @@ uint8_t Accel_Gyro::GetFreefallDetectionDuration( void )
  * see GetFreefallDetectionDuration()
  * see MPU6050_RA_FF_DUR
  ******************************************************************************/
-void Accel_Gyro::SetFreefallDetectionDuration( uint8_t duration ) 
+void Accel_Gyro::SetFreefallDetectionDuration( uint8_t duration )
 {
 	I2C1.WriteRegByte(devAddr, MPU6050_RA_FF_DUR, duration);
 }
@@ -874,7 +874,7 @@ void Accel_Gyro::SetFreefallDetectionDuration( uint8_t duration )
  *
  * see MPU6050_RA_MOT_THR
  ******************************************************************************/
-uint8_t Accel_Gyro::GetMotionDetectionThreshold( void ) 
+uint8_t Accel_Gyro::GetMotionDetectionThreshold( void )
 {
 	I2C1.ReadRegByte(devAddr, MPU6050_RA_MOT_THR, buffer);
 	return buffer[0];
@@ -897,7 +897,7 @@ uint8_t Accel_Gyro::GetMotionDetectionThreshold( void )
  * see GetMotionDetectionThreshold()
  * see MPU6050_RA_MOT_THR
  ******************************************************************************/
-void Accel_Gyro::SetMotionDetectionThreshold( uint8_t threshold ) 
+void Accel_Gyro::SetMotionDetectionThreshold( uint8_t threshold )
 {
 	I2C1.WriteRegByte(devAddr, MPU6050_RA_MOT_THR, threshold);
 }
@@ -933,7 +933,7 @@ void Accel_Gyro::SetMotionDetectionThreshold( uint8_t threshold )
  *
  * see MPU6050_RA_MOT_DUR
  ******************************************************************************/
-uint8_t Accel_Gyro::GetMotionDetectionDuration( void ) 
+uint8_t Accel_Gyro::GetMotionDetectionDuration( void )
 {
 	I2C1.ReadRegByte(devAddr, MPU6050_RA_MOT_DUR, buffer);
 	return buffer[0];
@@ -956,7 +956,7 @@ uint8_t Accel_Gyro::GetMotionDetectionDuration( void )
  * see GetMotionDetectionDuration()
  * see MPU6050_RA_MOT_DUR
  ******************************************************************************/
-void Accel_Gyro::SetMotionDetectionDuration(uint8_t duration) 
+void Accel_Gyro::SetMotionDetectionDuration(uint8_t duration)
 {
 	I2C1.WriteRegByte(devAddr, MPU6050_RA_MOT_DUR, duration);
 }
@@ -1002,7 +1002,7 @@ void Accel_Gyro::SetMotionDetectionDuration(uint8_t duration)
  *
  * see MPU6050_RA_ZRMOT_THR
  ******************************************************************************/
-uint8_t Accel_Gyro::GetZeroMotionDetectionThreshold( void ) 
+uint8_t Accel_Gyro::GetZeroMotionDetectionThreshold( void )
 {
 	I2C1.ReadRegByte(devAddr, MPU6050_RA_ZRMOT_THR, buffer);
 	return buffer[0];
@@ -1025,7 +1025,7 @@ uint8_t Accel_Gyro::GetZeroMotionDetectionThreshold( void )
  * see GetZeroMotionDetectionThreshold()
  * see MPU6050_RA_ZRMOT_THR
  ******************************************************************************/
-void Accel_Gyro::SetZeroMotionDetectionThreshold( uint8_t threshold ) 
+void Accel_Gyro::SetZeroMotionDetectionThreshold( uint8_t threshold )
 {
 	I2C1.WriteRegByte(devAddr, MPU6050_RA_ZRMOT_THR, threshold);
 }
@@ -1062,7 +1062,7 @@ void Accel_Gyro::SetZeroMotionDetectionThreshold( uint8_t threshold )
  *
  * see MPU6050_RA_ZRMOT_DUR
  ******************************************************************************/
-uint8_t Accel_Gyro::GetZeroMotionDetectionDuration( void ) 
+uint8_t Accel_Gyro::GetZeroMotionDetectionDuration( void )
 {
     I2C1.ReadRegByte(devAddr, MPU6050_RA_ZRMOT_DUR, buffer);
     return buffer[0];
@@ -1085,7 +1085,7 @@ uint8_t Accel_Gyro::GetZeroMotionDetectionDuration( void )
  * see GetZeroMotionDetectionDuration()
  * see MPU6050_RA_ZRMOT_DUR
  *******************************************************************************/
-void Accel_Gyro::SetZeroMotionDetectionDuration(uint8_t duration) 
+void Accel_Gyro::SetZeroMotionDetectionDuration(uint8_t duration)
 {
 	I2C1.WriteRegByte(devAddr, MPU6050_RA_ZRMOT_DUR, duration);
 }
@@ -1112,7 +1112,7 @@ void Accel_Gyro::SetZeroMotionDetectionDuration(uint8_t duration)
  * 66) to be written into the FIFO buffer.
  * see MPU6050_RA_FIFO_EN
  *******************************************************************************/
-bool Accel_Gyro::GetTempFIFOEnabled( void ) 
+bool Accel_Gyro::GetTempFIFOEnabled( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_FIFO_EN, MPU6050_TEMP_FIFO_EN_BIT, buffer);
     return (bool)buffer[0];
@@ -1135,7 +1135,7 @@ bool Accel_Gyro::GetTempFIFOEnabled( void )
  * see GetTempFIFOEnabled()
  * see MPU6050_RA_FIFO_EN
  *******************************************************************************/
-void Accel_Gyro::SetTempFIFOEnabled(bool enabled) 
+void Accel_Gyro::SetTempFIFOEnabled(bool enabled)
 {
 	I2C1.WriteRegBitB(devAddr, MPU6050_RA_FIFO_EN, MPU6050_TEMP_FIFO_EN_BIT, enabled);
 }
@@ -1158,7 +1158,7 @@ void Accel_Gyro::SetTempFIFOEnabled(bool enabled)
  * 68) to be written into the FIFO buffer.
  * see MPU6050_RA_FIFO_EN
  *******************************************************************************/
-bool Accel_Gyro::GetXGyroFIFOEnabled( void ) 
+bool Accel_Gyro::GetXGyroFIFOEnabled( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_FIFO_EN, MPU6050_XG_FIFO_EN_BIT, buffer);
     return buffer[0];
@@ -1181,7 +1181,7 @@ bool Accel_Gyro::GetXGyroFIFOEnabled( void )
  * see GetXGyroFIFOEnabled()
  * see MPU6050_RA_FIFO_EN
  *******************************************************************************/
-void Accel_Gyro::SetXGyroFIFOEnabled(bool enabled) 
+void Accel_Gyro::SetXGyroFIFOEnabled(bool enabled)
 {
 	I2C1.WriteRegBitB(devAddr, MPU6050_RA_FIFO_EN, MPU6050_XG_FIFO_EN_BIT, enabled);
 }
@@ -1204,7 +1204,7 @@ void Accel_Gyro::SetXGyroFIFOEnabled(bool enabled)
  * 70) to be written into the FIFO buffer.
  * see MPU6050_RA_FIFO_EN
  *******************************************************************************/
-bool Accel_Gyro::GetYGyroFIFOEnabled( void ) 
+bool Accel_Gyro::GetYGyroFIFOEnabled( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_FIFO_EN, MPU6050_YG_FIFO_EN_BIT, buffer);
     return buffer[0];
@@ -1227,7 +1227,7 @@ bool Accel_Gyro::GetYGyroFIFOEnabled( void )
  * see GetYGyroFIFOEnabled()
  * see MPU6050_RA_FIFO_EN
  *******************************************************************************/
-void Accel_Gyro::SetYGyroFIFOEnabled(bool enabled) 
+void Accel_Gyro::SetYGyroFIFOEnabled(bool enabled)
 {
     I2C1.WriteRegBitB(devAddr, MPU6050_RA_FIFO_EN, MPU6050_YG_FIFO_EN_BIT, enabled);
 }
@@ -1250,7 +1250,7 @@ void Accel_Gyro::SetYGyroFIFOEnabled(bool enabled)
  * 72) to be written into the FIFO buffer.
  * see MPU6050_RA_FIFO_EN
  *******************************************************************************/
-bool Accel_Gyro::GetZGyroFIFOEnabled( void ) 
+bool Accel_Gyro::GetZGyroFIFOEnabled( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_FIFO_EN, MPU6050_ZG_FIFO_EN_BIT, buffer);
     return buffer[0];
@@ -1273,7 +1273,7 @@ bool Accel_Gyro::GetZGyroFIFOEnabled( void )
  * see GetZGyroFIFOEnabled()
  * see MPU6050_RA_FIFO_EN
  *******************************************************************************/
-void Accel_Gyro::SetZGyroFIFOEnabled(bool enabled) 
+void Accel_Gyro::SetZGyroFIFOEnabled(bool enabled)
 {
     I2C1.WriteRegBitB(devAddr, MPU6050_RA_FIFO_EN, MPU6050_ZG_FIFO_EN_BIT, enabled);
 }
@@ -1297,7 +1297,7 @@ void Accel_Gyro::SetZGyroFIFOEnabled(bool enabled)
  * written into the FIFO buffer.
  * see MPU6050_RA_FIFO_EN
  *******************************************************************************/
-bool Accel_Gyro::GetAccelFIFOEnabled( void ) 
+bool Accel_Gyro::GetAccelFIFOEnabled( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_FIFO_EN, MPU6050_ACCEL_FIFO_EN_BIT, buffer);
     return buffer[0];
@@ -1320,7 +1320,7 @@ bool Accel_Gyro::GetAccelFIFOEnabled( void )
  * see GetAccelFIFOEnabled()
  * see MPU6050_RA_FIFO_EN
  *******************************************************************************/
-void Accel_Gyro::SetAccelFIFOEnabled(bool enabled) 
+void Accel_Gyro::SetAccelFIFOEnabled(bool enabled)
 {
     I2C1.WriteRegBitB(devAddr, MPU6050_RA_FIFO_EN, MPU6050_ACCEL_FIFO_EN_BIT, enabled);
 }
@@ -1343,7 +1343,7 @@ void Accel_Gyro::SetAccelFIFOEnabled(bool enabled)
  * associated with Slave 2 to be written into the FIFO buffer.
  * see MPU6050_RA_FIFO_EN
  *******************************************************************************/
-bool Accel_Gyro::GetSlave2FIFOEnabled( void ) 
+bool Accel_Gyro::GetSlave2FIFOEnabled( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_FIFO_EN, MPU6050_SLV2_FIFO_EN_BIT, buffer);
     return buffer[0];
@@ -1353,7 +1353,7 @@ bool Accel_Gyro::GetSlave2FIFOEnabled( void )
  * @see GetSlave2FIFOEnabled()
  * @see MPU6050_RA_FIFO_EN
  */
-void Accel_Gyro::SetSlave2FIFOEnabled(bool enabled) 
+void Accel_Gyro::SetSlave2FIFOEnabled(bool enabled)
 {
     I2C1.WriteRegBitB(devAddr, MPU6050_RA_FIFO_EN, MPU6050_SLV2_FIFO_EN_BIT, enabled);
 }
@@ -1363,7 +1363,7 @@ void Accel_Gyro::SetSlave2FIFOEnabled(bool enabled)
  * @return Current Slave 1 FIFO enabled value
  * @see MPU6050_RA_FIFO_EN
  */
-bool Accel_Gyro::GetSlave1FIFOEnabled( void ) 
+bool Accel_Gyro::GetSlave1FIFOEnabled( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_FIFO_EN, MPU6050_SLV1_FIFO_EN_BIT, buffer);
     return buffer[0];
@@ -1373,7 +1373,7 @@ bool Accel_Gyro::GetSlave1FIFOEnabled( void )
  * @see GetSlave1FIFOEnabled()
  * @see MPU6050_RA_FIFO_EN
  */
-void Accel_Gyro::SetSlave1FIFOEnabled(bool enabled) 
+void Accel_Gyro::SetSlave1FIFOEnabled(bool enabled)
 {
     I2C1.WriteRegBitB(devAddr, MPU6050_RA_FIFO_EN, MPU6050_SLV1_FIFO_EN_BIT, enabled);
 }
@@ -1383,7 +1383,7 @@ void Accel_Gyro::SetSlave1FIFOEnabled(bool enabled)
  * @return Current Slave 0 FIFO enabled value
  * @see MPU6050_RA_FIFO_EN
  */
-bool Accel_Gyro::GetSlave0FIFOEnabled( void ) 
+bool Accel_Gyro::GetSlave0FIFOEnabled( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_FIFO_EN, MPU6050_SLV0_FIFO_EN_BIT, buffer);
     return buffer[0];
@@ -1393,7 +1393,7 @@ bool Accel_Gyro::GetSlave0FIFOEnabled( void )
  * @see GetSlave0FIFOEnabled()
  * @see MPU6050_RA_FIFO_EN
  */
-void Accel_Gyro::SetSlave0FIFOEnabled(bool enabled) 
+void Accel_Gyro::SetSlave0FIFOEnabled(bool enabled)
 {
     I2C1.WriteRegBitB(devAddr, MPU6050_RA_FIFO_EN, MPU6050_SLV0_FIFO_EN_BIT, enabled);
 }
@@ -1415,7 +1415,7 @@ void Accel_Gyro::SetSlave0FIFOEnabled(bool enabled)
  * @return Current multi-master enabled value
  * @see MPU6050_RA_I2C_MST_CTRL
  */
-bool Accel_Gyro::GetMultiMasterEnabled( void ) 
+bool Accel_Gyro::GetMultiMasterEnabled( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_I2C_MST_CTRL, MPU6050_MULT_MST_EN_BIT, buffer);
     return buffer[0];
@@ -1425,7 +1425,7 @@ bool Accel_Gyro::GetMultiMasterEnabled( void )
  * @see GetMultiMasterEnabled()
  * @see MPU6050_RA_I2C_MST_CTRL
  */
-void Accel_Gyro::SetMultiMasterEnabled(bool enabled) 
+void Accel_Gyro::SetMultiMasterEnabled(bool enabled)
 {
     I2C1.WriteRegBitB(devAddr, MPU6050_RA_I2C_MST_CTRL, MPU6050_MULT_MST_EN_BIT, enabled);
 }
@@ -1440,7 +1440,7 @@ void Accel_Gyro::SetMultiMasterEnabled(bool enabled)
  * @return Current wait-for-external-sensor-data enabled value
  * @see MPU6050_RA_I2C_MST_CTRL
  */
-bool Accel_Gyro::GetWaitForExternalSensorEnabled( void ) 
+bool Accel_Gyro::GetWaitForExternalSensorEnabled( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_I2C_MST_CTRL, MPU6050_WAIT_FOR_ES_BIT, buffer);
     return buffer[0];
@@ -1450,7 +1450,7 @@ bool Accel_Gyro::GetWaitForExternalSensorEnabled( void )
  * @see GetWaitForExternalSensorEnabled()
  * @see MPU6050_RA_I2C_MST_CTRL
  */
-void Accel_Gyro::SetWaitForExternalSensorEnabled(bool enabled) 
+void Accel_Gyro::SetWaitForExternalSensorEnabled(bool enabled)
 {
     I2C1.WriteRegBitB(devAddr, MPU6050_RA_I2C_MST_CTRL, MPU6050_WAIT_FOR_ES_BIT, enabled);
 }
@@ -1460,7 +1460,7 @@ void Accel_Gyro::SetWaitForExternalSensorEnabled(bool enabled)
  * @return Current Slave 3 FIFO enabled value
  * @see MPU6050_RA_MST_CTRL
  */
-bool Accel_Gyro::GetSlave3FIFOEnabled( void ) 
+bool Accel_Gyro::GetSlave3FIFOEnabled( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_I2C_MST_CTRL, MPU6050_SLV_3_FIFO_EN_BIT, buffer);
     return buffer[0];
@@ -1470,7 +1470,7 @@ bool Accel_Gyro::GetSlave3FIFOEnabled( void )
  * @see GetSlave3FIFOEnabled()
  * @see MPU6050_RA_MST_CTRL
  */
-void Accel_Gyro::SetSlave3FIFOEnabled(bool enabled) 
+void Accel_Gyro::SetSlave3FIFOEnabled(bool enabled)
 {
     I2C1.WriteRegBitB(devAddr, MPU6050_RA_I2C_MST_CTRL, MPU6050_SLV_3_FIFO_EN_BIT, enabled);
 }
@@ -1484,7 +1484,7 @@ void Accel_Gyro::SetSlave3FIFOEnabled(bool enabled)
  * @return Current slave read/write transition enabled value
  * @see MPU6050_RA_I2C_MST_CTRL
  */
-bool Accel_Gyro::GetSlaveReadWriteTransitionEnabled( void ) 
+bool Accel_Gyro::GetSlaveReadWriteTransitionEnabled( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_I2C_MST_CTRL, MPU6050_I2C_MST_P_NSR_BIT, buffer);
     return buffer[0];
@@ -1494,7 +1494,7 @@ bool Accel_Gyro::GetSlaveReadWriteTransitionEnabled( void )
  * @see GetSlaveReadWriteTransitionEnabled()
  * @see MPU6050_RA_I2C_MST_CTRL
  */
-void Accel_Gyro::SetSlaveReadWriteTransitionEnabled(bool enabled) 
+void Accel_Gyro::SetSlaveReadWriteTransitionEnabled(bool enabled)
 {
     I2C1.WriteRegBitB(devAddr, MPU6050_RA_I2C_MST_CTRL, MPU6050_I2C_MST_P_NSR_BIT, enabled);
 }
@@ -1527,7 +1527,7 @@ void Accel_Gyro::SetSlaveReadWriteTransitionEnabled(bool enabled)
  * @return Current I2C master clock speed
  * @see MPU6050_RA_I2C_MST_CTRL
  */
-uint8_t Accel_Gyro::GetMasterClockSpeed( void ) 
+uint8_t Accel_Gyro::GetMasterClockSpeed( void )
 {
     I2C1.ReadRegBitsB(devAddr, MPU6050_RA_I2C_MST_CTRL, MPU6050_I2C_MST_CLK_BIT, MPU6050_I2C_MST_CLK_LENGTH, buffer);
     return buffer[0];
@@ -1536,7 +1536,7 @@ uint8_t Accel_Gyro::GetMasterClockSpeed( void )
  * @reparam speed Current I2C master clock speed
  * @see MPU6050_RA_I2C_MST_CTRL
  */
-void Accel_Gyro::SetMasterClockSpeed(uint8_t speed) 
+void Accel_Gyro::SetMasterClockSpeed(uint8_t speed)
 {
     I2C1.WriteRegBitsB(devAddr, MPU6050_RA_I2C_MST_CTRL, MPU6050_I2C_MST_CLK_BIT, MPU6050_I2C_MST_CLK_LENGTH, speed);
 }
@@ -1548,7 +1548,7 @@ void Accel_Gyro::SetMasterClockSpeed(uint8_t speed)
  * operation, and if it is cleared, then it's a write operation. The remaining
  * bits (6-0) are the 7-bit device address of the slave device.
  *
- * In read mode, the result of the read is placed in the lowest available 
+ * In read mode, the result of the read is placed in the lowest available
  * EXT_SENS_DATA register. For further information regarding the allocation of
  * read results, please refer to the EXT_SENS_DATA register description
  * (Registers 73 - 96).
@@ -1584,7 +1584,7 @@ void Accel_Gyro::SetMasterClockSpeed(uint8_t speed)
  * @return Current address for specified slave
  * @see MPU6050_RA_I2C_SLV0_ADDR
  */
-uint8_t Accel_Gyro::GetSlaveAddress(uint8_t num) 
+uint8_t Accel_Gyro::GetSlaveAddress(uint8_t num)
 {
     if (num > 3) return 0;
     I2C1.ReadRegByte(devAddr, MPU6050_RA_I2C_SLV0_ADDR + num*3, buffer);
@@ -1596,7 +1596,7 @@ uint8_t Accel_Gyro::GetSlaveAddress(uint8_t num)
  * @see GetSlaveAddress()
  * @see MPU6050_RA_I2C_SLV0_ADDR
  */
-void Accel_Gyro::SetSlaveAddress(uint8_t num, uint8_t address) 
+void Accel_Gyro::SetSlaveAddress(uint8_t num, uint8_t address)
 {
     if (num > 3) return;
     I2C1.WriteRegByte(devAddr, MPU6050_RA_I2C_SLV0_ADDR + num*3, address);
@@ -1612,7 +1612,7 @@ void Accel_Gyro::SetSlaveAddress(uint8_t num, uint8_t address)
  * @return Current active register for specified slave
  * @see MPU6050_RA_I2C_SLV0_REG
  */
-uint8_t Accel_Gyro::GetSlaveRegister(uint8_t num) 
+uint8_t Accel_Gyro::GetSlaveRegister(uint8_t num)
 {
     if (num > 3) return 0;
     I2C1.ReadRegByte(devAddr, MPU6050_RA_I2C_SLV0_REG + num*3, buffer);
@@ -1624,7 +1624,7 @@ uint8_t Accel_Gyro::GetSlaveRegister(uint8_t num)
  * @see GetSlaveRegister()
  * @see MPU6050_RA_I2C_SLV0_REG
  */
-void Accel_Gyro::SetSlaveRegister(uint8_t num, uint8_t reg) 
+void Accel_Gyro::SetSlaveRegister(uint8_t num, uint8_t reg)
 {
     if (num > 3) return;
     I2C1.WriteRegByte(devAddr, MPU6050_RA_I2C_SLV0_REG + num*3, reg);
@@ -1636,7 +1636,7 @@ void Accel_Gyro::SetSlaveRegister(uint8_t num, uint8_t reg)
  * @return Current enabled value for specified slave
  * @see MPU6050_RA_I2C_SLV0_CTRL
  */
-bool Accel_Gyro::GetSlaveEnabled(uint8_t num) 
+bool Accel_Gyro::GetSlaveEnabled(uint8_t num)
 {
     if (num > 3) return 0;
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_I2C_SLV0_CTRL + num*3, MPU6050_I2C_SLV_EN_BIT, buffer);
@@ -1648,7 +1648,7 @@ bool Accel_Gyro::GetSlaveEnabled(uint8_t num)
  * @see GetSlaveEnabled()
  * @see MPU6050_RA_I2C_SLV0_CTRL
  */
-void Accel_Gyro::SetSlaveEnabled(uint8_t num, bool enabled) 
+void Accel_Gyro::SetSlaveEnabled(uint8_t num, bool enabled)
 {
     if (num > 3) return;
     I2C1.WriteRegBitB(devAddr, MPU6050_RA_I2C_SLV0_CTRL + num*3, MPU6050_I2C_SLV_EN_BIT, enabled);
@@ -1664,7 +1664,7 @@ void Accel_Gyro::SetSlaveEnabled(uint8_t num, bool enabled)
  * @return Current word pair byte-swapping enabled value for specified slave
  * @see MPU6050_RA_I2C_SLV0_CTRL
  */
-bool Accel_Gyro::GetSlaveWordByteSwap(uint8_t num) 
+bool Accel_Gyro::GetSlaveWordByteSwap(uint8_t num)
 {
     if (num > 3) return 0;
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_I2C_SLV0_CTRL + num*3, MPU6050_I2C_SLV_BYTE_SW_BIT, buffer);
@@ -1676,7 +1676,7 @@ bool Accel_Gyro::GetSlaveWordByteSwap(uint8_t num)
  * @see GetSlaveWordByteSwap()
  * @see MPU6050_RA_I2C_SLV0_CTRL
  */
-void Accel_Gyro::SetSlaveWordByteSwap(uint8_t num, bool enabled) 
+void Accel_Gyro::SetSlaveWordByteSwap(uint8_t num, bool enabled)
 {
     if (num > 3) return;
     I2C1.WriteRegBitB(devAddr, MPU6050_RA_I2C_SLV0_CTRL + num*3, MPU6050_I2C_SLV_BYTE_SW_BIT, enabled);
@@ -1691,7 +1691,7 @@ void Accel_Gyro::SetSlaveWordByteSwap(uint8_t num, bool enabled)
  * @return Current write mode for specified slave (0 = register address + data, 1 = data only)
  * @see MPU6050_RA_I2C_SLV0_CTRL
  */
-bool Accel_Gyro::GetSlaveWriteMode(uint8_t num) 
+bool Accel_Gyro::GetSlaveWriteMode(uint8_t num)
 {
     if (num > 3) return 0;
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_I2C_SLV0_CTRL + num*3, MPU6050_I2C_SLV_REG_DIS_BIT, buffer);
@@ -1703,7 +1703,7 @@ bool Accel_Gyro::GetSlaveWriteMode(uint8_t num)
  * @see GetSlaveWriteMode()
  * @see MPU6050_RA_I2C_SLV0_CTRL
  */
-void Accel_Gyro::SetSlaveWriteMode(uint8_t num, bool mode) 
+void Accel_Gyro::SetSlaveWriteMode(uint8_t num, bool mode)
 {
     if (num > 3) return;
     I2C1.WriteRegBitB(devAddr, MPU6050_RA_I2C_SLV0_CTRL + num*3, MPU6050_I2C_SLV_REG_DIS_BIT, mode);
@@ -1719,7 +1719,7 @@ void Accel_Gyro::SetSlaveWriteMode(uint8_t num, bool mode)
  * @return Current word pair grouping order offset for specified slave
  * @see MPU6050_RA_I2C_SLV0_CTRL
  */
-bool Accel_Gyro::GetSlaveWordGroupOffset(uint8_t num) 
+bool Accel_Gyro::GetSlaveWordGroupOffset(uint8_t num)
 {
     if (num > 3) return 0;
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_I2C_SLV0_CTRL + num*3, MPU6050_I2C_SLV_GRP_BIT, buffer);
@@ -1731,7 +1731,7 @@ bool Accel_Gyro::GetSlaveWordGroupOffset(uint8_t num)
  * @see GetSlaveWordGroupOffset()
  * @see MPU6050_RA_I2C_SLV0_CTRL
  */
-void Accel_Gyro::SetSlaveWordGroupOffset(uint8_t num, bool enabled) 
+void Accel_Gyro::SetSlaveWordGroupOffset(uint8_t num, bool enabled)
 {
     if (num > 3) return;
     I2C1.WriteRegBitB(devAddr, MPU6050_RA_I2C_SLV0_CTRL + num*3, MPU6050_I2C_SLV_GRP_BIT, enabled);
@@ -1743,7 +1743,7 @@ void Accel_Gyro::SetSlaveWordGroupOffset(uint8_t num, bool enabled)
  * @return Number of bytes to read for specified slave
  * @see MPU6050_RA_I2C_SLV0_CTRL
  */
-uint8_t Accel_Gyro::GetSlaveDataLength(uint8_t num) 
+uint8_t Accel_Gyro::GetSlaveDataLength(uint8_t num)
 {
     if (num > 3) return 0;
     I2C1.ReadRegBitsB(devAddr, MPU6050_RA_I2C_SLV0_CTRL + num*3, MPU6050_I2C_SLV_LEN_BIT, MPU6050_I2C_SLV_LEN_LENGTH, buffer);
@@ -1755,7 +1755,7 @@ uint8_t Accel_Gyro::GetSlaveDataLength(uint8_t num)
  * @see GetSlaveDataLength()
  * @see MPU6050_RA_I2C_SLV0_CTRL
  */
-void Accel_Gyro::SetSlaveDataLength(uint8_t num, uint8_t length) 
+void Accel_Gyro::SetSlaveDataLength(uint8_t num, uint8_t length)
 {
     if (num > 3) return;
     I2C1.WriteRegBitsB(devAddr, MPU6050_RA_I2C_SLV0_CTRL + num*3, MPU6050_I2C_SLV_LEN_BIT, MPU6050_I2C_SLV_LEN_LENGTH, length);
@@ -1772,7 +1772,7 @@ void Accel_Gyro::SetSlaveDataLength(uint8_t num, uint8_t length)
  * @see GetSlaveAddress()
  * @see MPU6050_RA_I2C_SLV4_ADDR
  */
-uint8_t Accel_Gyro::GetSlave4Address( void ) 
+uint8_t Accel_Gyro::GetSlave4Address( void )
 {
     I2C1.ReadRegByte(devAddr, MPU6050_RA_I2C_SLV4_ADDR, buffer);
     return buffer[0];
@@ -1782,7 +1782,7 @@ uint8_t Accel_Gyro::GetSlave4Address( void )
  * @see GetSlave4Address()
  * @see MPU6050_RA_I2C_SLV4_ADDR
  */
-void Accel_Gyro::SetSlave4Address(uint8_t address) 
+void Accel_Gyro::SetSlave4Address(uint8_t address)
 {
     I2C1.WriteRegByte(devAddr, MPU6050_RA_I2C_SLV4_ADDR, address);
 }
@@ -1793,7 +1793,7 @@ void Accel_Gyro::SetSlave4Address(uint8_t address)
  * @return Current active register for Slave 4
  * @see MPU6050_RA_I2C_SLV4_REG
  */
-uint8_t Accel_Gyro::GetSlave4Register( void ) 
+uint8_t Accel_Gyro::GetSlave4Register( void )
 {
     I2C1.ReadRegByte(devAddr, MPU6050_RA_I2C_SLV4_REG, buffer);
     return buffer[0];
@@ -1803,7 +1803,7 @@ uint8_t Accel_Gyro::GetSlave4Register( void )
  * @see GetSlave4Register()
  * @see MPU6050_RA_I2C_SLV4_REG
  */
-void Accel_Gyro::SetSlave4Register(uint8_t reg) 
+void Accel_Gyro::SetSlave4Register(uint8_t reg)
 {
     I2C1.WriteRegByte(devAddr, MPU6050_RA_I2C_SLV4_REG, reg);
 }
@@ -1813,7 +1813,7 @@ void Accel_Gyro::SetSlave4Register(uint8_t reg)
  * @param data New byte to write to Slave 4
  * @see MPU6050_RA_I2C_SLV4_DO
  */
-void Accel_Gyro::SetSlave4OutputByte(uint8_t data) 
+void Accel_Gyro::SetSlave4OutputByte(uint8_t data)
 {
     I2C1.WriteRegByte(devAddr, MPU6050_RA_I2C_SLV4_DO, data);
 }
@@ -1823,7 +1823,7 @@ void Accel_Gyro::SetSlave4OutputByte(uint8_t data)
  * @return Current enabled value for Slave 4
  * @see MPU6050_RA_I2C_SLV4_CTRL
  */
-bool Accel_Gyro::GetSlave4Enabled( void ) 
+bool Accel_Gyro::GetSlave4Enabled( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_I2C_SLV4_CTRL, MPU6050_I2C_SLV4_EN_BIT, buffer);
     return buffer[0];
@@ -1833,7 +1833,7 @@ bool Accel_Gyro::GetSlave4Enabled( void )
  * @see GetSlave4Enabled()
  * @see MPU6050_RA_I2C_SLV4_CTRL
  */
-void Accel_Gyro::SetSlave4Enabled(bool enabled) 
+void Accel_Gyro::SetSlave4Enabled(bool enabled)
 {
     I2C1.WriteRegBitB(devAddr, MPU6050_RA_I2C_SLV4_CTRL, MPU6050_I2C_SLV4_EN_BIT, enabled);
 }
@@ -1846,7 +1846,7 @@ void Accel_Gyro::SetSlave4Enabled(bool enabled)
  * @return Current enabled value for Slave 4 transaction interrupts.
  * @see MPU6050_RA_I2C_SLV4_CTRL
  */
-bool Accel_Gyro::GetSlave4InterruptEnabled( void ) 
+bool Accel_Gyro::GetSlave4InterruptEnabled( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_I2C_SLV4_CTRL, MPU6050_I2C_SLV4_INT_EN_BIT, buffer);
     return buffer[0];
@@ -1856,7 +1856,7 @@ bool Accel_Gyro::GetSlave4InterruptEnabled( void )
  * @see GetSlave4InterruptEnabled()
  * @see MPU6050_RA_I2C_SLV4_CTRL
  */
-void Accel_Gyro::SetSlave4InterruptEnabled(bool enabled) 
+void Accel_Gyro::SetSlave4InterruptEnabled(bool enabled)
 {
     I2C1.WriteRegBitB(devAddr, MPU6050_RA_I2C_SLV4_CTRL, MPU6050_I2C_SLV4_INT_EN_BIT, enabled);
 }
@@ -1869,7 +1869,7 @@ void Accel_Gyro::SetSlave4InterruptEnabled(bool enabled)
  * @return Current write mode for Slave 4 (0 = register address + data, 1 = data only)
  * @see MPU6050_RA_I2C_SLV4_CTRL
  */
-bool Accel_Gyro::GetSlave4WriteMode( void ) 
+bool Accel_Gyro::GetSlave4WriteMode( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_I2C_SLV4_CTRL, MPU6050_I2C_SLV4_REG_DIS_BIT, buffer);
     return buffer[0];
@@ -1879,7 +1879,7 @@ bool Accel_Gyro::GetSlave4WriteMode( void )
  * @see GetSlave4WriteMode()
  * @see MPU6050_RA_I2C_SLV4_CTRL
  */
-void Accel_Gyro::SetSlave4WriteMode(bool mode) 
+void Accel_Gyro::SetSlave4WriteMode(bool mode)
 {
     I2C1.WriteRegBitB(devAddr, MPU6050_RA_I2C_SLV4_CTRL, MPU6050_I2C_SLV4_REG_DIS_BIT, mode);
 }
@@ -1898,7 +1898,7 @@ void Accel_Gyro::SetSlave4WriteMode(bool mode)
  * @return Current Slave 4 master delay value
  * @see MPU6050_RA_I2C_SLV4_CTRL
  */
-uint8_t Accel_Gyro::GetSlave4MasterDelay( void ) 
+uint8_t Accel_Gyro::GetSlave4MasterDelay( void )
 {
     I2C1.ReadRegBitsB(devAddr, MPU6050_RA_I2C_SLV4_CTRL, MPU6050_I2C_SLV4_MST_DLY_BIT, MPU6050_I2C_SLV4_MST_DLY_LENGTH, buffer);
     return buffer[0];
@@ -1908,7 +1908,7 @@ uint8_t Accel_Gyro::GetSlave4MasterDelay( void )
  * @see GetSlave4MasterDelay()
  * @see MPU6050_RA_I2C_SLV4_CTRL
  */
-void Accel_Gyro::SetSlave4MasterDelay(uint8_t delay) 
+void Accel_Gyro::SetSlave4MasterDelay(uint8_t delay)
 {
     I2C1.WriteRegBitsB(devAddr, MPU6050_RA_I2C_SLV4_CTRL, MPU6050_I2C_SLV4_MST_DLY_BIT, MPU6050_I2C_SLV4_MST_DLY_LENGTH, delay);
 }
@@ -1918,7 +1918,7 @@ void Accel_Gyro::SetSlave4MasterDelay(uint8_t delay)
  * @return Last available byte read from to Slave 4
  * @see MPU6050_RA_I2C_SLV4_DI
  */
-uint8_t Accel_Gyro::GetSlate4InputByte( void ) 
+uint8_t Accel_Gyro::GetSlate4InputByte( void )
 {
     I2C1.ReadRegByte(devAddr, MPU6050_RA_I2C_SLV4_DI, buffer);
     return buffer[0];
@@ -1935,7 +1935,7 @@ uint8_t Accel_Gyro::GetSlate4InputByte( void )
  * @return FSYNC interrupt status
  * @see MPU6050_RA_I2C_MST_STATUS
  */
-bool Accel_Gyro::GetPassthroughStatus( void ) 
+bool Accel_Gyro::GetPassthroughStatus( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_I2C_MST_STATUS, MPU6050_MST_PASS_THROUGH_BIT, buffer);
     return buffer[0];
@@ -1948,7 +1948,7 @@ bool Accel_Gyro::GetPassthroughStatus( void )
  * @return Slave 4 transaction done status
  * @see MPU6050_RA_I2C_MST_STATUS
  */
-bool Accel_Gyro::GetSlave4IsDone( void ) 
+bool Accel_Gyro::GetSlave4IsDone( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_I2C_MST_STATUS, MPU6050_MST_I2C_SLV4_DONE_BIT, buffer);
     return buffer[0];
@@ -1960,7 +1960,7 @@ bool Accel_Gyro::GetSlave4IsDone( void )
  * @return Master arbitration lost status
  * @see MPU6050_RA_I2C_MST_STATUS
  */
-bool Accel_Gyro::GetLostArbitration( void ) 
+bool Accel_Gyro::GetLostArbitration( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_I2C_MST_STATUS, MPU6050_MST_I2C_LOST_ARB_BIT, buffer);
     return buffer[0];
@@ -1972,7 +1972,7 @@ bool Accel_Gyro::GetLostArbitration( void )
  * @return Slave 4 NACK interrupt status
  * @see MPU6050_RA_I2C_MST_STATUS
  */
-bool Accel_Gyro::GetSlave4Nack( void ) 
+bool Accel_Gyro::GetSlave4Nack( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_I2C_MST_STATUS, MPU6050_MST_I2C_SLV4_NACK_BIT, buffer);
     return buffer[0];
@@ -1984,7 +1984,7 @@ bool Accel_Gyro::GetSlave4Nack( void )
  * @return Slave 3 NACK interrupt status
  * @see MPU6050_RA_I2C_MST_STATUS
  */
-bool Accel_Gyro::GetSlave3Nack( void ) 
+bool Accel_Gyro::GetSlave3Nack( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_I2C_MST_STATUS, MPU6050_MST_I2C_SLV3_NACK_BIT, buffer);
     return buffer[0];
@@ -1996,7 +1996,7 @@ bool Accel_Gyro::GetSlave3Nack( void )
  * @return Slave 2 NACK interrupt status
  * @see MPU6050_RA_I2C_MST_STATUS
  */
-bool Accel_Gyro::GetSlave2Nack( void ) 
+bool Accel_Gyro::GetSlave2Nack( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_I2C_MST_STATUS, MPU6050_MST_I2C_SLV2_NACK_BIT, buffer);
     return buffer[0];
@@ -2008,7 +2008,7 @@ bool Accel_Gyro::GetSlave2Nack( void )
  * @return Slave 1 NACK interrupt status
  * @see MPU6050_RA_I2C_MST_STATUS
  */
-bool Accel_Gyro::GetSlave1Nack( void ) 
+bool Accel_Gyro::GetSlave1Nack( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_I2C_MST_STATUS, MPU6050_MST_I2C_SLV1_NACK_BIT, buffer);
     return buffer[0];
@@ -2020,7 +2020,7 @@ bool Accel_Gyro::GetSlave1Nack( void )
  * @return Slave 0 NACK interrupt status
  * @see MPU6050_RA_I2C_MST_STATUS
  */
-bool Accel_Gyro::GetSlave0Nack( void ) 
+bool Accel_Gyro::GetSlave0Nack( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_I2C_MST_STATUS, MPU6050_MST_I2C_SLV0_NACK_BIT, buffer);
     return buffer[0];
@@ -2034,7 +2034,7 @@ bool Accel_Gyro::GetSlave0Nack( void )
  * @see MPU6050_RA_INT_PIN_CFG
  * @see MPU6050_INTCFG_INT_LEVEL_BIT
  */
-bool Accel_Gyro::GetInterruptMode( void ) 
+bool Accel_Gyro::GetInterruptMode( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_INT_PIN_CFG, MPU6050_INTCFG_INT_LEVEL_BIT, buffer);
     return buffer[0];
@@ -2045,7 +2045,7 @@ bool Accel_Gyro::GetInterruptMode( void )
  * @see MPU6050_RA_INT_PIN_CFG
  * @see MPU6050_INTCFG_INT_LEVEL_BIT
  */
-void Accel_Gyro::SetInterruptMode(bool mode) 
+void Accel_Gyro::SetInterruptMode(bool mode)
 {
    I2C1.WriteRegBitB(devAddr, MPU6050_RA_INT_PIN_CFG, MPU6050_INTCFG_INT_LEVEL_BIT, mode);
 }
@@ -2055,7 +2055,7 @@ void Accel_Gyro::SetInterruptMode(bool mode)
  * @see MPU6050_RA_INT_PIN_CFG
  * @see MPU6050_INTCFG_INT_OPEN_BIT
  */
-bool Accel_Gyro::GetInterruptDrive( void ) 
+bool Accel_Gyro::GetInterruptDrive( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_INT_PIN_CFG, MPU6050_INTCFG_INT_OPEN_BIT, buffer);
     return buffer[0];
@@ -2066,7 +2066,7 @@ bool Accel_Gyro::GetInterruptDrive( void )
  * @see MPU6050_RA_INT_PIN_CFG
  * @see MPU6050_INTCFG_INT_OPEN_BIT
  */
-void Accel_Gyro::SetInterruptDrive(bool drive) 
+void Accel_Gyro::SetInterruptDrive(bool drive)
 {
     I2C1.WriteRegBitB(devAddr, MPU6050_RA_INT_PIN_CFG, MPU6050_INTCFG_INT_OPEN_BIT, drive);
 }
@@ -2076,7 +2076,7 @@ void Accel_Gyro::SetInterruptDrive(bool drive)
  * @see MPU6050_RA_INT_PIN_CFG
  * @see MPU6050_INTCFG_LATCH_INT_EN_BIT
  */
-bool Accel_Gyro::GetInterruptLatch( void ) 
+bool Accel_Gyro::GetInterruptLatch( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_INT_PIN_CFG, MPU6050_INTCFG_LATCH_INT_EN_BIT, buffer);
     return buffer[0];
@@ -2087,7 +2087,7 @@ bool Accel_Gyro::GetInterruptLatch( void )
  * @see MPU6050_RA_INT_PIN_CFG
  * @see MPU6050_INTCFG_LATCH_INT_EN_BIT
  */
-void Accel_Gyro::SetInterruptLatch(bool latch) 
+void Accel_Gyro::SetInterruptLatch(bool latch)
 {
     I2C1.WriteRegBitB(devAddr, MPU6050_RA_INT_PIN_CFG, MPU6050_INTCFG_LATCH_INT_EN_BIT, latch);
 }
@@ -2097,7 +2097,7 @@ void Accel_Gyro::SetInterruptLatch(bool latch)
  * @see MPU6050_RA_INT_PIN_CFG
  * @see MPU6050_INTCFG_INT_RD_CLEAR_BIT
  */
-bool Accel_Gyro::GetInterruptLatchClear( void ) 
+bool Accel_Gyro::GetInterruptLatchClear( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_INT_PIN_CFG, MPU6050_INTCFG_INT_RD_CLEAR_BIT, buffer);
     return buffer[0];
@@ -2108,7 +2108,7 @@ bool Accel_Gyro::GetInterruptLatchClear( void )
  * @see MPU6050_RA_INT_PIN_CFG
  * @see MPU6050_INTCFG_INT_RD_CLEAR_BIT
  */
-void Accel_Gyro::SetInterruptLatchClear(bool clear) 
+void Accel_Gyro::SetInterruptLatchClear(bool clear)
 {
     I2C1.WriteRegBitB(devAddr, MPU6050_RA_INT_PIN_CFG, MPU6050_INTCFG_INT_RD_CLEAR_BIT, clear);
 }
@@ -2118,7 +2118,7 @@ void Accel_Gyro::SetInterruptLatchClear(bool clear)
  * @see MPU6050_RA_INT_PIN_CFG
  * @see MPU6050_INTCFG_FSYNC_INT_LEVEL_BIT
  */
-bool Accel_Gyro::GetFSyncInterruptLevel( void ) 
+bool Accel_Gyro::GetFSyncInterruptLevel( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_INT_PIN_CFG, MPU6050_INTCFG_FSYNC_INT_LEVEL_BIT, buffer);
     return buffer[0];
@@ -2129,7 +2129,7 @@ bool Accel_Gyro::GetFSyncInterruptLevel( void )
  * @see MPU6050_RA_INT_PIN_CFG
  * @see MPU6050_INTCFG_FSYNC_INT_LEVEL_BIT
  */
-void Accel_Gyro::SetFSyncInterruptLevel(bool level) 
+void Accel_Gyro::SetFSyncInterruptLevel(bool level)
 {
     I2C1.WriteRegBitB(devAddr, MPU6050_RA_INT_PIN_CFG, MPU6050_INTCFG_FSYNC_INT_LEVEL_BIT, level);
 }
@@ -2139,7 +2139,7 @@ void Accel_Gyro::SetFSyncInterruptLevel(bool level)
  * @see MPU6050_RA_INT_PIN_CFG
  * @see MPU6050_INTCFG_FSYNC_INT_EN_BIT
  */
-bool Accel_Gyro::GetFSyncInterruptEnabled( void ) 
+bool Accel_Gyro::GetFSyncInterruptEnabled( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_INT_PIN_CFG, MPU6050_INTCFG_FSYNC_INT_EN_BIT, buffer);
     return buffer[0];
@@ -2150,7 +2150,7 @@ bool Accel_Gyro::GetFSyncInterruptEnabled( void )
  * @see MPU6050_RA_INT_PIN_CFG
  * @see MPU6050_INTCFG_FSYNC_INT_EN_BIT
  */
-void Accel_Gyro::SetFSyncInterruptEnabled(bool enabled) 
+void Accel_Gyro::SetFSyncInterruptEnabled(bool enabled)
 {
     I2C1.WriteRegBitB(devAddr, MPU6050_RA_INT_PIN_CFG, MPU6050_INTCFG_FSYNC_INT_EN_BIT, enabled);
 }
@@ -2165,7 +2165,7 @@ void Accel_Gyro::SetFSyncInterruptEnabled(bool enabled)
  * @see MPU6050_RA_INT_PIN_CFG
  * @see MPU6050_INTCFG_I2C_BYPASS_EN_BIT
  */
-bool Accel_Gyro::GetI2CBypassEnabled( void ) 
+bool Accel_Gyro::GetI2CBypassEnabled( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_INT_PIN_CFG, MPU6050_INTCFG_I2C_BYPASS_EN_BIT, buffer);
     return buffer[0];
@@ -2181,7 +2181,7 @@ bool Accel_Gyro::GetI2CBypassEnabled( void )
  * @see MPU6050_RA_INT_PIN_CFG
  * @see MPU6050_INTCFG_I2C_BYPASS_EN_BIT
  */
-void Accel_Gyro::SetI2CBypassEnabled(bool enabled) 
+void Accel_Gyro::SetI2CBypassEnabled(bool enabled)
 {
     I2C1.WriteRegBitB(devAddr, MPU6050_RA_INT_PIN_CFG, MPU6050_INTCFG_I2C_BYPASS_EN_BIT, enabled);
 }
@@ -2194,7 +2194,7 @@ void Accel_Gyro::SetI2CBypassEnabled(bool enabled)
  * @see MPU6050_RA_INT_PIN_CFG
  * @see MPU6050_INTCFG_CLKOUT_EN_BIT
  */
-bool Accel_Gyro::GetClockOutputEnabled( void ) 
+bool Accel_Gyro::GetClockOutputEnabled( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_INT_PIN_CFG, MPU6050_INTCFG_CLKOUT_EN_BIT, buffer);
     return buffer[0];
@@ -2208,7 +2208,7 @@ bool Accel_Gyro::GetClockOutputEnabled( void )
  * @see MPU6050_RA_INT_PIN_CFG
  * @see MPU6050_INTCFG_CLKOUT_EN_BIT
  */
-void Accel_Gyro::SetClockOutputEnabled(bool enabled) 
+void Accel_Gyro::SetClockOutputEnabled(bool enabled)
 {
     I2C1.WriteRegBitB(devAddr, MPU6050_RA_INT_PIN_CFG, MPU6050_INTCFG_CLKOUT_EN_BIT, enabled);
 }
@@ -2222,7 +2222,7 @@ void Accel_Gyro::SetClockOutputEnabled(bool enabled)
  * @see MPU6050_RA_INT_ENABLE
  * @see MPU6050_INTERRUPT_FF_BIT
  **/
-uint8_t Accel_Gyro::GetIntEnabled( void ) 
+uint8_t Accel_Gyro::GetIntEnabled( void )
 {
     I2C1.ReadRegByte(devAddr, MPU6050_RA_INT_ENABLE, buffer);
     return buffer[0];
@@ -2235,7 +2235,7 @@ uint8_t Accel_Gyro::GetIntEnabled( void )
  * @see MPU6050_RA_INT_ENABLE
  * @see MPU6050_INTERRUPT_FF_BIT
  **/
-void Accel_Gyro::SetIntEnabled(uint8_t enabled) 
+void Accel_Gyro::SetIntEnabled(uint8_t enabled)
 {
     I2C1.WriteRegByte(devAddr, MPU6050_RA_INT_ENABLE, enabled);
 }
@@ -2245,7 +2245,7 @@ void Accel_Gyro::SetIntEnabled(uint8_t enabled)
  * @see MPU6050_RA_INT_ENABLE
  * @see MPU6050_INTERRUPT_FF_BIT
  **/
-bool Accel_Gyro::GetIntFreefallEnabled( void ) 
+bool Accel_Gyro::GetIntFreefallEnabled( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_INT_ENABLE, MPU6050_INTERRUPT_FF_BIT, buffer);
     return buffer[0];
@@ -2256,7 +2256,7 @@ bool Accel_Gyro::GetIntFreefallEnabled( void )
  * @see MPU6050_RA_INT_ENABLE
  * @see MPU6050_INTERRUPT_FF_BIT
  **/
-void Accel_Gyro::SetIntFreefallEnabled(bool enabled) 
+void Accel_Gyro::SetIntFreefallEnabled(bool enabled)
 {
     I2C1.WriteRegBitB(devAddr, MPU6050_RA_INT_ENABLE, MPU6050_INTERRUPT_FF_BIT, enabled);
 }
@@ -2266,7 +2266,7 @@ void Accel_Gyro::SetIntFreefallEnabled(bool enabled)
  * @see MPU6050_RA_INT_ENABLE
  * @see MPU6050_INTERRUPT_MOT_BIT
  **/
-bool Accel_Gyro::GetIntMotionEnabled( void ) 
+bool Accel_Gyro::GetIntMotionEnabled( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_INT_ENABLE, MPU6050_INTERRUPT_MOT_BIT, buffer);
     return buffer[0];
@@ -2277,7 +2277,7 @@ bool Accel_Gyro::GetIntMotionEnabled( void )
  * @see MPU6050_RA_INT_ENABLE
  * @see MPU6050_INTERRUPT_MOT_BIT
  **/
-void Accel_Gyro::SetIntMotionEnabled(bool enabled) 
+void Accel_Gyro::SetIntMotionEnabled(bool enabled)
 {
     I2C1.WriteRegBitB(devAddr, MPU6050_RA_INT_ENABLE, MPU6050_INTERRUPT_MOT_BIT, enabled);
 }
@@ -2287,7 +2287,7 @@ void Accel_Gyro::SetIntMotionEnabled(bool enabled)
  * @see MPU6050_RA_INT_ENABLE
  * @see MPU6050_INTERRUPT_ZMOT_BIT
  **/
-bool Accel_Gyro::GetIntZeroMotionEnabled( void ) 
+bool Accel_Gyro::GetIntZeroMotionEnabled( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_INT_ENABLE, MPU6050_INTERRUPT_ZMOT_BIT, buffer);
     return buffer[0];
@@ -2298,7 +2298,7 @@ bool Accel_Gyro::GetIntZeroMotionEnabled( void )
  * @see MPU6050_RA_INT_ENABLE
  * @see MPU6050_INTERRUPT_ZMOT_BIT
  **/
-void Accel_Gyro::SetIntZeroMotionEnabled(bool enabled) 
+void Accel_Gyro::SetIntZeroMotionEnabled(bool enabled)
 {
     I2C1.WriteRegBitB(devAddr, MPU6050_RA_INT_ENABLE, MPU6050_INTERRUPT_ZMOT_BIT, enabled);
 }
@@ -2308,7 +2308,7 @@ void Accel_Gyro::SetIntZeroMotionEnabled(bool enabled)
  * @see MPU6050_RA_INT_ENABLE
  * @see MPU6050_INTERRUPT_FIFO_OFLOW_BIT
  **/
-bool Accel_Gyro::GetIntFIFOBufferOverflowEnabled( void ) 
+bool Accel_Gyro::GetIntFIFOBufferOverflowEnabled( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_INT_ENABLE, MPU6050_INTERRUPT_FIFO_OFLOW_BIT, buffer);
     return buffer[0];
@@ -2319,7 +2319,7 @@ bool Accel_Gyro::GetIntFIFOBufferOverflowEnabled( void )
  * @see MPU6050_RA_INT_ENABLE
  * @see MPU6050_INTERRUPT_FIFO_OFLOW_BIT
  **/
-void Accel_Gyro::SetIntFIFOBufferOverflowEnabled(bool enabled) 
+void Accel_Gyro::SetIntFIFOBufferOverflowEnabled(bool enabled)
 {
     I2C1.WriteRegBitB(devAddr, MPU6050_RA_INT_ENABLE, MPU6050_INTERRUPT_FIFO_OFLOW_BIT, enabled);
 }
@@ -2330,7 +2330,7 @@ void Accel_Gyro::SetIntFIFOBufferOverflowEnabled(bool enabled)
  * @see MPU6050_RA_INT_ENABLE
  * @see MPU6050_INTERRUPT_I2C_MST_INT_BIT
  **/
-bool Accel_Gyro::GetIntI2CMasterEnabled( void ) 
+bool Accel_Gyro::GetIntI2CMasterEnabled( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_INT_ENABLE, MPU6050_INTERRUPT_I2C_MST_INT_BIT, buffer);
     return buffer[0];
@@ -2341,7 +2341,7 @@ bool Accel_Gyro::GetIntI2CMasterEnabled( void )
  * @see MPU6050_RA_INT_ENABLE
  * @see MPU6050_INTERRUPT_I2C_MST_INT_BIT
  **/
-void Accel_Gyro::SetIntI2CMasterEnabled(bool enabled) 
+void Accel_Gyro::SetIntI2CMasterEnabled(bool enabled)
 {
     I2C1.WriteRegBitB(devAddr, MPU6050_RA_INT_ENABLE, MPU6050_INTERRUPT_I2C_MST_INT_BIT, enabled);
 }
@@ -2352,7 +2352,7 @@ void Accel_Gyro::SetIntI2CMasterEnabled(bool enabled)
  * @see MPU6050_RA_INT_ENABLE
  * @see MPU6050_INTERRUPT_DATA_RDY_BIT
  */
-bool Accel_Gyro::GetIntDataReadyEnabled( void ) 
+bool Accel_Gyro::GetIntDataReadyEnabled( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_INT_ENABLE, MPU6050_INTERRUPT_DATA_RDY_BIT, buffer);
     return buffer[0];
@@ -2363,7 +2363,7 @@ bool Accel_Gyro::GetIntDataReadyEnabled( void )
  * @see MPU6050_RA_INT_CFG
  * @see MPU6050_INTERRUPT_DATA_RDY_BIT
  */
-void Accel_Gyro::SetIntDataReadyEnabled(bool enabled) 
+void Accel_Gyro::SetIntDataReadyEnabled(bool enabled)
 {
     I2C1.WriteRegBitB(devAddr, MPU6050_RA_INT_ENABLE, MPU6050_INTERRUPT_DATA_RDY_BIT, enabled);
 }
@@ -2377,7 +2377,7 @@ void Accel_Gyro::SetIntDataReadyEnabled(bool enabled)
  * @return Current interrupt status
  * @see MPU6050_RA_INT_STATUS
  */
-uint8_t Accel_Gyro::GetIntStatus( void ) 
+uint8_t Accel_Gyro::GetIntStatus( void )
 {
     I2C1.ReadRegByte(devAddr, MPU6050_RA_INT_STATUS, buffer);
     return buffer[0];
@@ -2389,7 +2389,7 @@ uint8_t Accel_Gyro::GetIntStatus( void )
  * @see MPU6050_RA_INT_STATUS
  * @see MPU6050_INTERRUPT_FF_BIT
  */
-bool Accel_Gyro::GetIntFreefallStatus( void ) 
+bool Accel_Gyro::GetIntFreefallStatus( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_INT_STATUS, MPU6050_INTERRUPT_FF_BIT, buffer);
     return buffer[0];
@@ -2401,7 +2401,7 @@ bool Accel_Gyro::GetIntFreefallStatus( void )
  * @see MPU6050_RA_INT_STATUS
  * @see MPU6050_INTERRUPT_MOT_BIT
  */
-bool Accel_Gyro::GetIntMotionStatus( void ) 
+bool Accel_Gyro::GetIntMotionStatus( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_INT_STATUS, MPU6050_INTERRUPT_MOT_BIT, buffer);
     return buffer[0];
@@ -2413,7 +2413,7 @@ bool Accel_Gyro::GetIntMotionStatus( void )
  * @see MPU6050_RA_INT_STATUS
  * @see MPU6050_INTERRUPT_ZMOT_BIT
  */
-bool Accel_Gyro::GetIntZeroMotionStatus( void ) 
+bool Accel_Gyro::GetIntZeroMotionStatus( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_INT_STATUS, MPU6050_INTERRUPT_ZMOT_BIT, buffer);
     return buffer[0];
@@ -2425,7 +2425,7 @@ bool Accel_Gyro::GetIntZeroMotionStatus( void )
  * @see MPU6050_RA_INT_STATUS
  * @see MPU6050_INTERRUPT_FIFO_OFLOW_BIT
  */
-bool Accel_Gyro::GetIntFIFOBufferOverflowStatus( void ) 
+bool Accel_Gyro::GetIntFIFOBufferOverflowStatus( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_INT_STATUS, MPU6050_INTERRUPT_FIFO_OFLOW_BIT, buffer);
     return buffer[0];
@@ -2438,7 +2438,7 @@ bool Accel_Gyro::GetIntFIFOBufferOverflowStatus( void )
  * @see MPU6050_RA_INT_STATUS
  * @see MPU6050_INTERRUPT_I2C_MST_INT_BIT
  */
-bool Accel_Gyro::GetIntI2CMasterStatus( void ) 
+bool Accel_Gyro::GetIntI2CMasterStatus( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_INT_STATUS, MPU6050_INTERRUPT_I2C_MST_INT_BIT, buffer);
     return buffer[0];
@@ -2450,7 +2450,7 @@ bool Accel_Gyro::GetIntI2CMasterStatus( void )
  * @see MPU6050_RA_INT_STATUS
  * @see MPU6050_INTERRUPT_DATA_RDY_BIT
  */
-bool Accel_Gyro::GetIntDataReadyStatus( void ) 
+bool Accel_Gyro::GetIntDataReadyStatus( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_INT_STATUS, MPU6050_INTERRUPT_DATA_RDY_BIT, buffer);
     return buffer[0];
@@ -2474,7 +2474,7 @@ bool Accel_Gyro::GetIntDataReadyStatus( void )
  * @see GetRotation()
  * @see MPU6050_RA_ACCEL_XOUT_H
  */
-void Accel_Gyro::GetMotion9(int16_t* ax, int16_t* ay, int16_t* az, int16_t* gx, int16_t* gy, int16_t* gz, int16_t* mx, int16_t* my, int16_t* mz) 
+void Accel_Gyro::GetMotion9(int16_t* ax, int16_t* ay, int16_t* az, int16_t* gx, int16_t* gy, int16_t* gz, int16_t* mx, int16_t* my, int16_t* mz)
 {
     GetMotion6(ax, ay, az, gx, gy, gz);
     // TODO: magnetometer integration
@@ -2491,7 +2491,7 @@ void Accel_Gyro::GetMotion9(int16_t* ax, int16_t* ay, int16_t* az, int16_t* gx, 
  * @see GetRotation()
  * @see MPU6050_RA_ACCEL_XOUT_H
  */
-void Accel_Gyro::GetMotion6(int16_t* ax, int16_t* ay, int16_t* az, int16_t* gx, int16_t* gy, int16_t* gz) 
+void Accel_Gyro::GetMotion6(int16_t* ax, int16_t* ay, int16_t* az, int16_t* gx, int16_t* gy, int16_t* gz)
 {
     I2C1.ReadRegBytes(devAddr, MPU6050_RA_ACCEL_XOUT_H, 14, buffer);
     *ax = (((int16_t)buffer[0]) << 8) | buffer[1];
@@ -2537,7 +2537,7 @@ void Accel_Gyro::GetMotion6(int16_t* ax, int16_t* ay, int16_t* az, int16_t* gx, 
  * @param z 16-bit signed integer container for Z-axis acceleration
  * @see MPU6050_RA_GYRO_XOUT_H
  */
-void Accel_Gyro::GetAcceleration(int16_t* x, int16_t* y, int16_t* z) 
+void Accel_Gyro::GetAcceleration(int16_t* x, int16_t* y, int16_t* z)
 {
     I2C1.ReadRegBytes(devAddr, MPU6050_RA_ACCEL_XOUT_H, 6, buffer);
     *x = (((int16_t)buffer[0]) << 8) | buffer[1];
@@ -2549,7 +2549,7 @@ void Accel_Gyro::GetAcceleration(int16_t* x, int16_t* y, int16_t* z)
  * @see GetMotion6()
  * @see MPU6050_RA_ACCEL_XOUT_H
  */
-int16_t Accel_Gyro::GetAccelerationX( void ) 
+int16_t Accel_Gyro::GetAccelerationX( void )
 {
     I2C1.ReadRegBytes(devAddr, MPU6050_RA_ACCEL_XOUT_H, 1, &buffer[0]);
     I2C1.ReadRegBytes(devAddr, MPU6050_RA_ACCEL_XOUT_L, 1, &buffer[1]);
@@ -2560,7 +2560,7 @@ int16_t Accel_Gyro::GetAccelerationX( void )
  * @see GetMotion6()
  * @see MPU6050_RA_ACCEL_YOUT_H
  */
-int16_t Accel_Gyro::GetAccelerationY( void ) 
+int16_t Accel_Gyro::GetAccelerationY( void )
 {
     I2C1.ReadRegBytes(devAddr, MPU6050_RA_ACCEL_YOUT_H, 2, buffer);
     return (((int16_t)buffer[0]) << 8) | buffer[1];
@@ -2570,7 +2570,7 @@ int16_t Accel_Gyro::GetAccelerationY( void )
  * @see GetMotion6()
  * @see MPU6050_RA_ACCEL_ZOUT_H
  */
-int16_t Accel_Gyro::GetAccelerationZ( void ) 
+int16_t Accel_Gyro::GetAccelerationZ( void )
 {
     I2C1.ReadRegBytes(devAddr, MPU6050_RA_ACCEL_ZOUT_H, 2, buffer);
     return (((int16_t)buffer[0]) << 8) | buffer[1];
@@ -2582,7 +2582,7 @@ int16_t Accel_Gyro::GetAccelerationZ( void )
  * @return Temperature reading in 16-bit 2's complement format
  * @see MPU6050_RA_TEMP_OUT_H
  */
-int16_t Accel_Gyro::GetTemperature( void ) 
+int16_t Accel_Gyro::GetTemperature( void )
 {
     I2C1.ReadRegBytes(devAddr, MPU6050_RA_TEMP_OUT_H, 2, buffer);
     return (((int16_t)buffer[0]) << 8) | buffer[1];
@@ -2622,7 +2622,7 @@ int16_t Accel_Gyro::GetTemperature( void )
  * @see GetMotion6()
  * @see MPU6050_RA_GYRO_XOUT_H
  */
-void Accel_Gyro::GetRotation(int16_t* x, int16_t* y, int16_t* z) 
+void Accel_Gyro::GetRotation(int16_t* x, int16_t* y, int16_t* z)
 {
     I2C1.ReadRegBytes(devAddr, MPU6050_RA_GYRO_XOUT_H, 6, buffer);
     *x = (((int16_t)buffer[0]) << 8) | buffer[1];
@@ -2634,7 +2634,7 @@ void Accel_Gyro::GetRotation(int16_t* x, int16_t* y, int16_t* z)
  * @see GetMotion6()
  * @see MPU6050_RA_GYRO_XOUT_H
  */
-int16_t Accel_Gyro::GetRotationX( void ) 
+int16_t Accel_Gyro::GetRotationX( void )
 {
     I2C1.ReadRegBytes(devAddr, MPU6050_RA_GYRO_XOUT_H, 2, buffer);
     return (((int16_t)buffer[0]) << 8) | buffer[1];
@@ -2644,7 +2644,7 @@ int16_t Accel_Gyro::GetRotationX( void )
  * @see GetMotion6()
  * @see MPU6050_RA_GYRO_YOUT_H
  */
-int16_t Accel_Gyro::GetRotationY( void ) 
+int16_t Accel_Gyro::GetRotationY( void )
 {
     I2C1.ReadRegBytes(devAddr, MPU6050_RA_GYRO_YOUT_H, 2, buffer);
     return (((int16_t)buffer[0]) << 8) | buffer[1];
@@ -2654,7 +2654,7 @@ int16_t Accel_Gyro::GetRotationY( void )
  * @see GetMotion6()
  * @see MPU6050_RA_GYRO_ZOUT_H
  */
-int16_t Accel_Gyro::GetRotationZ( void ) 
+int16_t Accel_Gyro::GetRotationZ( void )
 {
     I2C1.ReadRegBytes(devAddr, MPU6050_RA_GYRO_ZOUT_H, 2, buffer);
     return (((int16_t)buffer[0]) << 8) | buffer[1];
@@ -2736,7 +2736,7 @@ int16_t Accel_Gyro::GetRotationZ( void )
  * @param position Starting position (0-23)
  * @return Byte read from register
  */
-uint8_t Accel_Gyro::GetExternalSensorByte(int position) 
+uint8_t Accel_Gyro::GetExternalSensorByte(int position)
 {
     I2C1.ReadRegByte(devAddr, MPU6050_RA_EXT_SENS_DATA_00 + position, buffer);
     return buffer[0];
@@ -2746,7 +2746,7 @@ uint8_t Accel_Gyro::GetExternalSensorByte(int position)
  * @return Word read from register
  * @see GetExternalSensorByte()
  */
-uint16_t Accel_Gyro::GetExternalSensorWord(int position) 
+uint16_t Accel_Gyro::GetExternalSensorWord(int position)
 {
     I2C1.ReadRegBytes(devAddr, MPU6050_RA_EXT_SENS_DATA_00 + position, 2, buffer);
     return (((uint16_t)buffer[0]) << 8) | buffer[1];
@@ -2756,7 +2756,7 @@ uint16_t Accel_Gyro::GetExternalSensorWord(int position)
  * @return Double word read from registers
  * @see GetExternalSensorByte()
  */
-uint32_t Accel_Gyro::GetExternalSensorDWord(int position) 
+uint32_t Accel_Gyro::GetExternalSensorDWord(int position)
 {
     I2C1.ReadRegBytes(devAddr, MPU6050_RA_EXT_SENS_DATA_00 + position, 4, buffer);
     return (((uint32_t)buffer[0]) << 24) | (((uint32_t)buffer[1]) << 16) | (((uint16_t)buffer[2]) << 8) | buffer[3];
@@ -2769,7 +2769,7 @@ uint32_t Accel_Gyro::GetExternalSensorDWord(int position)
  * @see MPU6050_RA_MOT_DETECT_STATUS
  * @see MPU6050_MOTION_MOT_XNEG_BIT
  */
-bool Accel_Gyro::GetXNegMotionDetected( void ) 
+bool Accel_Gyro::GetXNegMotionDetected( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_MOT_DETECT_STATUS, MPU6050_MOTION_MOT_XNEG_BIT, buffer);
     return buffer[0];
@@ -2779,7 +2779,7 @@ bool Accel_Gyro::GetXNegMotionDetected( void )
  * @see MPU6050_RA_MOT_DETECT_STATUS
  * @see MPU6050_MOTION_MOT_XPOS_BIT
  */
-bool Accel_Gyro::GetXPosMotionDetected( void ) 
+bool Accel_Gyro::GetXPosMotionDetected( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_MOT_DETECT_STATUS, MPU6050_MOTION_MOT_XPOS_BIT, buffer);
     return buffer[0];
@@ -2789,7 +2789,7 @@ bool Accel_Gyro::GetXPosMotionDetected( void )
  * @see MPU6050_RA_MOT_DETECT_STATUS
  * @see MPU6050_MOTION_MOT_YNEG_BIT
  */
-bool Accel_Gyro::GetYNegMotionDetected( void ) 
+bool Accel_Gyro::GetYNegMotionDetected( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_MOT_DETECT_STATUS, MPU6050_MOTION_MOT_YNEG_BIT, buffer);
     return buffer[0];
@@ -2799,7 +2799,7 @@ bool Accel_Gyro::GetYNegMotionDetected( void )
  * @see MPU6050_RA_MOT_DETECT_STATUS
  * @see MPU6050_MOTION_MOT_YPOS_BIT
  */
-bool Accel_Gyro::GetYPosMotionDetected( void ) 
+bool Accel_Gyro::GetYPosMotionDetected( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_MOT_DETECT_STATUS, MPU6050_MOTION_MOT_YPOS_BIT, buffer);
     return buffer[0];
@@ -2809,7 +2809,7 @@ bool Accel_Gyro::GetYPosMotionDetected( void )
  * @see MPU6050_RA_MOT_DETECT_STATUS
  * @see MPU6050_MOTION_MOT_ZNEG_BIT
  */
-bool Accel_Gyro::GetZNegMotionDetected( void ) 
+bool Accel_Gyro::GetZNegMotionDetected( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_MOT_DETECT_STATUS, MPU6050_MOTION_MOT_ZNEG_BIT, buffer);
     return buffer[0];
@@ -2819,7 +2819,7 @@ bool Accel_Gyro::GetZNegMotionDetected( void )
  * @see MPU6050_RA_MOT_DETECT_STATUS
  * @see MPU6050_MOTION_MOT_ZPOS_BIT
  */
-bool Accel_Gyro::GetZPosMotionDetected( void ) 
+bool Accel_Gyro::GetZPosMotionDetected( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_MOT_DETECT_STATUS, MPU6050_MOTION_MOT_ZPOS_BIT, buffer);
     return buffer[0];
@@ -2829,7 +2829,7 @@ bool Accel_Gyro::GetZPosMotionDetected( void )
  * @see MPU6050_RA_MOT_DETECT_STATUS
  * @see MPU6050_MOTION_MOT_ZRMOT_BIT
  */
-bool Accel_Gyro::GetZeroMotionDetected( void ) 
+bool Accel_Gyro::GetZeroMotionDetected( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_MOT_DETECT_STATUS, MPU6050_MOTION_MOT_ZRMOT_BIT, buffer);
     return buffer[0];
@@ -2845,7 +2845,7 @@ bool Accel_Gyro::GetZeroMotionDetected( void )
  * @param data Byte to write
  * @see MPU6050_RA_I2C_SLV0_DO
  */
-void Accel_Gyro::SetSlaveOutputByte(uint8_t num, uint8_t data) 
+void Accel_Gyro::SetSlaveOutputByte(uint8_t num, uint8_t data)
 {
     if (num > 3) return;
     I2C1.WriteRegByte(devAddr, MPU6050_RA_I2C_SLV0_DO + num, data);
@@ -2861,7 +2861,7 @@ void Accel_Gyro::SetSlaveOutputByte(uint8_t num, uint8_t data)
  * @see MPU6050_RA_I2C_MST_DELAY_CTRL
  * @see MPU6050_DELAYCTRL_DELAY_ES_SHADOW_BIT
  */
-bool Accel_Gyro::GetExternalShadowDelayEnabled( void ) 
+bool Accel_Gyro::GetExternalShadowDelayEnabled( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_I2C_MST_DELAY_CTRL, MPU6050_DELAYCTRL_DELAY_ES_SHADOW_BIT, buffer);
     return buffer[0];
@@ -2872,7 +2872,7 @@ bool Accel_Gyro::GetExternalShadowDelayEnabled( void )
  * @see MPU6050_RA_I2C_MST_DELAY_CTRL
  * @see MPU6050_DELAYCTRL_DELAY_ES_SHADOW_BIT
  */
-void Accel_Gyro::SetExternalShadowDelayEnabled(bool enabled) 
+void Accel_Gyro::SetExternalShadowDelayEnabled(bool enabled)
 {
     I2C1.WriteRegBitB(devAddr, MPU6050_RA_I2C_MST_DELAY_CTRL, MPU6050_DELAYCTRL_DELAY_ES_SHADOW_BIT, enabled);
 }
@@ -2894,7 +2894,7 @@ void Accel_Gyro::SetExternalShadowDelayEnabled(bool enabled)
  * @see MPU6050_RA_I2C_MST_DELAY_CTRL
  * @see MPU6050_DELAYCTRL_I2C_SLV0_DLY_EN_BIT
  */
-bool Accel_Gyro::GetSlaveDelayEnabled(uint8_t num) 
+bool Accel_Gyro::GetSlaveDelayEnabled(uint8_t num)
 {
     // MPU6050_DELAYCTRL_I2C_SLV4_DLY_EN_BIT is 4, SLV3 is 3, etc.
     if (num > 4) return 0;
@@ -2907,7 +2907,7 @@ bool Accel_Gyro::GetSlaveDelayEnabled(uint8_t num)
  * @see MPU6050_RA_I2C_MST_DELAY_CTRL
  * @see MPU6050_DELAYCTRL_I2C_SLV0_DLY_EN_BIT
  */
-void Accel_Gyro::SetSlaveDelayEnabled(uint8_t num, bool enabled) 
+void Accel_Gyro::SetSlaveDelayEnabled(uint8_t num, bool enabled)
 {
     I2C1.WriteRegBitB(devAddr, MPU6050_RA_I2C_MST_DELAY_CTRL, num, enabled);
 }
@@ -2920,7 +2920,7 @@ void Accel_Gyro::SetSlaveDelayEnabled(uint8_t num, bool enabled)
  * @see MPU6050_RA_SIGNAL_PATH_RESET
  * @see MPU6050_PATHRESET_GYRO_RESET_BIT
  */
-void Accel_Gyro::resetGyroscopePath( void ) 
+void Accel_Gyro::resetGyroscopePath( void )
 {
     I2C1.WriteRegBitB(devAddr, MPU6050_RA_SIGNAL_PATH_RESET, MPU6050_PATHRESET_GYRO_RESET_BIT, true);
 }
@@ -2930,7 +2930,7 @@ void Accel_Gyro::resetGyroscopePath( void )
  * @see MPU6050_RA_SIGNAL_PATH_RESET
  * @see MPU6050_PATHRESET_ACCEL_RESET_BIT
  */
-void Accel_Gyro::resetAccelerometerPath( void ) 
+void Accel_Gyro::resetAccelerometerPath( void )
 {
     I2C1.WriteRegBitB(devAddr, MPU6050_RA_SIGNAL_PATH_RESET, MPU6050_PATHRESET_ACCEL_RESET_BIT, true);
 }
@@ -2940,7 +2940,7 @@ void Accel_Gyro::resetAccelerometerPath( void )
  * @see MPU6050_RA_SIGNAL_PATH_RESET
  * @see MPU6050_PATHRESET_TEMP_RESET_BIT
  */
-void Accel_Gyro::resetTemperaturePath( void ) 
+void Accel_Gyro::resetTemperaturePath( void )
 {
     I2C1.WriteRegBitB(devAddr, MPU6050_RA_SIGNAL_PATH_RESET, MPU6050_PATHRESET_TEMP_RESET_BIT, true);
 }
@@ -2961,7 +2961,7 @@ void Accel_Gyro::resetTemperaturePath( void )
  * @see MPU6050_RA_MOT_DETECT_CTRL
  * @see MPU6050_DETECT_ACCEL_ON_DELAY_BIT
  */
-uint8_t Accel_Gyro::GetAccelerometerPowerOnDelay( void ) 
+uint8_t Accel_Gyro::GetAccelerometerPowerOnDelay( void )
 {
     I2C1.ReadRegBitsB(devAddr, MPU6050_RA_MOT_DETECT_CTRL, MPU6050_DETECT_ACCEL_ON_DELAY_BIT, MPU6050_DETECT_ACCEL_ON_DELAY_LENGTH, buffer);
     return buffer[0];
@@ -2972,7 +2972,7 @@ uint8_t Accel_Gyro::GetAccelerometerPowerOnDelay( void )
  * @see MPU6050_RA_MOT_DETECT_CTRL
  * @see MPU6050_DETECT_ACCEL_ON_DELAY_BIT
  */
-void Accel_Gyro::SetAccelerometerPowerOnDelay(uint8_t delay) 
+void Accel_Gyro::SetAccelerometerPowerOnDelay(uint8_t delay)
 {
     I2C1.WriteRegBitsB(devAddr, MPU6050_RA_MOT_DETECT_CTRL, MPU6050_DETECT_ACCEL_ON_DELAY_BIT, MPU6050_DETECT_ACCEL_ON_DELAY_LENGTH, delay);
 }
@@ -3002,7 +3002,7 @@ void Accel_Gyro::SetAccelerometerPowerOnDelay(uint8_t delay)
  * @see MPU6050_RA_MOT_DETECT_CTRL
  * @see MPU6050_DETECT_FF_COUNT_BIT
  */
-uint8_t Accel_Gyro::GetFreefallDetectionCounterDecrement( void ) 
+uint8_t Accel_Gyro::GetFreefallDetectionCounterDecrement( void )
 {
     I2C1.ReadRegBitsB(devAddr, MPU6050_RA_MOT_DETECT_CTRL, MPU6050_DETECT_FF_COUNT_BIT, MPU6050_DETECT_FF_COUNT_LENGTH, buffer);
     return buffer[0];
@@ -3013,7 +3013,7 @@ uint8_t Accel_Gyro::GetFreefallDetectionCounterDecrement( void )
  * @see MPU6050_RA_MOT_DETECT_CTRL
  * @see MPU6050_DETECT_FF_COUNT_BIT
  */
-void Accel_Gyro::SetFreefallDetectionCounterDecrement(uint8_t decrement) 
+void Accel_Gyro::SetFreefallDetectionCounterDecrement(uint8_t decrement)
 {
     I2C1.WriteRegBitsB(devAddr, MPU6050_RA_MOT_DETECT_CTRL, MPU6050_DETECT_FF_COUNT_BIT, MPU6050_DETECT_FF_COUNT_LENGTH, decrement);
 }
@@ -3040,7 +3040,7 @@ void Accel_Gyro::SetFreefallDetectionCounterDecrement(uint8_t decrement)
  * please refer to Registers 29 to 32.
  *
  */
-uint8_t Accel_Gyro::GetMotionDetectionCounterDecrement( void ) 
+uint8_t Accel_Gyro::GetMotionDetectionCounterDecrement( void )
 {
     I2C1.ReadRegBitsB(devAddr, MPU6050_RA_MOT_DETECT_CTRL, MPU6050_DETECT_MOT_COUNT_BIT, MPU6050_DETECT_MOT_COUNT_LENGTH, buffer);
     return buffer[0];
@@ -3051,7 +3051,7 @@ uint8_t Accel_Gyro::GetMotionDetectionCounterDecrement( void )
  * @see MPU6050_RA_MOT_DETECT_CTRL
  * @see MPU6050_DETECT_MOT_COUNT_BIT
  */
-void Accel_Gyro::SetMotionDetectionCounterDecrement(uint8_t decrement) 
+void Accel_Gyro::SetMotionDetectionCounterDecrement(uint8_t decrement)
 {
     I2C1.WriteRegBitsB(devAddr, MPU6050_RA_MOT_DETECT_CTRL, MPU6050_DETECT_MOT_COUNT_BIT, MPU6050_DETECT_MOT_COUNT_LENGTH, decrement);
 }
@@ -3066,7 +3066,7 @@ void Accel_Gyro::SetMotionDetectionCounterDecrement(uint8_t decrement)
  * @see MPU6050_RA_USER_CTRL
  * @see MPU6050_USERCTRL_FIFO_EN_BIT
  */
-bool Accel_Gyro::GetFIFOEnabled( void ) 
+bool Accel_Gyro::GetFIFOEnabled( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_USER_CTRL, MPU6050_USERCTRL_FIFO_EN_BIT, buffer);
     return buffer[0];
@@ -3077,7 +3077,7 @@ bool Accel_Gyro::GetFIFOEnabled( void )
  * @see MPU6050_RA_USER_CTRL
  * @see MPU6050_USERCTRL_FIFO_EN_BIT
  */
-void Accel_Gyro::SetFIFOEnabled(bool enabled) 
+void Accel_Gyro::SetFIFOEnabled(bool enabled)
 {
     I2C1.WriteRegBitB(devAddr, MPU6050_RA_USER_CTRL, MPU6050_USERCTRL_FIFO_EN_BIT, enabled);
 }
@@ -3092,7 +3092,7 @@ void Accel_Gyro::SetFIFOEnabled(bool enabled)
  * @see MPU6050_RA_USER_CTRL
  * @see MPU6050_USERCTRL_I2C_MST_EN_BIT
  */
-bool Accel_Gyro::GetI2CMasterModeEnabled( void ) 
+bool Accel_Gyro::GetI2CMasterModeEnabled( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_USER_CTRL, MPU6050_USERCTRL_I2C_MST_EN_BIT, buffer);
     return buffer[0];
@@ -3103,7 +3103,7 @@ bool Accel_Gyro::GetI2CMasterModeEnabled( void )
  * @see MPU6050_RA_USER_CTRL
  * @see MPU6050_USERCTRL_I2C_MST_EN_BIT
  */
-void Accel_Gyro::SetI2CMasterModeEnabled(bool enabled) 
+void Accel_Gyro::SetI2CMasterModeEnabled(bool enabled)
 {
     I2C1.WriteRegBitB(devAddr, MPU6050_RA_USER_CTRL, MPU6050_USERCTRL_I2C_MST_EN_BIT, enabled);
 }
@@ -3111,7 +3111,7 @@ void Accel_Gyro::SetI2CMasterModeEnabled(bool enabled)
  * If this is set, the primary SPI interface will be enabled in place of the
  * disabled primary I2C interface.
  */
-void Accel_Gyro::switchSPIEnabled(bool enabled) 
+void Accel_Gyro::switchSPIEnabled(bool enabled)
 {
     I2C1.WriteRegBitB(devAddr, MPU6050_RA_USER_CTRL, MPU6050_USERCTRL_I2C_IF_DIS_BIT, enabled);
 }
@@ -3121,7 +3121,7 @@ void Accel_Gyro::switchSPIEnabled(bool enabled)
  * @see MPU6050_RA_USER_CTRL
  * @see MPU6050_USERCTRL_FIFO_RESET_BIT
  */
-void Accel_Gyro::resetFIFO( void ) 
+void Accel_Gyro::resetFIFO( void )
 {
     I2C1.WriteRegBitB(devAddr, MPU6050_RA_USER_CTRL, MPU6050_USERCTRL_FIFO_RESET_BIT, true);
 }
@@ -3131,7 +3131,7 @@ void Accel_Gyro::resetFIFO( void )
  * @see MPU6050_RA_USER_CTRL
  * @see MPU6050_USERCTRL_I2C_MST_RESET_BIT
  */
-void Accel_Gyro::resetI2CMaster( void ) 
+void Accel_Gyro::resetI2CMaster( void )
 {
     I2C1.WriteRegBitB(devAddr, MPU6050_RA_USER_CTRL, MPU6050_USERCTRL_I2C_MST_RESET_BIT, true);
 }
@@ -3147,7 +3147,7 @@ void Accel_Gyro::resetI2CMaster( void )
  * @see MPU6050_RA_USER_CTRL
  * @see MPU6050_USERCTRL_SIG_COND_RESET_BIT
  */
-void Accel_Gyro::resetSensors( void ) 
+void Accel_Gyro::resetSensors( void )
 {
     I2C1.WriteRegBitB(devAddr, MPU6050_RA_USER_CTRL, MPU6050_USERCTRL_SIG_COND_RESET_BIT, true);
 }
@@ -3159,7 +3159,7 @@ void Accel_Gyro::resetSensors( void )
  * @see MPU6050_RA_PWR_MGMT_1
  * @see MPU6050_PWR1_DEVICE_RESET_BIT
  */
-void Accel_Gyro::reset( void ) 
+void Accel_Gyro::reset( void )
 {
     I2C1.WriteRegBitB(devAddr, MPU6050_RA_PWR_MGMT_1, MPU6050_PWR1_DEVICE_RESET_BIT, true);
 }
@@ -3174,7 +3174,7 @@ void Accel_Gyro::reset( void )
  * @see MPU6050_RA_PWR_MGMT_1
  * @see MPU6050_PWR1_SLEEP_BIT
  */
-bool Accel_Gyro::GetSleepEnabled( void ) 
+bool Accel_Gyro::GetSleepEnabled( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_PWR_MGMT_1, MPU6050_PWR1_SLEEP_BIT, buffer);
     return buffer[0];
@@ -3185,7 +3185,7 @@ bool Accel_Gyro::GetSleepEnabled( void )
  * @see MPU6050_RA_PWR_MGMT_1
  * @see MPU6050_PWR1_SLEEP_BIT
  */
-void Accel_Gyro::SetSleepEnabled(bool enabled) 
+void Accel_Gyro::SetSleepEnabled(bool enabled)
 {
     I2C1.WriteRegBitB(devAddr, MPU6050_RA_PWR_MGMT_1, MPU6050_PWR1_SLEEP_BIT, enabled);
 }
@@ -3197,7 +3197,7 @@ void Accel_Gyro::SetSleepEnabled(bool enabled)
  * @see MPU6050_RA_PWR_MGMT_1
  * @see MPU6050_PWR1_CYCLE_BIT
  */
-bool Accel_Gyro::GetWakeCycleEnabled( void ) 
+bool Accel_Gyro::GetWakeCycleEnabled( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_PWR_MGMT_1, MPU6050_PWR1_CYCLE_BIT, buffer);
     return buffer[0];
@@ -3208,7 +3208,7 @@ bool Accel_Gyro::GetWakeCycleEnabled( void )
  * @see MPU6050_RA_PWR_MGMT_1
  * @see MPU6050_PWR1_CYCLE_BIT
  */
-void Accel_Gyro::SetWakeCycleEnabled(bool enabled) 
+void Accel_Gyro::SetWakeCycleEnabled(bool enabled)
 {
     I2C1.WriteRegBitB(devAddr, MPU6050_RA_PWR_MGMT_1, MPU6050_PWR1_CYCLE_BIT, enabled);
 }
@@ -3223,7 +3223,7 @@ void Accel_Gyro::SetWakeCycleEnabled(bool enabled)
  * @see MPU6050_RA_PWR_MGMT_1
  * @see MPU6050_PWR1_TEMP_DIS_BIT
  */
-bool Accel_Gyro::GetTempSensorEnabled( void ) 
+bool Accel_Gyro::GetTempSensorEnabled( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_PWR_MGMT_1, MPU6050_PWR1_TEMP_DIS_BIT, buffer);
     return buffer[0] == 0; // 1 is actually disabled here
@@ -3238,7 +3238,7 @@ bool Accel_Gyro::GetTempSensorEnabled( void )
  * @see MPU6050_RA_PWR_MGMT_1
  * @see MPU6050_PWR1_TEMP_DIS_BIT
  */
-void Accel_Gyro::SetTempSensorEnabled(bool enabled) 
+void Accel_Gyro::SetTempSensorEnabled(bool enabled)
 {
     // 1 is actually disabled here
     I2C1.WriteRegBitB(devAddr, MPU6050_RA_PWR_MGMT_1, MPU6050_PWR1_TEMP_DIS_BIT, !enabled);
@@ -3249,7 +3249,7 @@ void Accel_Gyro::SetTempSensorEnabled(bool enabled)
  * @see MPU6050_PWR1_CLKSEL_BIT
  * @see MPU6050_PWR1_CLKSEL_LENGTH
  */
-uint8_t Accel_Gyro::GetClockSource( void ) 
+uint8_t Accel_Gyro::GetClockSource( void )
 {
     I2C1.ReadRegBitsB(devAddr, MPU6050_RA_PWR_MGMT_1, MPU6050_PWR1_CLKSEL_BIT, MPU6050_PWR1_CLKSEL_LENGTH, buffer);
     return buffer[0];
@@ -3284,7 +3284,7 @@ uint8_t Accel_Gyro::GetClockSource( void )
  * @see MPU6050_PWR1_CLKSEL_BIT
  * @see MPU6050_PWR1_CLKSEL_LENGTH
  */
-void Accel_Gyro::SetClockSource(uint8_t source) 
+void Accel_Gyro::SetClockSource(uint8_t source)
 {
     I2C1.WriteRegBitsB(devAddr, MPU6050_RA_PWR_MGMT_1, MPU6050_PWR1_CLKSEL_BIT, MPU6050_PWR1_CLKSEL_LENGTH, source);
 }
@@ -3314,7 +3314,7 @@ void Accel_Gyro::SetClockSource(uint8_t source)
  * @return Current wake frequency
  * @see MPU6050_RA_PWR_MGMT_2
  */
-uint8_t Accel_Gyro::GetWakeFrequency( void ) 
+uint8_t Accel_Gyro::GetWakeFrequency( void )
 {
     I2C1.ReadRegBitsB(devAddr, MPU6050_RA_PWR_MGMT_2, MPU6050_PWR2_LP_WAKE_CTRL_BIT, MPU6050_PWR2_LP_WAKE_CTRL_LENGTH, buffer);
     return buffer[0];
@@ -3323,7 +3323,7 @@ uint8_t Accel_Gyro::GetWakeFrequency( void )
  * @param frequency New wake frequency
  * @see MPU6050_RA_PWR_MGMT_2
  */
-void Accel_Gyro::SetWakeFrequency(uint8_t frequency) 
+void Accel_Gyro::SetWakeFrequency(uint8_t frequency)
 {
     I2C1.WriteRegBitsB(devAddr, MPU6050_RA_PWR_MGMT_2, MPU6050_PWR2_LP_WAKE_CTRL_BIT, MPU6050_PWR2_LP_WAKE_CTRL_LENGTH, frequency);
 }
@@ -3334,7 +3334,7 @@ void Accel_Gyro::SetWakeFrequency(uint8_t frequency)
  * @see MPU6050_RA_PWR_MGMT_2
  * @see MPU6050_PWR2_STBY_XA_BIT
  */
-bool Accel_Gyro::GetStandbyXAccelEnabled( void ) 
+bool Accel_Gyro::GetStandbyXAccelEnabled( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_PWR_MGMT_2, MPU6050_PWR2_STBY_XA_BIT, buffer);
     return buffer[0];
@@ -3345,7 +3345,7 @@ bool Accel_Gyro::GetStandbyXAccelEnabled( void )
  * @see MPU6050_RA_PWR_MGMT_2
  * @see MPU6050_PWR2_STBY_XA_BIT
  */
-void Accel_Gyro::SetStandbyXAccelEnabled(bool enabled) 
+void Accel_Gyro::SetStandbyXAccelEnabled(bool enabled)
 {
     I2C1.WriteRegBitB(devAddr, MPU6050_RA_PWR_MGMT_2, MPU6050_PWR2_STBY_XA_BIT, enabled);
 }
@@ -3355,7 +3355,7 @@ void Accel_Gyro::SetStandbyXAccelEnabled(bool enabled)
  * @see MPU6050_RA_PWR_MGMT_2
  * @see MPU6050_PWR2_STBY_YA_BIT
  */
-bool Accel_Gyro::GetStandbyYAccelEnabled( void ) 
+bool Accel_Gyro::GetStandbyYAccelEnabled( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_PWR_MGMT_2, MPU6050_PWR2_STBY_YA_BIT, buffer);
     return buffer[0];
@@ -3366,7 +3366,7 @@ bool Accel_Gyro::GetStandbyYAccelEnabled( void )
  * @see MPU6050_RA_PWR_MGMT_2
  * @see MPU6050_PWR2_STBY_YA_BIT
  */
-void Accel_Gyro::SetStandbyYAccelEnabled(bool enabled) 
+void Accel_Gyro::SetStandbyYAccelEnabled(bool enabled)
 {
     I2C1.WriteRegBitB(devAddr, MPU6050_RA_PWR_MGMT_2, MPU6050_PWR2_STBY_YA_BIT, enabled);
 }
@@ -3376,7 +3376,7 @@ void Accel_Gyro::SetStandbyYAccelEnabled(bool enabled)
  * @see MPU6050_RA_PWR_MGMT_2
  * @see MPU6050_PWR2_STBY_ZA_BIT
  */
-bool Accel_Gyro::GetStandbyZAccelEnabled( void ) 
+bool Accel_Gyro::GetStandbyZAccelEnabled( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_PWR_MGMT_2, MPU6050_PWR2_STBY_ZA_BIT, buffer);
     return buffer[0];
@@ -3387,7 +3387,7 @@ bool Accel_Gyro::GetStandbyZAccelEnabled( void )
  * @see MPU6050_RA_PWR_MGMT_2
  * @see MPU6050_PWR2_STBY_ZA_BIT
  */
-void Accel_Gyro::SetStandbyZAccelEnabled(bool enabled) 
+void Accel_Gyro::SetStandbyZAccelEnabled(bool enabled)
 {
     I2C1.WriteRegBitB(devAddr, MPU6050_RA_PWR_MGMT_2, MPU6050_PWR2_STBY_ZA_BIT, enabled);
 }
@@ -3397,7 +3397,7 @@ void Accel_Gyro::SetStandbyZAccelEnabled(bool enabled)
  * @see MPU6050_RA_PWR_MGMT_2
  * @see MPU6050_PWR2_STBY_XG_BIT
  */
-bool Accel_Gyro::GetStandbyXGyroEnabled( void ) 
+bool Accel_Gyro::GetStandbyXGyroEnabled( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_PWR_MGMT_2, MPU6050_PWR2_STBY_XG_BIT, buffer);
     return buffer[0];
@@ -3408,7 +3408,7 @@ bool Accel_Gyro::GetStandbyXGyroEnabled( void )
  * @see MPU6050_RA_PWR_MGMT_2
  * @see MPU6050_PWR2_STBY_XG_BIT
  */
-void Accel_Gyro::SetStandbyXGyroEnabled(bool enabled) 
+void Accel_Gyro::SetStandbyXGyroEnabled(bool enabled)
 {
     I2C1.WriteRegBitB(devAddr, MPU6050_RA_PWR_MGMT_2, MPU6050_PWR2_STBY_XG_BIT, enabled);
 }
@@ -3418,7 +3418,7 @@ void Accel_Gyro::SetStandbyXGyroEnabled(bool enabled)
  * @see MPU6050_RA_PWR_MGMT_2
  * @see MPU6050_PWR2_STBY_YG_BIT
  */
-bool Accel_Gyro::GetStandbyYGyroEnabled( void ) 
+bool Accel_Gyro::GetStandbyYGyroEnabled( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_PWR_MGMT_2, MPU6050_PWR2_STBY_YG_BIT, buffer);
     return buffer[0];
@@ -3429,7 +3429,7 @@ bool Accel_Gyro::GetStandbyYGyroEnabled( void )
  * @see MPU6050_RA_PWR_MGMT_2
  * @see MPU6050_PWR2_STBY_YG_BIT
  */
-void Accel_Gyro::SetStandbyYGyroEnabled(bool enabled) 
+void Accel_Gyro::SetStandbyYGyroEnabled(bool enabled)
 {
     I2C1.WriteRegBitB(devAddr, MPU6050_RA_PWR_MGMT_2, MPU6050_PWR2_STBY_YG_BIT, enabled);
 }
@@ -3439,7 +3439,7 @@ void Accel_Gyro::SetStandbyYGyroEnabled(bool enabled)
  * @see MPU6050_RA_PWR_MGMT_2
  * @see MPU6050_PWR2_STBY_ZG_BIT
  */
-bool Accel_Gyro::GetStandbyZGyroEnabled( void ) 
+bool Accel_Gyro::GetStandbyZGyroEnabled( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_PWR_MGMT_2, MPU6050_PWR2_STBY_ZG_BIT, buffer);
     return buffer[0];
@@ -3450,7 +3450,7 @@ bool Accel_Gyro::GetStandbyZGyroEnabled( void )
  * @see MPU6050_RA_PWR_MGMT_2
  * @see MPU6050_PWR2_STBY_ZG_BIT
  */
-void Accel_Gyro::SetStandbyZGyroEnabled(bool enabled) 
+void Accel_Gyro::SetStandbyZGyroEnabled(bool enabled)
 {
     I2C1.WriteRegBitB(devAddr, MPU6050_RA_PWR_MGMT_2, MPU6050_PWR2_STBY_ZG_BIT, enabled);
 }
@@ -3464,7 +3464,7 @@ void Accel_Gyro::SetStandbyZGyroEnabled(bool enabled)
  * set of sensor data bound to be stored in the FIFO (register 35 and 36).
  * @return Current FIFO buffer size
  */
-uint16_t Accel_Gyro::GetFIFOCount( void ) 
+uint16_t Accel_Gyro::GetFIFOCount( void )
 {
     I2C1.ReadRegBytes(devAddr, MPU6050_RA_FIFO_COUNTH, 2, buffer);
     return (((uint16_t)buffer[0]) << 8) | buffer[1];
@@ -3497,12 +3497,12 @@ uint16_t Accel_Gyro::GetFIFOCount( void )
  *
  * @return Byte from FIFO buffer
  */
-uint8_t Accel_Gyro::GetFIFOByte( void ) 
+uint8_t Accel_Gyro::GetFIFOByte( void )
 {
     I2C1.ReadRegByte(devAddr, MPU6050_RA_FIFO_R_W, buffer);
     return buffer[0];
 }
-void Accel_Gyro::GetFIFOBytes(uint8_t *data, uint8_t length) 
+void Accel_Gyro::GetFIFOBytes(uint8_t *data, uint8_t length)
 {
     I2C1.ReadRegBytes(devAddr, MPU6050_RA_FIFO_R_W, length, data);
 }
@@ -3510,7 +3510,7 @@ void Accel_Gyro::GetFIFOBytes(uint8_t *data, uint8_t length)
  * @see GetFIFOByte()
  * @see MPU6050_RA_FIFO_R_W
  */
-void Accel_Gyro::SetFIFOByte(uint8_t data) 
+void Accel_Gyro::SetFIFOByte(uint8_t data)
 {
     I2C1.WriteRegByte(devAddr, MPU6050_RA_FIFO_R_W, data);
 }
@@ -3538,7 +3538,7 @@ uint8_t Accel_Gyro::GetDeviceID( void )
  * @see MPU6050_WHO_AM_I_BIT
  * @see MPU6050_WHO_AM_I_LENGTH
  */
-void Accel_Gyro::SetDeviceID(uint8_t id) 
+void Accel_Gyro::SetDeviceID(uint8_t id)
 {
     I2C1.WriteRegBitsB(devAddr, MPU6050_RA_WHO_AM_I, MPU6050_WHO_AM_I_BIT, MPU6050_WHO_AM_I_LENGTH, id);
 }
@@ -3547,206 +3547,206 @@ void Accel_Gyro::SetDeviceID(uint8_t id)
 
 // XG_OFFS_TC register
 
-uint8_t Accel_Gyro::GetOTPBankValid( void ) 
+uint8_t Accel_Gyro::GetOTPBankValid( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_XG_OFFS_TC, MPU6050_TC_OTP_BNK_VLD_BIT, buffer);
     return buffer[0];
 }
-void Accel_Gyro::SetOTPBankValid(bool enabled) 
+void Accel_Gyro::SetOTPBankValid(bool enabled)
 {
     I2C1.WriteRegBitB(devAddr, MPU6050_RA_XG_OFFS_TC, MPU6050_TC_OTP_BNK_VLD_BIT, enabled);
 }
-int8_t Accel_Gyro::GetXGyroOffsetTC( void ) 
+int8_t Accel_Gyro::GetXGyroOffsetTC( void )
 {
     I2C1.ReadRegBitsB(devAddr, MPU6050_RA_XG_OFFS_TC, MPU6050_TC_OFFSET_BIT, MPU6050_TC_OFFSET_LENGTH, buffer);
     return buffer[0];
 }
-void Accel_Gyro::SetXGyroOffsetTC(int8_t offset) 
+void Accel_Gyro::SetXGyroOffsetTC(int8_t offset)
 {
     I2C1.WriteRegBitsB(devAddr, MPU6050_RA_XG_OFFS_TC, MPU6050_TC_OFFSET_BIT, MPU6050_TC_OFFSET_LENGTH, offset);
 }
 
 // YG_OFFS_TC register
 
-int8_t Accel_Gyro::GetYGyroOffsetTC( void ) 
+int8_t Accel_Gyro::GetYGyroOffsetTC( void )
 {
     I2C1.ReadRegBitsB(devAddr, MPU6050_RA_YG_OFFS_TC, MPU6050_TC_OFFSET_BIT, MPU6050_TC_OFFSET_LENGTH, buffer);
     return buffer[0];
 }
-void Accel_Gyro::SetYGyroOffsetTC(int8_t offset) 
+void Accel_Gyro::SetYGyroOffsetTC(int8_t offset)
 {
     I2C1.WriteRegBitsB(devAddr, MPU6050_RA_YG_OFFS_TC, MPU6050_TC_OFFSET_BIT, MPU6050_TC_OFFSET_LENGTH, offset);
 }
 
 // ZG_OFFS_TC register
 
-int8_t Accel_Gyro::GetZGyroOffsetTC( void ) 
+int8_t Accel_Gyro::GetZGyroOffsetTC( void )
 {
     I2C1.ReadRegBitsB(devAddr, MPU6050_RA_ZG_OFFS_TC, MPU6050_TC_OFFSET_BIT, MPU6050_TC_OFFSET_LENGTH, buffer);
     return buffer[0];
 }
-void Accel_Gyro::SetZGyroOffsetTC(int8_t offset) 
+void Accel_Gyro::SetZGyroOffsetTC(int8_t offset)
 {
     I2C1.WriteRegBitsB(devAddr, MPU6050_RA_ZG_OFFS_TC, MPU6050_TC_OFFSET_BIT, MPU6050_TC_OFFSET_LENGTH, offset);
 }
 
 // X_FINE_GAIN register
 
-int8_t Accel_Gyro::GetXFineGain( void ) 
+int8_t Accel_Gyro::GetXFineGain( void )
 {
     I2C1.ReadRegByte(devAddr, MPU6050_RA_X_FINE_GAIN, buffer);
     return buffer[0];
 }
-void Accel_Gyro::SetXFineGain(int8_t gain) 
+void Accel_Gyro::SetXFineGain(int8_t gain)
 {
     I2C1.WriteRegByte(devAddr, MPU6050_RA_X_FINE_GAIN, gain);
 }
 
 // Y_FINE_GAIN register
 
-int8_t Accel_Gyro::GetYFineGain( void ) 
+int8_t Accel_Gyro::GetYFineGain( void )
 {
     I2C1.ReadRegByte(devAddr, MPU6050_RA_Y_FINE_GAIN, buffer);
     return buffer[0];
 }
-void Accel_Gyro::SetYFineGain(int8_t gain) 
+void Accel_Gyro::SetYFineGain(int8_t gain)
 {
     I2C1.WriteRegByte(devAddr, MPU6050_RA_Y_FINE_GAIN, gain);
 }
 
 // Z_FINE_GAIN register
 
-int8_t Accel_Gyro::GetZFineGain( void ) 
+int8_t Accel_Gyro::GetZFineGain( void )
 {
     I2C1.ReadRegByte(devAddr, MPU6050_RA_Z_FINE_GAIN, buffer);
     return buffer[0];
 }
-void Accel_Gyro::SetZFineGain(int8_t gain) 
+void Accel_Gyro::SetZFineGain(int8_t gain)
 {
     I2C1.WriteRegByte(devAddr, MPU6050_RA_Z_FINE_GAIN, gain);
 }
 
 // XA_OFFS_* registers
 
-int16_t Accel_Gyro::GetXAccelOffset( void ) 
+int16_t Accel_Gyro::GetXAccelOffset( void )
 {
     I2C1.ReadRegBytes(devAddr, MPU6050_RA_XA_OFFS_H, 2, buffer);
     return (((int16_t)buffer[0]) << 8) | buffer[1];
 }
-void Accel_Gyro::SetXAccelOffset(int16_t offset) 
+void Accel_Gyro::SetXAccelOffset(int16_t offset)
 {
     I2C1.WriteRegWord(devAddr, MPU6050_RA_XA_OFFS_H, offset);
 }
 
 // YA_OFFS_* register
 
-int16_t Accel_Gyro::GetYAccelOffset( void ) 
+int16_t Accel_Gyro::GetYAccelOffset( void )
 {
     I2C1.ReadRegBytes(devAddr, MPU6050_RA_YA_OFFS_H, 2, buffer);
     return (((int16_t)buffer[0]) << 8) | buffer[1];
 }
-void Accel_Gyro::SetYAccelOffset(int16_t offset) 
+void Accel_Gyro::SetYAccelOffset(int16_t offset)
 {
     I2C1.WriteRegWord(devAddr, MPU6050_RA_YA_OFFS_H, offset);
 }
 
 // ZA_OFFS_* register
 
-int16_t Accel_Gyro::GetZAccelOffset( void ) 
+int16_t Accel_Gyro::GetZAccelOffset( void )
 {
     I2C1.ReadRegBytes(devAddr, MPU6050_RA_ZA_OFFS_H, 2, buffer);
     return (((int16_t)buffer[0]) << 8) | buffer[1];
 }
-void Accel_Gyro::SetZAccelOffset(int16_t offset) 
+void Accel_Gyro::SetZAccelOffset(int16_t offset)
 {
     I2C1.WriteRegWord(devAddr, MPU6050_RA_ZA_OFFS_H, offset);
 }
 
 // XG_OFFS_USR* registers
 
-int16_t Accel_Gyro::GetXGyroOffset( void ) 
+int16_t Accel_Gyro::GetXGyroOffset( void )
 {
     I2C1.ReadRegBytes(devAddr, MPU6050_RA_XG_OFFS_USRH, 2, buffer);
     return (((int16_t)buffer[0]) << 8) | buffer[1];
 }
-void Accel_Gyro::SetXGyroOffset(int16_t offset) 
+void Accel_Gyro::SetXGyroOffset(int16_t offset)
 {
     I2C1.WriteRegWord(devAddr, MPU6050_RA_XG_OFFS_USRH, offset);
 }
 
 // YG_OFFS_USR* register
 
-int16_t Accel_Gyro::GetYGyroOffset( void ) 
+int16_t Accel_Gyro::GetYGyroOffset( void )
 {
     I2C1.ReadRegBytes(devAddr, MPU6050_RA_YG_OFFS_USRH, 2, buffer);
     return (((int16_t)buffer[0]) << 8) | buffer[1];
 }
-void Accel_Gyro::SetYGyroOffset(int16_t offset) 
+void Accel_Gyro::SetYGyroOffset(int16_t offset)
 {
     I2C1.WriteRegWord(devAddr, MPU6050_RA_YG_OFFS_USRH, offset);
 }
 
 // ZG_OFFS_USR* register
 
-int16_t Accel_Gyro::GetZGyroOffset( void ) 
+int16_t Accel_Gyro::GetZGyroOffset( void )
 {
     I2C1.ReadRegBytes(devAddr, MPU6050_RA_ZG_OFFS_USRH, 2, buffer);
     return (((int16_t)buffer[0]) << 8) | buffer[1];
 }
-void Accel_Gyro::SetZGyroOffset(int16_t offset) 
+void Accel_Gyro::SetZGyroOffset(int16_t offset)
 {
     I2C1.WriteRegWord(devAddr, MPU6050_RA_ZG_OFFS_USRH, offset);
 }
 
 // INT_ENABLE register (DMP functions)
 
-bool Accel_Gyro::GetIntPLLReadyEnabled( void ) 
+bool Accel_Gyro::GetIntPLLReadyEnabled( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_INT_ENABLE, MPU6050_INTERRUPT_PLL_RDY_INT_BIT, buffer);
     return buffer[0];
 }
-void Accel_Gyro::SetIntPLLReadyEnabled(bool enabled) 
+void Accel_Gyro::SetIntPLLReadyEnabled(bool enabled)
 {
     I2C1.WriteRegBitB(devAddr, MPU6050_RA_INT_ENABLE, MPU6050_INTERRUPT_PLL_RDY_INT_BIT, enabled);
 }
-bool Accel_Gyro::GetIntDMPEnabled( void ) 
+bool Accel_Gyro::GetIntDMPEnabled( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_INT_ENABLE, MPU6050_INTERRUPT_DMP_INT_BIT, buffer);
     return buffer[0];
 }
-void Accel_Gyro::SetIntDMPEnabled(bool enabled) 
+void Accel_Gyro::SetIntDMPEnabled(bool enabled)
 {
     I2C1.WriteRegBitB(devAddr, MPU6050_RA_INT_ENABLE, MPU6050_INTERRUPT_DMP_INT_BIT, enabled);
 }
 
 // DMP_INT_STATUS
 
-bool Accel_Gyro::GetDMPInt5Status( void ) 
+bool Accel_Gyro::GetDMPInt5Status( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_DMP_INT_STATUS, MPU6050_DMPINT_5_BIT, buffer);
     return buffer[0];
 }
-bool Accel_Gyro::GetDMPInt4Status( void ) 
+bool Accel_Gyro::GetDMPInt4Status( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_DMP_INT_STATUS, MPU6050_DMPINT_4_BIT, buffer);
     return buffer[0];
 }
-bool Accel_Gyro::GetDMPInt3Status( void ) 
+bool Accel_Gyro::GetDMPInt3Status( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_DMP_INT_STATUS, MPU6050_DMPINT_3_BIT, buffer);
     return buffer[0];
 }
-bool Accel_Gyro::GetDMPInt2Status( void ) 
+bool Accel_Gyro::GetDMPInt2Status( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_DMP_INT_STATUS, MPU6050_DMPINT_2_BIT, buffer);
     return buffer[0];
 }
-bool Accel_Gyro::GetDMPInt1Status( void ) 
+bool Accel_Gyro::GetDMPInt1Status( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_DMP_INT_STATUS, MPU6050_DMPINT_1_BIT, buffer);
     return buffer[0];
 }
-bool Accel_Gyro::GetDMPInt0Status( void ) 
+bool Accel_Gyro::GetDMPInt0Status( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_DMP_INT_STATUS, MPU6050_DMPINT_0_BIT, buffer);
     return buffer[0];
@@ -3754,12 +3754,12 @@ bool Accel_Gyro::GetDMPInt0Status( void )
 
 // INT_STATUS register (DMP functions)
 
-bool Accel_Gyro::GetIntPLLReadyStatus( void ) 
+bool Accel_Gyro::GetIntPLLReadyStatus( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_INT_STATUS, MPU6050_INTERRUPT_PLL_RDY_INT_BIT, buffer);
     return buffer[0];
 }
-bool Accel_Gyro::GetIntDMPStatus( void ) 
+bool Accel_Gyro::GetIntDMPStatus( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_INT_STATUS, MPU6050_INTERRUPT_DMP_INT_BIT, buffer);
     return buffer[0];
@@ -3767,23 +3767,23 @@ bool Accel_Gyro::GetIntDMPStatus( void )
 
 // USER_CTRL register (DMP functions)
 
-bool Accel_Gyro::GetDMPEnabled( void ) 
+bool Accel_Gyro::GetDMPEnabled( void )
 {
     I2C1.ReadRegBitB(devAddr, MPU6050_RA_USER_CTRL, MPU6050_USERCTRL_DMP_EN_BIT, buffer);
     return buffer[0];
 }
-void Accel_Gyro::SetDMPEnabled(bool enabled) 
+void Accel_Gyro::SetDMPEnabled(bool enabled)
 {
     I2C1.WriteRegBitB(devAddr, MPU6050_RA_USER_CTRL, MPU6050_USERCTRL_DMP_EN_BIT, enabled);
 }
-void Accel_Gyro::resetDMP( void ) 
+void Accel_Gyro::resetDMP( void )
 {
     I2C1.WriteRegBitB(devAddr, MPU6050_RA_USER_CTRL, MPU6050_USERCTRL_DMP_RESET_BIT, true);
 }
 
 // BANK_SEL register
 
-void Accel_Gyro::SetMemoryBank(uint8_t bank, bool prefetchEnabled, bool userBank) 
+void Accel_Gyro::SetMemoryBank(uint8_t bank, bool prefetchEnabled, bool userBank)
 {
     bank &= 0x1F;
     if (userBank) bank |= 0x20;
@@ -3793,23 +3793,23 @@ void Accel_Gyro::SetMemoryBank(uint8_t bank, bool prefetchEnabled, bool userBank
 
 // MEM_START_ADDR register
 
-void Accel_Gyro::SetMemoryStartAddress(uint8_t address) 
+void Accel_Gyro::SetMemoryStartAddress(uint8_t address)
 {
     I2C1.WriteRegByte(devAddr, MPU6050_RA_MEM_START_ADDR, address);
 }
 
 // MEM_R_W register
 
-uint8_t Accel_Gyro::readMemoryByte( void ) 
+uint8_t Accel_Gyro::readMemoryByte( void )
 {
     I2C1.ReadRegByte(devAddr, MPU6050_RA_MEM_R_W, buffer);
     return buffer[0];
 }
-void Accel_Gyro::writeMemoryByte(uint8_t data) 
+void Accel_Gyro::writeMemoryByte(uint8_t data)
 {
     I2C1.WriteRegByte(devAddr, MPU6050_RA_MEM_R_W, data);
 }
-void Accel_Gyro::readMemoryBlock(uint8_t *data, uint16_t dataSize, uint8_t bank, uint8_t address) 
+void Accel_Gyro::readMemoryBlock(uint8_t *data, uint16_t dataSize, uint8_t bank, uint8_t address)
 {
     SetMemoryBank(bank);
     SetMemoryStartAddress(address);
@@ -3826,7 +3826,7 @@ void Accel_Gyro::readMemoryBlock(uint8_t *data, uint16_t dataSize, uint8_t bank,
 
         // read the chunk of data as specified
         I2C1.ReadRegBytes(devAddr, MPU6050_RA_MEM_R_W, chunkSize, data + i);
-        
+
         // increase byte index by [chunkSize]
         i += chunkSize;
 
@@ -3861,7 +3861,7 @@ void Accel_Gyro::readMemoryBlock(uint8_t *data, uint16_t dataSize, uint8_t bank,
 
         // make sure this chunk doesn't go past the bank boundary (256 bytes)
         if (chunkSize > 256 - address) chunkSize = 256 - address;
-        
+
         if (useProgMem) {
             // write the chunk of data as specified
             for (j = 0; j < chunkSize; j++) progBuffer[j] = pgm_read_byte(data + i + j);
@@ -3918,11 +3918,11 @@ void Accel_Gyro::readMemoryBlock(uint8_t *data, uint16_t dataSize, uint8_t bank,
     if (useProgMem) free(progBuffer);
     return true;
 }
-bool Accel_Gyro::writeProgMemoryBlock(const uint8_t *data, uint16_t dataSize, uint8_t bank, uint8_t address, bool verify) 
+bool Accel_Gyro::writeProgMemoryBlock(const uint8_t *data, uint16_t dataSize, uint8_t bank, uint8_t address, bool verify)
 {
     return writeMemoryBlock(data, dataSize, bank, address, verify, true);
 }
-bool Accel_Gyro::writeDMPConfigurationSet(const uint8_t *data, uint16_t dataSize, bool useProgMem) 
+bool Accel_Gyro::writeDMPConfigurationSet(const uint8_t *data, uint16_t dataSize, bool useProgMem)
 {
     uint8_t *progBuffer, success, special;
     uint16_t i, j;
@@ -3977,7 +3977,7 @@ bool Accel_Gyro::writeDMPConfigurationSet(const uint8_t *data, uint16_t dataSize
             Serial.println(" found...");
             if (special == 0x01) {
                 // enable DMP-related interrupts
-                
+
                 //SetIntZeroMotionEnabled(true);
                 //SetIntFIFOBufferOverflowEnabled(true);
                 //SetIntDMPEnabled(true);
@@ -3989,7 +3989,7 @@ bool Accel_Gyro::writeDMPConfigurationSet(const uint8_t *data, uint16_t dataSize
                 success = false;
             }
         }
-        
+
         if (!success) {
             if (useProgMem) free(progBuffer);
             return false; // uh oh
@@ -3998,31 +3998,31 @@ bool Accel_Gyro::writeDMPConfigurationSet(const uint8_t *data, uint16_t dataSize
     if (useProgMem) free(progBuffer);
     return true;
 }
-bool Accel_Gyro::writeProgDMPConfigurationSet(const uint8_t *data, uint16_t dataSize) 
+bool Accel_Gyro::writeProgDMPConfigurationSet(const uint8_t *data, uint16_t dataSize)
 {
     return writeDMPConfigurationSet(data, dataSize, true);
 }*/
 
 // DMP_CFG_1 register
 
-uint8_t Accel_Gyro::GetDMPConfig1( void ) 
+uint8_t Accel_Gyro::GetDMPConfig1( void )
 {
     I2C1.ReadRegByte(devAddr, MPU6050_RA_DMP_CFG_1, buffer);
     return buffer[0];
 }
-void Accel_Gyro::SetDMPConfig1(uint8_t config) 
+void Accel_Gyro::SetDMPConfig1(uint8_t config)
 {
     I2C1.WriteRegByte(devAddr, MPU6050_RA_DMP_CFG_1, config);
 }
 
 // DMP_CFG_2 register
 
-uint8_t Accel_Gyro::GetDMPConfig2( void ) 
+uint8_t Accel_Gyro::GetDMPConfig2( void )
 {
     I2C1.ReadRegByte(devAddr, MPU6050_RA_DMP_CFG_2, buffer);
     return buffer[0];
 }
-void Accel_Gyro::SetDMPConfig2(uint8_t config) 
+void Accel_Gyro::SetDMPConfig2(uint8_t config)
 {
     I2C1.WriteRegByte(devAddr, MPU6050_RA_DMP_CFG_2, config);
 }
