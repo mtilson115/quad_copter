@@ -13,6 +13,7 @@ BIN/
 *.map
 *.elf
 *.hex
+*.bin
 
 # Project Crap
 *.properties
