@@ -148,7 +148,7 @@ void PWM_init( pwm_num_e pwm, pwm_init_t init_settings )
  *
  *              02/14/2016 - chech intialization.
  *
- * Notes:
+ * Notes:       Need to add check to see if it is initialized first
  *
  ******************************************************************************/
 void PWM_start( pwm_num_e pwm )
@@ -183,7 +183,7 @@ void PWM_start( pwm_num_e pwm )
  *
  *              02/14/2016 - chech intialization.
  *
- * Notes:
+ * Notes:       Need to add check to see if it is initialized first
  *
  ******************************************************************************/
 void PWM_stop( pwm_num_e pwm )
@@ -219,7 +219,7 @@ void PWM_stop( pwm_num_e pwm )
  *
  *              02/14/2016 - chech intialization.
  *
- * Notes:
+ * Notes:       Need to add check to see if it is initialized first
  *
  ******************************************************************************/
 void PWM_chg_duty( pwm_num_e pwm, float duty_cycle )
