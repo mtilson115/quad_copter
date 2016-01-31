@@ -28,7 +28,6 @@ void start_reader( void )
     PWM_start( PWM0 );
 */
 
-
     OS_ERR err;
     OSTaskCreate((OS_TCB      *)&reader_TCB,                        /* Create the start task                                    */
                  (CPU_CHAR    *)"Button Reader",
