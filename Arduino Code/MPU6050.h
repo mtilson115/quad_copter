@@ -686,9 +686,9 @@ class MPU6050 {
         // WHO_AM_I register
         uint8_t getDeviceID();
         void setDeviceID(uint8_t id);
-        
+
         // ======== UNDOCUMENTED/DMP REGISTERS/METHODS ========
-        
+
         // XG_OFFS_TC register
         uint8_t getOTPBankValid();
         void setOTPBankValid(bool enabled);
@@ -738,13 +738,13 @@ class MPU6050 {
         // ZG_OFFS_USR* register
         int16_t getZGyroOffset();
         void setZGyroOffset(int16_t offset);
-        
+
         // INT_ENABLE register (DMP functions)
         bool getIntPLLReadyEnabled();
         void setIntPLLReadyEnabled(bool enabled);
         bool getIntDMPEnabled();
         void setIntDMPEnabled(bool enabled);
-        
+
         // DMP_INT_STATUS
         bool getDMPInt5Status();
         bool getDMPInt4Status();
@@ -756,18 +756,18 @@ class MPU6050 {
         // INT_STATUS register (DMP functions)
         bool getIntPLLReadyStatus();
         bool getIntDMPStatus();
-        
+
         // USER_CTRL register (DMP functions)
         bool getDMPEnabled();
         void setDMPEnabled(bool enabled);
         void resetDMP();
-        
+
         // BANK_SEL register
         void setMemoryBank(uint8_t bank, bool prefetchEnabled=false, bool userBank=false);
-        
+
         // MEM_START_ADDR register
         void setMemoryStartAddress(uint8_t address);
-        
+
         // MEM_R_W register
         uint8_t readMemoryByte();
         void writeMemoryByte(uint8_t data);
@@ -799,12 +799,12 @@ class MPU6050 {
             uint8_t dmpGetSampleStepSizeMS();
             uint8_t dmpGetSampleFrequency();
             int32_t dmpDecodeTemperature(int8_t tempReg);
-            
+
             // Register callbacks after a packet of FIFO data is processed
             //uint8_t dmpRegisterFIFORateProcess(inv_obj_func func, int16_t priority);
             //uint8_t dmpUnregisterFIFORateProcess(inv_obj_func func);
             uint8_t dmpRunFIFORateProcesses();
-            
+
             // Setup FIFO for various output
             uint8_t dmpSendQuaternion(uint_fast16_t accuracy);
             uint8_t dmpSendGyro(uint_fast16_t elements, uint_fast16_t accuracy);
@@ -864,7 +864,7 @@ class MPU6050 {
             uint8_t dmpGetQuantizedAccel(VectorInt16 *v, const uint8_t* packet=0);
             uint8_t dmpGetExternalSensorData(int32_t *data, uint16_t size, const uint8_t* packet=0);
             uint8_t dmpGetEIS(int32_t *data, const uint8_t* packet=0);
-            
+
             uint8_t dmpGetEuler(float *data, Quaternion *q);
             uint8_t dmpGetYawPitchRoll(float *data, Quaternion *q, VectorFloat *gravity);
 
@@ -900,12 +900,12 @@ class MPU6050 {
             uint8_t dmpGetSampleStepSizeMS();
             uint8_t dmpGetSampleFrequency();
             int32_t dmpDecodeTemperature(int8_t tempReg);
-            
+
             // Register callbacks after a packet of FIFO data is processed
             //uint8_t dmpRegisterFIFORateProcess(inv_obj_func func, int16_t priority);
             //uint8_t dmpUnregisterFIFORateProcess(inv_obj_func func);
             uint8_t dmpRunFIFORateProcesses();
-            
+
             // Setup FIFO for various output
             uint8_t dmpSendQuaternion(uint_fast16_t accuracy);
             uint8_t dmpSendGyro(uint_fast16_t elements, uint_fast16_t accuracy);
@@ -966,7 +966,7 @@ class MPU6050 {
             uint8_t dmpGetQuantizedAccel(VectorInt16 *v, const uint8_t* packet=0);
             uint8_t dmpGetExternalSensorData(int32_t *data, uint16_t size, const uint8_t* packet=0);
             uint8_t dmpGetEIS(int32_t *data, const uint8_t* packet=0);
-            
+
             uint8_t dmpGetEuler(float *data, Quaternion *q);
             uint8_t dmpGetYawPitchRoll(float *data, Quaternion *q, VectorFloat *gravity);
 
