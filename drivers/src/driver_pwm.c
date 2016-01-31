@@ -62,23 +62,23 @@ int32_t pwm_set_cfg_pointer( pwm_num_e pwm );
 
 /*******************************************************************************
  * PWM_init
- * 
+ *
  * Description: Initializes the PWM identified by the pwm_num_e using the passed
  *              pwm_init_t settings.
- * 
+ *
  * Inputs:      pwm_num_e pwm - the pwm to initialize
  *              pwm_init_t init_settings:
  *                  uint32_t period - periodicity of the pulse
  *                  uint32_t duty - duty cycle
- * 
+ *
  * Returns:     None
- * 
+ *
  * Revision:    Initial Creation 01/24/2016 - Mitchell S. Tilson
  * Revision:    01/25/2016 - Mitchell S. Tilson - Update to use pwm_set_cfg_pointer,
  *              rearrange items, and to disable the peripheral first.
- * 
+ *
  * Notes:       None
- *          
+ *
  ******************************************************************************/
 void PWM_init( pwm_num_e pwm, pwm_init_t init_settings )
 {
@@ -88,20 +88,20 @@ void PWM_init( pwm_num_e pwm, pwm_init_t init_settings )
     }
 
     // Can't be greater than 2^16 - 1
-    if( init_settings.period > 65535 ) 
+    if( init_settings.period > 65535 )
     {
         return;
     }
 
     // Disable the PWM module
     curr_pwm_cfg_p->OCxCON->ON = 0;
-    
+
     // Set up the duty cycle
     float percentage = (float)init_settings.duty/100.0;
     float clk_val = ((float)init_settings.period)*percentage;
     *curr_pwm_cfg_p->OCxRS = (uint32_t)(clk_val + 0.5);
     *curr_pwm_cfg_p->OCxR = *curr_pwm_cfg_p->OCxRS;
-    
+
     // Set up the period
     *curr_pwm_cfg_p->PRy = init_settings.period;
 
@@ -121,21 +121,21 @@ void PWM_init( pwm_num_e pwm, pwm_init_t init_settings )
     curr_pwm_cfg_p->TxCON->TCKPS0 = 0;
     curr_pwm_cfg_p->TxCON->TCKPS1 = 1;
     curr_pwm_cfg_p->TxCON->TCKPS2 = 1;
-} 
+}
 
 /*******************************************************************************
  * PWM_start
- * 
+ *
  * Description: Starts the selected PWM
- * 
+ *
  * Inputs:      pwm_num_e pwm - the pwm start
- * 
+ *
  * Returns:     None
- * 
+ *
  * Revision:    Initial Creation 01/25/2016 - Mitchell S. Tilson
- * 
+ *
  * Notes:       Need to add check to see if it is initialized first
- *          
+ *
  ******************************************************************************/
 void PWM_start( pwm_num_e pwm )
 {
@@ -153,17 +153,17 @@ void PWM_start( pwm_num_e pwm )
 
 /*******************************************************************************
  * PWM_stop
- * 
+ *
  * Description: Stop the selected PWM
- * 
+ *
  * Inputs:      pwm_num_e pwm - the pwm start
- * 
+ *
  * Returns:     None
- * 
+ *
  * Revision:    Initial Creation 01/25/2016 - Mitchell S. Tilson
- * 
+ *
  * Notes:       Need to add check to see if it is initialized first
- *          
+ *
  ******************************************************************************/
 void PWM_stop( pwm_num_e pwm )
 {
@@ -181,18 +181,18 @@ void PWM_stop( pwm_num_e pwm )
 
 /*******************************************************************************
  * PWM_chg_duty
- * 
+ *
  * Description: changes the duty cycle
- * 
+ *
  * Inputs:      pwm_num_e pwm - the pwm start
  *              uint32_t duty - duty cycle (0 to 100)
- * 
+ *
  * Returns:     None
- * 
+ *
  * Revision:    Initial Creation 01/25/2016 - Mitchell S. Tilson
- * 
+ *
  * Notes:       Need to add check to see if it is initialized first
- *          
+ *
  ******************************************************************************/
 void PWM_chg_duty( pwm_num_e pwm, uint32_t duty_cycle )
 {
@@ -200,7 +200,7 @@ void PWM_chg_duty( pwm_num_e pwm, uint32_t duty_cycle )
     {
         return;
     }
-    
+
     float percentage = (float)duty_cycle/100.0;
     float clk_val = (float)(*curr_pwm_cfg_p->PRy)*percentage;
     *curr_pwm_cfg_p->OCxRS = (uint32_t)(clk_val + 0.5);
@@ -208,17 +208,17 @@ void PWM_chg_duty( pwm_num_e pwm, uint32_t duty_cycle )
 
 /*******************************************************************************
  * pwm_set_cfg_pointer
- * 
+ *
  * Description: Sets the configuration pointer
- * 
+ *
  * Inputs:      pwm_num_e pwm - the pwm to set the configuration for
- * 
+ *
  * Returns:     int32_t - -1 if the init fails
- * 
+ *
  * Revision:    Initial Creation 01/25/2016 - Mitchell S. Tilson
- * 
+ *
  * Notes:       None
- *          
+ *
  ******************************************************************************/
 int32_t pwm_set_cfg_pointer( pwm_num_e pwm )
 {
@@ -228,10 +228,10 @@ int32_t pwm_set_cfg_pointer( pwm_num_e pwm )
     }
 
     // Get the appropriate configuration
-    // to modify 
+    // to modify
     switch( pwm )
     {
-        case PWM0: 
+        case PWM0:
             curr_pwm_cfg_p = &PWM0_cfg;
             break;
 

@@ -34,24 +34,24 @@ void uart_set_baud( UART_ID id );
 
 /*******************************************************************************
  * Uart_init
- * 
+ *
  * Description:     Initializes the uart identified by the ID (only 2 uarts are
  *                  are supported)
- * 
+ *
  * Inputs:      UART_ID id - uart number (1 or 2)
  *              int32_t buad - buad rate
  *              int32_t data_bits - data bits (8 or 9)
- *              int32_t parity - parity 
+ *              int32_t parity - parity
  *              int32_t stop_bits - stop bits
- * 
- * Returns:     UART_ID - the id of the uart to be used by the user of the 
+ *
+ * Returns:     UART_ID - the id of the uart to be used by the user of the
  *              driver
- * 
+ *
  * Revision:    Initial Creation 20FEB2014 - Mitchell S. Tilson
- * 
- * Notes:       The uart will always be set up to only use the TX and RX pins.  
+ *
+ * Notes:       The uart will always be set up to only use the TX and RX pins.
  *              RTS and CTS will never be used.
- *          
+ *
  ******************************************************************************/
 UART_ID  Uart_init( UART_ID id, int32_t baud, int32_t data_bits, PARITY_type parity, int32_t stop_bits )
 {
@@ -82,13 +82,13 @@ UART_ID  Uart_init( UART_ID id, int32_t baud, int32_t data_bits, PARITY_type par
 
 /*******************************************************************************
  * Uart_enable
- * 
- * Description:     Enables the UART 
- * 
+ *
+ * Description:     Enables the UART
+ *
  * Inputs:      UART_ID id - the uart to enable
- * 
+ *
  * Revision:    Initial Creation 23FEB2014 - Mitchell S. Tilson
- *          
+ *
  ******************************************************************************/
 void Uart_enable( UART_ID id )
 {
@@ -183,7 +183,7 @@ int32_t Uart_write( UART_ID id, int32_t byte_count, uint8_t* buffer )
 		while( !(UART[id]->sta.reg & STA_TRMT(1)) ) {};
 		UART[id]->tx.reg = buffer[bytes_written++];
 	}
-    
+
     return bytes_written;
 }
 
@@ -194,7 +194,7 @@ int32_t Uart_write( UART_ID id, int32_t byte_count, uint8_t* buffer )
  * Description:     Puts the uart in a mode where the clock is on UxBCLK
  *
  * Inputs:      UART_ID id - the uart to write
- *              
+ *
  *
  * Revision:    Initial Creation 23FEB2014 - Mitchell S. Tilson
  *

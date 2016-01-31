@@ -3,9 +3,9 @@
  * Author:  Mitchell S. Tilson
  * Created: 03/15/2014
  *
- * Description: This file provides the interface to the gyro accelerometer 
+ * Description: This file provides the interface to the gyro accelerometer
  *							board.
- * 		
+ *
  ******************************************************************************/
 
 #pragma once
@@ -387,25 +387,25 @@ public:
  void SetI2CAddress		( uint8_t address );
  bool Init						( void						);
  bool TestConnection	( void						);
- 
+
  // AUX_VDDIO register
  uint8_t	GetAuxVDDIOLevel	( void 					);
  void 		SetAuxVDDIOLevel	( uint8_t level	);
- 
+
  // SMPLRT_DIV register
  uint8_t 	GetGyroRateDiv	( void					);
  void 		SetGyroRateDiv	( uint8_t rate	);
- 
+
  // CONFIG register
  uint8_t	GetExternalFrameSync	( void 					);
  void 		SetExternalFrameSync	( uint8_t sync	);
  uint8_t	GetDLPFMode						( void					);
  void 		SetDLPFMode						( uint8_t mode	);
- 
+
  // GYRO_CONFIG register
  uint8_t GetFullScaleGyroRange	( void 					);
  void 		SetFullScaleGyroRange	(uint8_t range	);
- 
+
  // ACCEL_CONFIG register
  bool			GetAccelXSelfTest				( void 					);
  void			SetAccelXSelfTest				( bool enabled	);
@@ -417,11 +417,11 @@ public:
  void 		SetFullScaleAccelRange	( uint8_t range	);
  uint8_t	GetDHPFMode							( void					);
  void			SetDHPFMode							( uint8_t mode	);
- 
+
  // FF_THR register
  uint8_t	GetFreefallDetectionThreshold	( void 							);
  void 		SetFreefallDetectionThreshold	( uint8_t threshold	);
- 
+
  // FF_DUR register
  uint8_t 	GetFreefallDetectionDuration( void 							);
  void 		SetFreefallDetectionDuration( uint8_t duration	);
@@ -429,19 +429,19 @@ public:
  // MOT_THR register
  uint8_t GetMotionDetectionThreshold( void );
  void SetMotionDetectionThreshold(uint8_t threshold);
- 
+
  // MOT_DUR register
  uint8_t GetMotionDetectionDuration( void );
  void SetMotionDetectionDuration(uint8_t duration);
- 
+
  // ZRMOT_THR register
  uint8_t GetZeroMotionDetectionThreshold( void );
  void SetZeroMotionDetectionThreshold(uint8_t threshold);
- 
+
  // ZRMOT_DUR register
  uint8_t GetZeroMotionDetectionDuration( void );
  void SetZeroMotionDetectionDuration(uint8_t duration);
- 
+
  // FIFO_EN register
  bool GetTempFIFOEnabled( void );
  void SetTempFIFOEnabled(bool enabled);
@@ -459,7 +459,7 @@ public:
  void SetSlave1FIFOEnabled(bool enabled);
  bool GetSlave0FIFOEnabled( void );
  void SetSlave0FIFOEnabled(bool enabled);
- 
+
  // I2C_MST_CTRL register
  bool GetMultiMasterEnabled( void );
  void SetMultiMasterEnabled(bool enabled);
@@ -471,7 +471,7 @@ public:
  void SetSlaveReadWriteTransitionEnabled(bool enabled);
  uint8_t GetMasterClockSpeed( void );
  void SetMasterClockSpeed(uint8_t speed);
- 
+
  // I2C_SLV* registers (Slave 0-3)
  uint8_t GetSlaveAddress(uint8_t num);
  void SetSlaveAddress(uint8_t num, uint8_t address);
@@ -487,7 +487,7 @@ public:
  void SetSlaveWordGroupOffset(uint8_t num, bool enabled);
  uint8_t GetSlaveDataLength(uint8_t num);
  void SetSlaveDataLength(uint8_t num, uint8_t length);
- 
+
  // I2C_SLV* registers (Slave 4)
  uint8_t GetSlave4Address( void );
  void SetSlave4Address(uint8_t address);
@@ -503,7 +503,7 @@ public:
  uint8_t GetSlave4MasterDelay( void );
  void SetSlave4MasterDelay(uint8_t delay);
  uint8_t GetSlate4InputByte( void );
- 
+
  // I2C_MST_STATUS register
  bool GetPassthroughStatus( void );
  bool GetSlave4IsDone( void );
@@ -513,7 +513,7 @@ public:
  bool GetSlave2Nack( void );
  bool GetSlave1Nack( void );
  bool GetSlave0Nack( void );
- 
+
  // INT_PIN_CFG register
  bool GetInterruptMode( void );
  void SetInterruptMode(bool mode);
@@ -531,7 +531,7 @@ public:
  void SetI2CBypassEnabled(bool enabled);
  bool GetClockOutputEnabled( void );
  void SetClockOutputEnabled(bool enabled);
- 
+
  // INT_ENABLE register
  uint8_t GetIntEnabled( void );
  void SetIntEnabled(uint8_t enabled);
@@ -547,7 +547,7 @@ public:
  void SetIntI2CMasterEnabled(bool enabled);
  bool GetIntDataReadyEnabled( void );
  void SetIntDataReadyEnabled(bool enabled);
- 
+
  // INT_STATUS register
  uint8_t GetIntStatus( void );
  bool GetIntFreefallStatus( void );
@@ -556,7 +556,7 @@ public:
  bool GetIntFIFOBufferOverflowStatus( void );
  bool GetIntI2CMasterStatus( void );
  bool GetIntDataReadyStatus( void );
- 
+
  // ACCEL_*OUT_* registers
  void GetMotion9(int16_t* ax, int16_t* ay, int16_t* az, int16_t* gx, int16_t* gy, int16_t* gz, int16_t* mx, int16_t* my, int16_t* mz);
  void GetMotion6(int16_t* ax, int16_t* ay, int16_t* az, int16_t* gx, int16_t* gy, int16_t* gz);
@@ -564,21 +564,21 @@ public:
  int16_t GetAccelerationX( void );
  int16_t GetAccelerationY( void );
  int16_t GetAccelerationZ( void );
- 
+
  // TEMP_OUT_* registers
  int16_t GetTemperature( void );
- 
+
  // GYRO_*OUT_* registers
  void GetRotation(int16_t* x, int16_t* y, int16_t* z);
  int16_t GetRotationX( void );
  int16_t GetRotationY( void );
  int16_t GetRotationZ( void );
- 
+
  // EXT_SENS_DATA_* registers
  uint8_t GetExternalSensorByte(int32_t position);
  uint16_t GetExternalSensorWord(int32_t position);
  uint32_t GetExternalSensorDWord(int32_t position);
- 
+
  // MOT_DETECT_STATUS register
  bool GetXNegMotionDetected( void );
  bool GetXPosMotionDetected( void );
@@ -587,21 +587,21 @@ public:
  bool GetZNegMotionDetected( void );
  bool GetZPosMotionDetected( void );
  bool GetZeroMotionDetected( void );
- 
+
  // I2C_SLV*_DO register
  void SetSlaveOutputByte(uint8_t num, uint8_t data);
- 
+
  // I2C_MST_DELAY_CTRL register
  bool GetExternalShadowDelayEnabled( void );
  void SetExternalShadowDelayEnabled(bool enabled);
  bool GetSlaveDelayEnabled(uint8_t num);
  void SetSlaveDelayEnabled(uint8_t num, bool enabled);
- 
+
  // SIGNAL_PATH_RESET register
  void resetGyroscopePath( void );
  void resetAccelerometerPath( void );
  void resetTemperaturePath( void );
- 
+
  // MOT_DETECT_CTRL register
  uint8_t GetAccelerometerPowerOnDelay( void );
  void SetAccelerometerPowerOnDelay(uint8_t delay);
@@ -609,7 +609,7 @@ public:
  void SetFreefallDetectionCounterDecrement(uint8_t decrement);
  uint8_t GetMotionDetectionCounterDecrement( void );
  void SetMotionDetectionCounterDecrement(uint8_t decrement);
- 
+
  // USER_CTRL register
  bool GetFIFOEnabled( void );
  void SetFIFOEnabled(bool enabled);
@@ -619,7 +619,7 @@ public:
  void resetFIFO( void );
  void resetI2CMaster( void );
  void resetSensors( void );
- 
+
  // PWR_MGMT_1 register
  void reset( void );
  bool GetSleepEnabled( void );
@@ -630,7 +630,7 @@ public:
  void SetTempSensorEnabled(bool enabled);
  uint8_t GetClockSource( void );
  void SetClockSource(uint8_t source);
- 
+
  // PWR_MGMT_2 register
  uint8_t GetWakeFrequency( void );
  void SetWakeFrequency(uint8_t frequency);
@@ -646,77 +646,77 @@ public:
  void SetStandbyYGyroEnabled(bool enabled);
  bool GetStandbyZGyroEnabled( void );
  void SetStandbyZGyroEnabled(bool enabled);
- 
+
  // FIFO_COUNT_* registers
  uint16_t GetFIFOCount( void );
- 
+
  // FIFO_R_W register
  uint8_t GetFIFOByte( void );
  void SetFIFOByte(uint8_t data);
  void GetFIFOBytes(uint8_t *data, uint8_t length);
- 
+
  // WHO_AM_I register
  uint8_t GetDeviceID( void );
  void SetDeviceID(uint8_t id);
- 
+
  // ======== UNDOCUMENTED/DMP REGISTERS/METHODS ========
- 
+
  // XG_OFFS_TC register
  uint8_t GetOTPBankValid( void );
  void SetOTPBankValid(bool enabled);
  int8_t GetXGyroOffsetTC( void );
  void SetXGyroOffsetTC(int8_t offset);
- 
+
  // YG_OFFS_TC register
  int8_t GetYGyroOffsetTC( void );
  void SetYGyroOffsetTC(int8_t offset);
- 
+
  // ZG_OFFS_TC register
  int8_t GetZGyroOffsetTC( void );
  void SetZGyroOffsetTC(int8_t offset);
- 
+
  // X_FINE_GAIN register
  int8_t GetXFineGain( void );
  void SetXFineGain(int8_t gain);
- 
+
  // Y_FINE_GAIN register
  int8_t GetYFineGain( void );
  void SetYFineGain(int8_t gain);
- 
+
  // Z_FINE_GAIN register
  int8_t GetZFineGain( void );
  void SetZFineGain(int8_t gain);
- 
+
  // XA_OFFS_* registers
  int16_t GetXAccelOffset( void );
  void SetXAccelOffset(int16_t offset);
- 
+
  // YA_OFFS_* register
  int16_t GetYAccelOffset( void );
  void SetYAccelOffset(int16_t offset);
- 
+
  // ZA_OFFS_* register
  int16_t GetZAccelOffset( void );
  void SetZAccelOffset(int16_t offset);
- 
+
  // XG_OFFS_USR* registers
  int16_t GetXGyroOffset( void );
  void SetXGyroOffset(int16_t offset);
- 
+
  // YG_OFFS_USR* register
  int16_t GetYGyroOffset( void );
  void SetYGyroOffset(int16_t offset);
- 
+
  // ZG_OFFS_USR* register
  int16_t GetZGyroOffset( void );
  void SetZGyroOffset(int16_t offset);
- 
+
  // INT_ENABLE register (DMP functions)
  bool GetIntPLLReadyEnabled( void );
  void SetIntPLLReadyEnabled(bool enabled);
  bool GetIntDMPEnabled( void );
  void SetIntDMPEnabled(bool enabled);
- 
+
  // DMP_INT_STATUS
  bool GetDMPInt5Status( void );
  bool GetDMPInt4Status( void );
@@ -724,42 +724,42 @@ public:
  bool GetDMPInt2Status( void );
  bool GetDMPInt1Status( void );
  bool GetDMPInt0Status( void );
- 
+
  // INT_STATUS register (DMP functions)
  bool GetIntPLLReadyStatus( void );
  bool GetIntDMPStatus( void );
- 
+
  // USER_CTRL register (DMP functions)
  bool GetDMPEnabled( void );
  void SetDMPEnabled(bool enabled);
  void resetDMP( void );
- 
+
  // BANK_SEL register
  void SetMemoryBank(uint8_t bank, bool prefetchEnabled=false, bool userBank=false);
- 
+
  // MEM_START_ADDR register
  void SetMemoryStartAddress(uint8_t address);
- 
+
  // MEM_R_W register
  uint8_t readMemoryByte( void );
  void writeMemoryByte(uint8_t data);
  void readMemoryBlock(uint8_t *data, uint16_t dataSize, uint8_t bank=0, uint8_t address=0);
  // bool writeMemoryBlock(const uint8_t *data, uint16_t dataSize, uint8_t bank=0, uint8_t address=0, bool verify=true, bool useProgMem=false);
  // bool writeProgMemoryBlock(const uint8_t *data, uint16_t dataSize, uint8_t bank=0, uint8_t address=0, bool verify=true);
- 
+
  // bool writeDMPConfigurationSet(const uint8_t *data, uint16_t dataSize, bool useProgMem=false);
  // bool writeProgDMPConfigurationSet(const uint8_t *data, uint16_t dataSize);
- 
+
  // DMP_CFG_1 register
  uint8_t GetDMPConfig1( void );
  void SetDMPConfig1(uint8_t config);
- 
+
  // DMP_CFG_2 register
  void SetDMPConfig2(uint8_t config);
  uint8_t GetDMPConfig2( void );
 
- 
- 
+
+
 /*******************************************************************************
  * Public Data
  ******************************************************************************/
@@ -769,7 +769,7 @@ public:
  * Private Methods
  ******************************************************************************/
 private:
- 
+
 /*******************************************************************************
  * Private Data
  ******************************************************************************/

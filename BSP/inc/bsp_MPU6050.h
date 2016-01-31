@@ -3,9 +3,9 @@
  * Author:  Mitchell S. Tilson
  * Created: 03/15/2014
  *
- * Description: This file provides the interface to the gyro accelerometer 
+ * Description: This file provides the interface to the gyro accelerometer
  *		board.
- * 		
+ *
  ******************************************************************************/
 
 #pragma once

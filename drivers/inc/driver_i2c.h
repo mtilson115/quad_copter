@@ -21,22 +21,22 @@
  * Class definition
  ******************************************************************************/
 class I2C_Class {
-  
+
 /*******************************************************************************
  * Enumerated constants
  ******************************************************************************/
 private:
-    
+
     typedef enum {
         kI2C_WRITE = 0,
-        kI2C_READ,        
+        kI2C_READ,
     } I2C_read_type;
 
 /*******************************************************************************
  * Structure type definitions
  ******************************************************************************/
 public:
-    
+
     typedef struct
     {
       volatile REG_SET    con;
@@ -89,12 +89,12 @@ public:
     BOOL ReadRegWord( uint8_t dev_addr,
                       uint8_t reg_addr,
                       uint16_t* reg_word );
-											
+
     BOOL ReadRegWords(	uint8_t dev_addr,
                         uint8_t reg_addr,
                         uint8_t length,
 			uint16_t* buffer );
-											
+
     BOOL ReadRegBitB( uint8_t dev_addr,
                       uint8_t reg_addr,
                       uint8_t bit_num,
@@ -120,21 +120,21 @@ public:
     BOOL WriteRegByte( uint8_t dev_addr,
                        uint8_t reg_addr,
                        uint8_t reg_byte );
-											 
+
     BOOL WriteRegBytes(	uint8_t dev_addr,
-			uint8_t reg_addr, 
-			uint8_t length, 
+			uint8_t reg_addr,
+			uint8_t length,
 			uint8_t* buffer );
 
     BOOL WriteRegWord( uint8_t dev_addr,
                        uint8_t reg_addr,
                        uint16_t reg_word );
-											 
+
     BOOL WriteRegWords(	uint8_t dev_addr,
-			uint8_t reg_addr, 
-			uint8_t length, 
+			uint8_t reg_addr,
+			uint8_t length,
 			uint16_t* buffer );
-												
+
     BOOL WriteRegBitB( uint8_t dev_addr,
                        uint8_t reg_addr,
                        uint8_t bit_num,

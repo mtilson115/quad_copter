@@ -22,7 +22,7 @@
 */
 
 #define  BSP_TMR_RELOAD          (BSP_CLK_FREQ / (2 * OS_CFG_TICK_RATE_HZ))
-#define  BSP_DLY_CONST            BSP_CLK_FREQ / 1000000 
+#define  BSP_DLY_CONST            BSP_CLK_FREQ / 1000000
 
 #define  PB3_MASK                 _PORTD_RD13_MASK
 #define  PB2_MASK                 _PORTD_RD7_MASK
@@ -174,7 +174,7 @@ void  LED_Toggle (CPU_INT08U led)
 *********************************************************************************************************
 */
 
-void  LED_Init (void) 
+void  LED_Init (void)
 {
     LED_Off(0);                                                               /* Turn off all of the LEDs                   */
 }
@@ -192,7 +192,7 @@ void  LED_Init (void)
 */
 
 static  void  BSP_IO_Init (void)
-{                                                                    
+{
     mPORTDOutputConfig((IOPORT_BIT_0 | IOPORT_BIT_1 | IOPORT_BIT_2));         /* Each LED pin is set up as an output        */
 }
 
@@ -210,15 +210,15 @@ static  void  BSP_IO_Init (void)
 
 void  Tmr_Init (void)
 {
-    OpenCoreTimer(BSP_TMR_RELOAD);                                            /* Initialize the Count and Compare registers */                                               
-    mConfigIntCoreTimer((CT_INT_ON | CT_INT_PRIOR_3));                        /* Enable the core timer's interrupt          */      
+    OpenCoreTimer(BSP_TMR_RELOAD);                                            /* Initialize the Count and Compare registers */
+    mConfigIntCoreTimer((CT_INT_ON | CT_INT_PRIOR_3));                        /* Enable the core timer's interrupt          */
 }
 
 /*
 *********************************************************************************************************
 *                                  BSP_TickISR_Handler()
 *
-* Description : 
+* Description :
 *
 * Arguments   : None
 *********************************************************************************************************
@@ -251,7 +251,7 @@ void  BSP_Except_Handler (void)
 *********************************************************************************************************
 *                                    BSP_DefaultHandler()
 *
-* Description: If an interrupt occurs, and no application-specific code has been written for that 
+* Description: If an interrupt occurs, and no application-specific code has been written for that
 *              interrupt, this function will be invoked.
 *
 * Arguments  : None
@@ -296,13 +296,13 @@ void  OSProbe_TmrInit (void)
 CPU_INT32U  OSProbe_TmrRd (void)
 {
     return  (ReadTimer1());
-}  
+}
 
-/* 
+/*
 *********************************************************************************************************
 *                                        PB_Init()
 *
-* Description: This function performs the initialization for the push buttons.                                         
+* Description: This function performs the initialization for the push buttons.
 *
 * Arguments  : None
 *
@@ -314,7 +314,7 @@ static  void  PB_Init (void)
 {
     PB_Config();                                                        /* Configure the port pins                                  */
     PB_IntInit();                                                       /* Configure interrupt settings                             */
-}    
+}
 
 /*
 *********************************************************************************************************
@@ -333,8 +333,8 @@ static  void  PB_Config (void)
     PB3_TRIS = 1;                                                       /* Set the pin corresponding to our push button as input    */
     PB2_TRIS = 1;                                                       /* Set the pin corresponding to our push button as input    */
     PB1_TRIS = 1;                                                       /* Set the pin corresponding to our push button as input    */
-}    
-    
+}
+
 /*
 *********************************************************************************************************
 *                                        PB_IntInit()
@@ -352,30 +352,30 @@ static  void  PB_IntInit (void)
     CPU_INT32U  dummy_read;
     CPU_INT32U  config1;
     CPU_INT32U  config2;
-    
-    
+
+
     config1 = CN19_PULLUP_ENABLE;
-    
+
     config2 = CHANGE_INT_ON
-            | CHANGE_INT_PRI_3; 
-    
+            | CHANGE_INT_PRI_3;
+
     CNCON = 0x8000;                                                     /* Enable the change notice module                          */
-        
+
     EnableCN19();                                                       /* Enable change notice pin 19, tied to our push button     */
-    
+
     ConfigCNPullups(config1);                                           /* Enable a weak pull-up corresponding to the CN pin        */
-    
+
     dummy_read = PORTD;                                                 /* Perform a dummy read to clear any mismatch conditions    */
-            
+
     mCNClearIntFlag();                                                  /* Clear the int32_t flag just in case it was triggered         */
-    
+
     ConfigIntCN(config2);                                               /* Enable CN interrupts at priority level 3                 */
-}    
+}
 
 /*
 *********************************************************************************************************
 *                                                BSP_Dly()
-* 
+*
 * Description: Perform a short delay (~1uS) by performing multiple NOP.
 *
 * Arguments  : us           The number of uS to delay (approximate).
@@ -387,19 +387,19 @@ static  void  PB_IntInit (void)
 void  BSP_Dly (CPU_INT32U  us)
 {
     CPU_INT32U  dly;
-    
-    
+
+
     dly = us * BSP_DLY_CONST;
-    
+
     while (dly--) {
         __asm__("NOP");
-    }    
-}    
-    
+    }
+}
+
 /*
 *********************************************************************************************************
 *                                             BSP_IntDisAll()
-* 
+*
 * Description: Disable all interrupts at the interrupt controller.
 *
 * Arguments  : None
@@ -425,16 +425,16 @@ void  BSP_IntDisAll (void)
 *********************************************************************************************************
 */
 
-static  void  BSP_InitIntCtrl (void) 
+static  void  BSP_InitIntCtrl (void)
 {
-    INTCONSET = 0x1000; 
+    INTCONSET = 0x1000;
     INTEnableSystemMultiVectoredInt();
 }
 
 /*
 *********************************************************************************************************
 *                                             BSP_InitIO()
-* 
+*
 * Description: Initialize all the I/O devices.
 *
 * Arguments  : None
@@ -443,13 +443,13 @@ static  void  BSP_InitIntCtrl (void)
 *********************************************************************************************************
 */
 
-void  BSP_InitIO (void)    
+void  BSP_InitIO (void)
 {
                                                                         /* Enable optimal performance                       */
     SYSTEMConfigPerformance(BSP_CLK_FREQ);
     mOSCSetPBDIV(OSC_PB_DIV_1);                                         /* Use 1:1 CPU Core:Peripheral clocks               */
 
-#if JTAG_ENABLE 
+#if JTAG_ENABLE
     DDPCONbits.JTAGEN = 1;                                              /* Maintain the port pins for JTAG use              */
 #else
     DDPCONbits.JTAGEN = 0;                                              /* Free the JTAG port pins for use as GPIO          */

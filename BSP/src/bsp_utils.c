@@ -72,18 +72,18 @@ void BSP_Printf( const int8_t* format, ... )
     va_list arg;
     int8_t* buffer;
     uint32_t len = 0;
-		
+
     va_start (arg, format);
     len = vsnprintf(0,0,format,arg);
     va_end (arg);
-    
+
     buffer = malloc(++len);
 
     va_start (arg, format);
     len = vsnprintf(buffer,len,format,arg);
     va_end (arg);
-	
+
     Uart_write(id_,len,(uint8_t*)&buffer[0]);
-		
+
     free(buffer);
 }
