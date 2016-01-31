@@ -253,7 +253,7 @@ int QCPLayer::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     _id = QObject::qt_metacall(_c, _id, _a);
     if (_id < 0)
         return _id;
-    
+
 #ifndef QT_NO_PROPERTIES
      if (_c == QMetaObject::ReadProperty) {
         void *_v = _a[0];
@@ -666,7 +666,7 @@ int QCPLayoutElement::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     _id = QCPLayerable::qt_metacall(_c, _id, _a);
     if (_id < 0)
         return _id;
-    
+
 #ifndef QT_NO_PROPERTIES
      if (_c == QMetaObject::ReadProperty) {
         void *_v = _a[0];
@@ -866,7 +866,7 @@ int QCPLayoutGrid::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     _id = QCPLayout::qt_metacall(_c, _id, _a);
     if (_id < 0)
         return _id;
-    
+
 #ifndef QT_NO_PROPERTIES
      if (_c == QMetaObject::ReadProperty) {
         void *_v = _a[0];
@@ -1123,7 +1123,7 @@ int QCPGrid::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     _id = QCPLayerable::qt_metacall(_c, _id, _a);
     if (_id < 0)
         return _id;
-    
+
 #ifndef QT_NO_PROPERTIES
      if (_c == QMetaObject::ReadProperty) {
         void *_v = _a[0];
@@ -2976,7 +2976,7 @@ int QCPAxisRect::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     _id = QCPLayoutElement::qt_metacall(_c, _id, _a);
     if (_id < 0)
         return _id;
-    
+
 #ifndef QT_NO_PROPERTIES
      if (_c == QMetaObject::ReadProperty) {
         void *_v = _a[0];
@@ -4229,7 +4229,7 @@ int QCPGraph::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     _id = QCPAbstractPlottable::qt_metacall(_c, _id, _a);
     if (_id < 0)
         return _id;
-    
+
 #ifndef QT_NO_PROPERTIES
      if (_c == QMetaObject::ReadProperty) {
         void *_v = _a[0];
@@ -4351,7 +4351,7 @@ int QCPCurve::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     _id = QCPAbstractPlottable::qt_metacall(_c, _id, _a);
     if (_id < 0)
         return _id;
-    
+
 #ifndef QT_NO_PROPERTIES
      if (_c == QMetaObject::ReadProperty) {
         void *_v = _a[0];
@@ -4468,7 +4468,7 @@ int QCPBars::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     _id = QCPAbstractPlottable::qt_metacall(_c, _id, _a);
     if (_id < 0)
         return _id;
-    
+
 #ifndef QT_NO_PROPERTIES
      if (_c == QMetaObject::ReadProperty) {
         void *_v = _a[0];
@@ -4608,7 +4608,7 @@ int QCPStatisticalBox::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     _id = QCPAbstractPlottable::qt_metacall(_c, _id, _a);
     if (_id < 0)
         return _id;
-    
+
 #ifndef QT_NO_PROPERTIES
      if (_c == QMetaObject::ReadProperty) {
         void *_v = _a[0];
@@ -4994,7 +4994,7 @@ int QCPItemStraightLine::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     _id = QCPAbstractItem::qt_metacall(_c, _id, _a);
     if (_id < 0)
         return _id;
-    
+
 #ifndef QT_NO_PROPERTIES
      if (_c == QMetaObject::ReadProperty) {
         void *_v = _a[0];
@@ -5107,7 +5107,7 @@ int QCPItemLine::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     _id = QCPAbstractItem::qt_metacall(_c, _id, _a);
     if (_id < 0)
         return _id;
-    
+
 #ifndef QT_NO_PROPERTIES
      if (_c == QMetaObject::ReadProperty) {
         void *_v = _a[0];
@@ -5224,7 +5224,7 @@ int QCPItemCurve::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     _id = QCPAbstractItem::qt_metacall(_c, _id, _a);
     if (_id < 0)
         return _id;
-    
+
 #ifndef QT_NO_PROPERTIES
      if (_c == QMetaObject::ReadProperty) {
         void *_v = _a[0];
@@ -5340,7 +5340,7 @@ int QCPItemRect::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     _id = QCPAbstractItem::qt_metacall(_c, _id, _a);
     if (_id < 0)
         return _id;
-    
+
 #ifndef QT_NO_PROPERTIES
      if (_c == QMetaObject::ReadProperty) {
         void *_v = _a[0];
@@ -5479,7 +5479,7 @@ int QCPItemText::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     _id = QCPAbstractItem::qt_metacall(_c, _id, _a);
     if (_id < 0)
         return _id;
-    
+
 #ifndef QT_NO_PROPERTIES
      if (_c == QMetaObject::ReadProperty) {
         void *_v = _a[0];
@@ -5613,7 +5613,7 @@ int QCPItemEllipse::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     _id = QCPAbstractItem::qt_metacall(_c, _id, _a);
     if (_id < 0)
         return _id;
-    
+
 #ifndef QT_NO_PROPERTIES
      if (_c == QMetaObject::ReadProperty) {
         void *_v = _a[0];
@@ -5732,7 +5732,7 @@ int QCPItemPixmap::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     _id = QCPAbstractItem::qt_metacall(_c, _id, _a);
     if (_id < 0)
         return _id;
-    
+
 #ifndef QT_NO_PROPERTIES
      if (_c == QMetaObject::ReadProperty) {
         void *_v = _a[0];
@@ -5884,7 +5884,7 @@ int QCPItemTracer::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     _id = QCPAbstractItem::qt_metacall(_c, _id, _a);
     if (_id < 0)
         return _id;
-    
+
 #ifndef QT_NO_PROPERTIES
      if (_c == QMetaObject::ReadProperty) {
         void *_v = _a[0];
@@ -6011,7 +6011,7 @@ int QCPItemBracket::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     _id = QCPAbstractItem::qt_metacall(_c, _id, _a);
     if (_id < 0)
         return _id;
-    
+
 #ifndef QT_NO_PROPERTIES
      if (_c == QMetaObject::ReadProperty) {
         void *_v = _a[0];

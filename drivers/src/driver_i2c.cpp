@@ -64,16 +64,16 @@ I2C_Class::I2C_Class()
 
 /*******************************************************************************
  * Init
- * 
+ *
  * Description: Initializes the i2c identified by the ID (only 2 i2c
  *              periferals are supported)
- * 
+ *
  * Inputs:      float buad - buad rate
- * 
- * 
+ *
+ *
  * Revision: Initial Creation 2/27/2014 - Mitchell S. Tilson
  *           Update to c++ 3/18/2014 - Mitchell S. Tilson
- *          
+ *
  ******************************************************************************/
 void I2C_Class::Init( I2C_ID id, float baud )
 {
@@ -116,14 +116,14 @@ void I2C_Class::Init( I2C_ID id, float baud )
 
 /*******************************************************************************
  * ReadRegByte
- * 
+ *
  * Description:	Reads a register that is 8 bits wide
- * 
+ *
  * Inputs: I2C_MSG* - the message to send and get data with
- * 
+ *
  * Revision: Initial Creation 3/15/2014 - Mitchell S. Tilson
  *           Update to c++ 3/18/2014 - Mitchell S. Tilson
- * 
+ *
  * Notes: I2C_Init must be called first
  ******************************************************************************/
 BOOL I2C_Class::ReadRegByte( uint8_t dev_addr, uint8_t reg_addr, uint8_t* reg_byte )
@@ -136,12 +136,12 @@ BOOL I2C_Class::ReadRegByte( uint8_t dev_addr, uint8_t reg_addr, uint8_t* reg_by
 	msg.data 	= reg_byte;
 	msg.count 	= 1;
 
-	// Communicate with the device to get the register	
+	// Communicate with the device to get the register
 	if( 1 == communicate(&msg) ) {
             return TRUE;
 	} else {
             return FALSE;
-	}	
+	}
 }
 
 /*******************************************************************************
@@ -179,16 +179,16 @@ BOOL I2C_Class::ReadRegBytes( uint8_t dev_addr, uint8_t reg_addr, uint8_t length
 
 /*******************************************************************************
  * ReadRegWord
- * 
+ *
  * Description:	Reads a register that is 16 bits wide
- * 
+ *
  * Inputs: dev_addr - the device address
  *         reg_addr - the register address
  *         reg_word - pointer to store the word in
- * 
+ *
  * Revision: Initial Creation 3/15/2014 - Mitchell S. Tilson
  *           Update to c++ 3/18/2014 - Mitchell S. Tilson
- *         
+ *
  * Notes: I2C_Init must be called first
  ******************************************************************************/
 BOOL I2C_Class::ReadRegWord( uint8_t dev_addr, uint8_t reg_addr, uint16_t* reg_word )
@@ -202,7 +202,7 @@ BOOL I2C_Class::ReadRegWord( uint8_t dev_addr, uint8_t reg_addr, uint16_t* reg_w
 	msg.data 	= &data[0];
 	msg.count 	= 2;
 
-	// Communicate with the device to get the register	
+	// Communicate with the device to get the register
 	if( 2 == communicate(&msg) ) {
 		*reg_word = (((uint16_t)(data[0])) << 8) | ((uint16_t)(data[1]));
 		return TRUE;
@@ -236,7 +236,7 @@ BOOL I2C_Class::ReadRegWords( uint8_t dev_addr, uint8_t reg_addr, uint8_t length
 	msg.dir 	= kI2C_READ;
 	msg.data 	= &data[0];
 	msg.count 	= length*2;
-    
+
 	// Communicate with the device to get the register
 	if( length*2 == communicate(&msg) ) {
         for( uint32_t i = 0; i < length; i++ ) {
@@ -250,24 +250,24 @@ BOOL I2C_Class::ReadRegWords( uint8_t dev_addr, uint8_t reg_addr, uint8_t length
 
 /*******************************************************************************
  * ReadRegBitB
- * 
+ *
  * Description:	Reads a bit from an 8 bit register
- * 
+ *
  * Inputs: dev_addr - the device address
  *				 reg_addr - the register to read address
  *				 bit_num - the bit number to read
  *				 reg_bit - the register bit read
- *				 
+ *
  * Returns: TRUE if the read was successful FALSE otherwise
  *
  * Revision: Initial Creation 3/24/2014 - Mitchell S. Tilson
- *         
+ *
  ******************************************************************************/
 BOOL I2C_Class::ReadRegBitB( uint8_t dev_addr, uint8_t reg_addr, uint8_t bit_num, uint8_t* reg_bit )
 {
 	uint8_t reg_byte;
-	reg_byte = 0; 
-	
+	reg_byte = 0;
+
 	if( TRUE == ReadRegByte( dev_addr, reg_addr, &reg_byte ) ) {
 		*reg_bit = reg_byte & (1 << bit_num);
 		return TRUE;
@@ -277,24 +277,24 @@ BOOL I2C_Class::ReadRegBitB( uint8_t dev_addr, uint8_t reg_addr, uint8_t bit_num
 
 /*******************************************************************************
  * ReadRegBitW
- * 
+ *
  * Description:	Reads a bit from a 16 bit register
- * 
+ *
  * Inputs: dev_addr - the device address
  *				 reg_addr - the register to read address
  *				 bit_num - the bit number to read
  *				 reg_bit - the register bit read
- *				 
+ *
  * Returns: TRUE if the read was successful FALSE otherwise
  *
  * Revision: Initial Creation 3/24/2014 - Mitchell S. Tilson
- *         
+ *
  ******************************************************************************/
 BOOL I2C_Class::ReadRegBitW( uint8_t dev_addr, uint8_t reg_addr, uint8_t bit_num, uint16_t* reg_bit )
 {
 	uint16_t reg_word;
 	reg_word = 0;
-	
+
 	if( TRUE == ReadRegWord( dev_addr, reg_addr, &reg_word ) ) {
 		*reg_bit = reg_word & (1 << bit_num);
 		return TRUE;
@@ -312,7 +312,7 @@ BOOL I2C_Class::ReadRegBitW( uint8_t dev_addr, uint8_t reg_addr, uint8_t bit_num
  * 				 bit_start - First bit position to read (0-7)
  * 				 length - Number of bits to read (not more than 8)
  * 				 reg_bits - data for right-aligned value (i.e. '101' read from any bitStart position will equal 0x05)
- * 
+ *
  * Returns: Status of read operation (TRUE = success)
  *
  * Revision: Initial Creation 3/24/2014 - Mitchell S. Tilson (Credit to Arduino I2Cdev.cpp)
@@ -324,7 +324,7 @@ BOOL I2C_Class::ReadRegBitW( uint8_t dev_addr, uint8_t reg_addr, uint8_t bit_num
  *				010   masked
  *				-> 010 shifted
  ******************************************************************************/
-BOOL I2C_Class::ReadRegBitsB( uint8_t dev_addr, uint8_t reg_addr, uint8_t bit_start, uint8_t length, uint8_t* reg_bits ) 
+BOOL I2C_Class::ReadRegBitsB( uint8_t dev_addr, uint8_t reg_addr, uint8_t bit_start, uint8_t length, uint8_t* reg_bits )
 {
     uint8_t reg_byte;
     if( TRUE == ReadRegByte(dev_addr, reg_addr, &reg_byte) ) {
@@ -347,7 +347,7 @@ BOOL I2C_Class::ReadRegBitsB( uint8_t dev_addr, uint8_t reg_addr, uint8_t bit_st
  * 				 bit_start - First bit position to read (0-7)
  * 				 length - Number of bits to read (not more than 8)
  * 				 reg_bits - data for right-aligned value (i.e. '101' read from any bitStart position will equal 0x05)
- * 
+ *
  * Returns: Status of read operation (TRUE = success)
  *
  * Revision: Initial Creation 3/24/2014 - Mitchell S. Tilson (Credit to Arduino I2Cdev.cpp)
@@ -359,7 +359,7 @@ BOOL I2C_Class::ReadRegBitsB( uint8_t dev_addr, uint8_t reg_addr, uint8_t bit_st
  *				   010           masked
  *				       -> 010 shifted
  ******************************************************************************/
-BOOL I2C_Class::ReadRegBitsW( uint8_t dev_addr, uint8_t reg_addr, uint8_t bit_start, uint8_t length, uint16_t* reg_bits ) 
+BOOL I2C_Class::ReadRegBitsW( uint8_t dev_addr, uint8_t reg_addr, uint8_t bit_start, uint8_t length, uint16_t* reg_bits )
 {
     uint16_t reg_word;
     if( TRUE == ReadRegWord(dev_addr, reg_addr, &reg_word) ) {
@@ -374,15 +374,15 @@ BOOL I2C_Class::ReadRegBitsW( uint8_t dev_addr, uint8_t reg_addr, uint8_t bit_st
 
 /*******************************************************************************
  * WriteRegByte
- * 
+ *
  * Description:	Writes a register that is 8 bits wide
- * 
+ *
  * Inputs: dev_addr - the I2C device address
  *				 reg_addr - the I2C device's register address
  *				 reg_byte - the byte to write to the register
- * 
+ *
  * Revision: Initial Creation 3/24/2014 - Mitchell S. Tilson
- * 
+ *
  * Notes: I2C_Init must be called first
  ******************************************************************************/
 BOOL I2C_Class::WriteRegByte( uint8_t dev_addr, uint8_t reg_addr, uint8_t reg_byte )
@@ -395,12 +395,12 @@ BOOL I2C_Class::WriteRegByte( uint8_t dev_addr, uint8_t reg_addr, uint8_t reg_by
 	msg.data        = &reg_byte;
 	msg.count 	= 1;
 
-	// Communicate with the device to get the register	
+	// Communicate with the device to get the register
 	if( 1 == communicate(&msg) ) {
             return TRUE;
 	} else {
             return FALSE;
-	}	
+	}
 }
 
 /*******************************************************************************
@@ -421,32 +421,32 @@ BOOL I2C_Class::WriteRegBytes( uint8_t dev_addr, uint8_t reg_addr, uint8_t lengt
 {
 	// Build the message
 	I2C_MSG msg;
-    
+
 	msg.dev_addr  = dev_addr;
 	msg.reg_addr 	= reg_addr;
 	msg.dir 			= kI2C_WRITE;
 	msg.data 			= buffer;
 	msg.count 		= length;
-    
+
 	// Communicate with the device to get the register
 	if( length == communicate(&msg) ) {
 		return TRUE;
 	} else {
         return FALSE;
-	}	
+	}
 }
 
 /*******************************************************************************
  * WriteRegWord
- * 
+ *
  * Description:	Writes a register that is 16 bits wide
- * 
+ *
  * Inputs: dev_addr - the I2C device address
  *				 reg_addr - the I2C device's register address
  *				 reg_word - the word to write to the register
- * 
+ *
  * Revision: Initial Creation 3/24/2014 - Mitchell S. Tilson
- * 
+ *
  * Notes: I2C_Init must be called first
  ******************************************************************************/
 BOOL I2C_Class::WriteRegWord( uint8_t dev_addr, uint8_t reg_addr, uint16_t reg_word )
@@ -462,12 +462,12 @@ BOOL I2C_Class::WriteRegWord( uint8_t dev_addr, uint8_t reg_addr, uint16_t reg_w
 	msg.data 			= data;
 	msg.count 		= 2;
 
-	// Communicate with the device to get the register	
+	// Communicate with the device to get the register
 	if( 2 == communicate(&msg) ) {
 		return TRUE;
 	} else {
     return FALSE;
-	}	
+	}
 }
 
 /*******************************************************************************
@@ -498,29 +498,29 @@ BOOL I2C_Class::WriteRegWords( uint8_t dev_addr, uint8_t reg_addr, uint8_t lengt
 	msg.dir 			= kI2C_WRITE;
 	msg.data 			= data;
 	msg.count 		= length*2;
-    
+
 	// Communicate with the device to get the register
 	if( length*2 == communicate(&msg) ) {
 		return TRUE;
 	} else {
         return FALSE;
-	}	
+	}
 }
 
 /*******************************************************************************
  * WriteRegBitB
- * 
+ *
  * Description:	Write a bit to an 8 bit register
- * 
+ *
  * Inputs: dev_addr - the device address
  *				 reg_addr - the register to write address
  *				 bit_num - the bit number to write
  *				 reg_bit - the register bit write
- *				 
+ *
  * Returns: TRUE if the write was successful FALSE otherwise
  *
  * Revision: Initial Creation 3/24/2014 - Mitchell S. Tilson
- *         
+ *
  ******************************************************************************/
 BOOL I2C_Class::WriteRegBitB( uint8_t dev_addr, uint8_t reg_addr, uint8_t bit_num, uint8_t reg_bit )
 {
@@ -530,28 +530,28 @@ BOOL I2C_Class::WriteRegBitB( uint8_t dev_addr, uint8_t reg_addr, uint8_t bit_nu
 	} else {
 		return FALSE;
 	}
-	
+
 	if( TRUE == WriteRegByte( dev_addr, reg_addr, reg_byte ) ) {
 		return TRUE;
 	}
-	
+
 	return FALSE;
 }
 
 /*******************************************************************************
  * WriteRegBitW
- * 
+ *
  * Description:	Write a bit to a 16 bit register
- * 
+ *
  * Inputs: dev_addr - the device address
  *				 reg_addr - the register to write address
  *				 bit_num - the bit number to write
  *				 reg_bit - the register bit write
- *				 
+ *
  * Returns: TRUE if the write was successful FALSE otherwise
  *
  * Revision: Initial Creation 3/24/2014 - Mitchell S. Tilson
- *         
+ *
  ******************************************************************************/
 BOOL I2C_Class::WriteRegBitW( uint8_t dev_addr, uint8_t reg_addr, uint8_t bit_num, uint8_t reg_bit )
 {
@@ -561,29 +561,29 @@ BOOL I2C_Class::WriteRegBitW( uint8_t dev_addr, uint8_t reg_addr, uint8_t bit_nu
 	} else {
 		return FALSE;
 	}
-	
+
 	if( TRUE == WriteRegWord( dev_addr, reg_addr, reg_word ) ) {
 		return TRUE;
 	}
-	
+
 	return FALSE;
 }
 
 /*******************************************************************************
  * WriteRegBitsB
- * 
+ *
  * Description:	Write a bit patten to an 8 bit register
- * 
+ *
  * Inputs: dev_addr - the device address
  *				 reg_addr - the register to write address
  *				 bit_start - starting location of the bit patter to write
  *				 length - the length of the bit pattern to write
  *				 reg_bits - the bit pattern to write
- *				 
+ *
  * Returns: TRUE if the write was successful FALSE otherwise
  *
  * Revision: Initial Creation 3/24/2014 - Mitchell S. Tilson
- *         
+ *
  * Example:
  *
  *      010 value to write
@@ -606,29 +606,29 @@ BOOL I2C_Class::WriteRegBitsB( uint8_t dev_addr, uint8_t reg_addr, uint8_t bit_s
 	} else {
 		return FALSE;
 	}
-	
+
 	if( TRUE == WriteRegByte( dev_addr, reg_addr, reg_byte ) ) {
 		return TRUE;
 	}
-	
+
 	return FALSE;
 }
 
 /*******************************************************************************
  * WriteRegBitsW
- * 
+ *
  * Description:	Write a bit patten to a 16 bit register
- * 
+ *
  * Inputs: dev_addr - the device address
  *				 reg_addr - the register to write address
  *				 bit_start - starting location of the bit pattern to write
  *				 length - the length of the bit pattern to write
  *				 reg_bits - the bit pattern to write
- *				 
+ *
  * Returns: TRUE if the write was successful FALSE otherwise
  *
  * Revision: Initial Creation 3/24/2014 - Mitchell S. Tilson
- *        
+ *
  * Example:
  *
  *              010 value to write
@@ -651,11 +651,11 @@ BOOL I2C_Class::WriteRegBitsW( uint8_t dev_addr, uint8_t reg_addr, uint8_t bit_s
 	} else {
 		return FALSE;
 	}
-	
+
 	if( TRUE == WriteRegWord( dev_addr, reg_addr, reg_word ) ) {
 		return TRUE;
 	}
-	
+
 	return FALSE;
 }
 
@@ -675,7 +675,7 @@ BOOL I2C_Class::WriteRegBitsW( uint8_t dev_addr, uint8_t reg_addr, uint8_t bit_s
  *
  * Revision: Initial Creation 1/1/2014 - Mitchell S. Tilson
  *           Update to c++ 3/18/2014 - Mitchell S. Tilson
- * 
+ *
  ******************************************************************************/
 void I2C_Class::enable( void )
 {
@@ -777,12 +777,12 @@ int I2C_Class::communicate( I2C_MSG* msg )
             } else if( msg->dir == kI2C_READ ) {
 
                 while( msg->count != 0 ) {
-                    
+
                     // Read the data
                     if( FALSE == read_byte(&msg->data[byte_count]) ) {
                         break;
                     } else if( 1 != msg->count ) {
-                        
+
                         // Send ack
                         regs_->con.clr = I2C_CON_ACKDT(1);
                         regs_->con.set = I2C_CON_ACKEN(1);
@@ -813,14 +813,14 @@ int I2C_Class::communicate( I2C_MSG* msg )
 
 /*******************************************************************************
  * con_setup
- * 
+ *
  * Description: Sets up the con register for the i2c peripherial
  *
  * Inputs: none
- * 
+ *
  * Revision: Initial Creation 3/02/2014 - Mitchell S. Tilson
  *           Update to c++ 3/18/2014 - Mitchell S. Tilson
- *         
+ *
  ******************************************************************************/
 void I2C_Class::con_setup( void )
 {
@@ -852,20 +852,20 @@ void I2C_Class::con_setup( void )
 
 /*******************************************************************************
  * stat_setup
- * 
+ *
  * Description: Sets up the STAT register
  *
  * Inputs: none
- * 
+ *
  * Revision: Initial Creation 3/02/2014 - Mitchell S. Tilson
  *           Update to c++ 3/18/2014 - Mitchell S. Tilson
- * 
+ *
  * Note: Right now, this funciton makes no changes to the stat register
- *         
+ *
  ******************************************************************************/
 void I2C_Class::stat_setup( void )
 {
-	
+
     //ACKSTAT   // read only bit showing wether an ACK was recieved or no
     //TRSTAT	// read only bit indicating if a transmission is in progress
     //ACKTIM	// read only bit indicating bus is in an ACK sequence (slave mode only)
@@ -884,15 +884,15 @@ void I2C_Class::stat_setup( void )
 
 /*******************************************************************************
  * addr_setup
- * 
+ *
  * Description: Sets the slave address.  It is 0 for now because its not
  *              planned to use the i2c in slave mode.
  *
  * Inputs: none
- * 
+ *
  * Revision: Initial Creation 3/02/2014 - Mitchell S. Tilson
  *           Update to c++ 3/18/2014 - Mitchell S. Tilson
- *         
+ *
  ******************************************************************************/
 void I2C_Class::addr_setup( void )
 {
@@ -901,15 +901,15 @@ void I2C_Class::addr_setup( void )
 
 /*******************************************************************************
  * add_msk_setup
- * 
- * Description: Sets up a mask of don't cares that allowed for addresses that we can receive from.  This will 
+ *
+ * Description: Sets up a mask of don't cares that allowed for addresses that we can receive from.  This will
  *		always be a zero as we only service one address.
  *
  * Inputs: none
- * 
+ *
  * Revision: Initial Creation 3/02/2014 - Mitchell S. Tilson
  *           Update to c++ 3/18/2014 - Mitchell S. Tilson
- *         
+ *
  ******************************************************************************/
 void I2C_Class::addr_msk_setup( void )
 {
@@ -918,14 +918,14 @@ void I2C_Class::addr_msk_setup( void )
 
 /*******************************************************************************
  * set_baud
- * 
+ *
  * Description: Sets the buad rate.  Can either be 400kHz or 100kHz.
  *
  * Inputs: none
- * 
+ *
  * Revision: Initial Creation 3/02/2014 - Mitchell S. Tilson
  *           Update to c++ 3/18/2014 - Mitchell S. Tilson
- *         
+ *
  ******************************************************************************/
 void I2C_Class::set_baud( void )
 {
@@ -939,7 +939,7 @@ void I2C_Class::set_baud( void )
         brg = 0;
     }
     regs_->brg.reg = (uint32_t)brg;
-}	
+}
 
 /*******************************************************************************
  * send_dev_address
@@ -977,7 +977,7 @@ BOOL I2C_Class::send_dev_address( I2C_MSG* msg, I2C_start_type start_type )
         addr_byte = (msg->dev_addr << 1) | kI2C_WRITE;
 
     } else if( start_type == kRESTART ) {
-            
+
         // Assert the restart condition
         regs_->con.set = I2C_CON_RSEN(1);
 
@@ -1002,7 +1002,7 @@ BOOL I2C_Class::send_dev_address( I2C_MSG* msg, I2C_start_type start_type )
  *
  * Revision: Initial Creation 3/15/2014 - Mitchell S. Tilson
  *           Update to c++ 3/18/2014 - Mitchell S. Tilson
- * 
+ *
  ******************************************************************************/
 BOOL I2C_Class::send_reg_address( I2C_MSG* msg )
 {
