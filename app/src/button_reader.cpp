@@ -18,7 +18,7 @@ void start_reader( void )
 
     // Initialize the pwm driver
     pwm_init_t init_settings = {
-        16384,
+        2048,
         50,
     };
     PWM_init( PWM0, init_settings );

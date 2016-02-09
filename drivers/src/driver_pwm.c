@@ -77,7 +77,9 @@ int32_t pwm_set_cfg_pointer( pwm_num_e pwm );
  * Revision:    01/25/2016 - Mitchell S. Tilson - Update to use pwm_set_cfg_pointer,
  *              rearrange items, and to disable the peripheral first.
  *
- * Notes:       None
+ * Notes:       The clock is set up for 80MHz and the prescale value is set to 64.
+ *              For a 16bit timer, this means the slowest period is (1/80e6)*65535*256 = 0.209712.
+ *              The period can be calculated as perod_s = (1/80e6)*(init_settings.period)*64.
  *
  ******************************************************************************/
 void PWM_init( pwm_num_e pwm, pwm_init_t init_settings )
@@ -117,8 +119,8 @@ void PWM_init( pwm_num_e pwm, pwm_init_t init_settings )
     // 011 = 1:8 prescale value
     // 010 = 1:4 prescale value
     // 001 = 1:2 prescale value
-    // Current setting is 64
-    curr_pwm_cfg_p->TxCON->TCKPS0 = 0;
+    // Current setting is 256
+    curr_pwm_cfg_p->TxCON->TCKPS0 = 1;
     curr_pwm_cfg_p->TxCON->TCKPS1 = 1;
     curr_pwm_cfg_p->TxCON->TCKPS2 = 1;
 }
