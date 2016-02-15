@@ -9,6 +9,7 @@
 /*******************************************************************************
  * Includes
  ******************************************************************************/
+#include "type_defs.h"
 #include "driver_pwm.h"
 #include "perif_sfr_map.h"
 #include <p32xxxx.h>
@@ -28,6 +29,7 @@ typedef struct {
     volatile uint32_t* OCxR;
     volatile uint32_t* TMRy;
     volatile __T2CONbits_t* TxCON;
+    BOOL initialized;
 } pwm_config_t;
 
 /*******************************************************************************
@@ -40,6 +42,7 @@ pwm_config_t PWM0_cfg = {
     &OC1R,
     &TMR2,
     &T2CONbits,
+    FALSE,
 };
 
 pwm_config_t* curr_pwm_cfg_p;
@@ -77,6 +80,8 @@ int32_t pwm_set_cfg_pointer( pwm_num_e pwm );
  * Revision:    01/25/2016 - Mitchell S. Tilson - Update to use pwm_set_cfg_pointer,
  *              rearrange items, and to disable the peripheral first.
  *
+ *              02/14/2016 - Update to add in and set the initialized flag.
+ *
  * Notes:       The clock is set up for 80MHz and the prescale value is set to 64.
  *              For a 16bit timer, this means the slowest period is (1/80e6)*65535*256 = 0.209712.
  *              The period can be calculated as perod_s = (1/80e6)*(init_settings.period)*64.
@@ -88,6 +93,9 @@ void PWM_init( pwm_num_e pwm, pwm_init_t init_settings )
     {
         return;
     }
+
+    // Set the intialized flag
+    curr_pwm_cfg_p->initialized = FALSE;
 
     // Can't be greater than 2^16 - 1
     if( init_settings.period > 65535 )
@@ -123,6 +131,9 @@ void PWM_init( pwm_num_e pwm, pwm_init_t init_settings )
     curr_pwm_cfg_p->TxCON->TCKPS0 = 1;
     curr_pwm_cfg_p->TxCON->TCKPS1 = 1;
     curr_pwm_cfg_p->TxCON->TCKPS2 = 1;
+
+    // Set the intialized flag
+    curr_pwm_cfg_p->initialized = TRUE;
 }
 
 /*******************************************************************************
@@ -136,12 +147,19 @@ void PWM_init( pwm_num_e pwm, pwm_init_t init_settings )
  *
  * Revision:    Initial Creation 01/25/2016 - Mitchell S. Tilson
  *
- * Notes:       Need to add check to see if it is initialized first
+ *              02/14/2016 - chech intialization.
+ *
+ * Notes:
  *
  ******************************************************************************/
 void PWM_start( pwm_num_e pwm )
 {
     if( -1 == pwm_set_cfg_pointer( pwm ) )
+    {
+        return;
+    }
+
+    if( !curr_pwm_cfg_p->initialized )
     {
         return;
     }
@@ -164,12 +182,19 @@ void PWM_start( pwm_num_e pwm )
  *
  * Revision:    Initial Creation 01/25/2016 - Mitchell S. Tilson
  *
- * Notes:       Need to add check to see if it is initialized first
+ *              02/14/2016 - chech intialization.
+ *
+ * Notes:
  *
  ******************************************************************************/
 void PWM_stop( pwm_num_e pwm )
 {
     if( -1 == pwm_set_cfg_pointer( pwm ) )
+    {
+        return;
+    }
+
+    if( !curr_pwm_cfg_p->initialized )
     {
         return;
     }
@@ -193,12 +218,19 @@ void PWM_stop( pwm_num_e pwm )
  *
  * Revision:    Initial Creation 01/25/2016 - Mitchell S. Tilson
  *
- * Notes:       Need to add check to see if it is initialized first
+ *              02/14/2016 - chech intialization.
+ *
+ * Notes:
  *
  ******************************************************************************/
 void PWM_chg_duty( pwm_num_e pwm, uint32_t duty_cycle )
 {
     if( -1 == pwm_set_cfg_pointer( pwm ) )
+    {
+        return;
+    }
+
+    if( !curr_pwm_cfg_p->initialized )
     {
         return;
     }

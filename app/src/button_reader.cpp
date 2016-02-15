@@ -17,6 +17,7 @@ void start_reader( void )
     AclGyro.Init();
 
     // Initialize the pwm driver
+/*
     pwm_init_t init_settings = {
         2048,
         50,
@@ -25,8 +26,9 @@ void start_reader( void )
 
     // Start the PWM
     PWM_start( PWM0 );
+*/
 
-		
+
     OS_ERR err;
     OSTaskCreate((OS_TCB      *)&reader_TCB,                        /* Create the start task                                    */
                  (CPU_CHAR    *)"Button Reader",
@@ -45,11 +47,11 @@ void start_reader( void )
 }
 static  void  reader_task   (void  *p_arg)
 {
-    uint32_t duty_cycle = 0;
+ //   uint32_t duty_cycle = 0;
     while(DEF_ON)
     {
         AclGyro.PrintMotion6Data();
-        if( duty_cycle <= 100 )
+  /*      if( duty_cycle <= 100 )
         {
             PWM_chg_duty( PWM0, duty_cycle );
             duty_cycle++;
@@ -58,8 +60,9 @@ static  void  reader_task   (void  *p_arg)
         {
             duty_cycle = 0;
         }
+*/
         // AclGyro.PrintOffsets();
         OS_ERR err;
-        OSTimeDlyHMSM(0u, 0u, 0u, 500u,OS_OPT_TIME_HMSM_STRICT,&err);
+        OSTimeDlyHMSM(0u, 0u, 0u, 50u,OS_OPT_TIME_HMSM_STRICT,&err);
     }
 }
