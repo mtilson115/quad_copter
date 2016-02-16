@@ -9,7 +9,6 @@
 /*******************************************************************************
  * Includes
  ******************************************************************************/
-#include "type_defs.h"
 #include "driver_pwm.h"
 #include "perif_sfr_map.h"
 #include <p32xxxx.h>
@@ -82,9 +81,9 @@ int32_t pwm_set_cfg_pointer( pwm_num_e pwm );
  *
  *              02/14/2016 - Update to add in and set the initialized flag.
  *
- * Notes:       The clock is set up for 80MHz and the prescale value is set to 64.
+ * Notes:       The clock is set up for 80MHz and the prescale value is set to 256.
  *              For a 16bit timer, this means the slowest period is (1/80e6)*65535*256 = 0.209712.
- *              The period can be calculated as perod_s = (1/80e6)*(init_settings.period)*64.
+ *              The period can be calculated as perod_s = (1/80e6)*(init_settings.period)*256.
  *
  ******************************************************************************/
 void PWM_init( pwm_num_e pwm, pwm_init_t init_settings )
