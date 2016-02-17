@@ -34,14 +34,15 @@ typedef struct {
     BOOL initialized;
 } spi_config_t;
 
-volatile __IEC0bits_t* IECx; // interrupt enable register
-volatile __IPC5bits_t* IPCx; // interrupt priority register
-&IEC0bits,
-&IPC5bits,
+// volatile __IEC0bits_t* IECx; // interrupt enable register
+// volatile __IPC5bits_t* IPCx; // interrupt priority register
+// &IEC0bits,
+// &IPC5bits,
 
 /*******************************************************************************
  * Local Functions
  ******************************************************************************/
+int32_t spi_set_cfg_pointer( spi_num_e spi );
 void spi1_int_en( BOOL enable );
 void spi1_int_prio( uint32_t prio );
 void spi1_clear_int_flags( void );
@@ -61,6 +62,8 @@ spi_config_t SPI1_cfg = {
     FALSE,
 };
 
+spi_config_t* curr_spi_cfg_p = &SPI1_cfg;
+
 /*******************************************************************************
  * Public function section
  ******************************************************************************/
@@ -78,7 +81,7 @@ spi_config_t SPI1_cfg = {
  *
  * Revision:    Initial Creation 01/24/2016 - Mitchell S. Tilson
  *
- * Notes:       
+ * Notes:
  *
  ******************************************************************************/
 void SPI_init( spi_num_e spi, spi_init_t spi_settings )
@@ -95,25 +98,25 @@ void SPI_init( spi_num_e spi, spi_init_t spi_settings )
     curr_spi_cfg_p->initialized = FALSE;
 
     // Disable interrupts
-    *curr_spi_cfg_p->spi_int_en_func( FALSE );
+    curr_spi_cfg_p->spi_int_en_func( FALSE );
 
     // Ensure the peripheral is off
     curr_spi_cfg_p->SPIxCON->ON = 0;
 
     // Ensure the rx buffer is empty via reading it
-    tmp_rx_buff = curr_spi_cfg_p->SPIxBUFF;
+    tmp_rx_buff = *curr_spi_cfg_p->SPIxBUFF;
 
     // Enable enhanced buffer
     curr_spi_cfg_p->SPIxCON->ENHBUF = 1;
 
     // Clear the interrupt flags
-    *curr_spi_cfg_p->spi_int_clear_flags_func();
+    curr_spi_cfg_p->spi_int_clear_flags_func();
 
     // Set up the interrupt priorities
-    *curr_spi_cfg_p->spi_int_prio_func(spi_settings.interrupt_prio);
+    curr_spi_cfg_p->spi_int_prio_func( spi_settings.interrupt_prio );
 
     // Enable interrupts
-    *curr_spi_cfg_p->spi_int_en_func( TRUE );
+    curr_spi_cfg_p->spi_int_en_func( TRUE );
 
     // Write the baud rate register
     *curr_spi_cfg_p->SPIxBRG = spi_settings.baud;
@@ -127,14 +130,18 @@ void SPI_init( spi_num_e spi, spi_init_t spi_settings )
     // Set the Slave Select bit to benabled
     curr_spi_cfg_p->SPIxCON->MSSEN = 1;
 
-    // Set the spi mode ( 0 == 8bit )
-    curr_spi_cfg_p->SPIxCON->MODE = spi_settings.data_width;
+    // Set the spi mode 
+    if( spi_settings.data_width & 2 )
+    {
+        curr_spi_cfg_p->SPIxCON->MODE32 = 1;
+    }
+    if( spi_settings.data_width & 1 )
+    {
+        curr_spi_cfg_p->SPIxCON->MODE16 = 1;
+    }
 
     // Set the interrupt setting ( 1 == interrupt when the buffer is empty )
     curr_spi_cfg_p->SPIxCON->STXISEL = 1;
-
-    // Set the read interrupt to interrupt as soon as there is data
-    curr_spi_cfg_p->SPIxCON->SRXISEL = 1;
 
     // Set the intialized flag
     curr_spi_cfg_p->initialized = TRUE;
@@ -157,7 +164,7 @@ void SPI_init( spi_num_e spi, spi_init_t spi_settings )
  ******************************************************************************/
 void SPI_enable( spi_num_e spi, BOOL enable )
 {
-    if( -1 == spi_set_cfg_pointer( pwm ) )
+    if( -1 == spi_set_cfg_pointer( spi ) )
     {
         return;
     }
@@ -168,7 +175,45 @@ void SPI_enable( spi_num_e spi, BOOL enable )
     }
 
     // TRUE and FALSE are defined as 1 and 0
-    curr_pwm_cfg_p->SPIxCON->ON = enable;
+    curr_spi_cfg_p->SPIxCON->ON = enable;
+}
+
+/*******************************************************************************
+ * SPI_write
+ *
+ * Description: Writes to the selected SPI
+ *
+ * Inputs:      spi_num_e spi - the spi to write data to.
+ *              uint8_t* data - a pointer to the data to send
+ *              uint32_t data_len - the number of bytes to send
+ *
+ * Returns:     spi_ret_e - ERROR, BUFF_FULL, or SUCCESS.
+ *
+ * Revision:    Initial Creation 02/16/2016 - Mitchell S. Tilson
+ *
+ * Notes:
+ *
+ ******************************************************************************/
+spi_ret_e SPI_write( spi_num_e spi, uint8_t* data, uint32_t data_len )
+{
+    uint32_t i = 0;
+
+    if( -1 == spi_set_cfg_pointer( spi ) )
+    {
+        return SPI_ERROR;
+    }
+
+    if( !curr_spi_cfg_p->SPIxCON->ON )
+    {
+        return SPI_ERROR;
+    }
+
+    for( i = 0; i < data_len; i++ )
+    {
+        while( curr_spi_cfg_p->SPIxSTAT->SPIBUSY );
+        *curr_spi_cfg_p->SPIxBUFF = data[i];
+    }
+    return SPI_SUCCESS;
 }
 
 /*******************************************************************************
@@ -206,3 +251,29 @@ int32_t spi_set_cfg_pointer( spi_num_e spi )
     }
 }
 
+/*******************************************************************************
+ * spi1_int_en
+ *
+ * Description: Sets the SPI 1 interrupt enable
+ *
+ * Inputs:      BOOL enable - TRUE to enable FALSE otherwise
+ *
+ * Returns:     none
+ *
+ * Revision:    Initial Creation 02/16/2016 - Mitchell S. Tilson
+ *
+ * Notes:       None
+ *
+ ******************************************************************************/
+void spi1_int_en( BOOL enable )
+{
+    return;
+}
+void spi1_int_prio( uint32_t prio )
+{
+    return;
+}
+void spi1_clear_int_flags( void )
+{
+    return;
+}
