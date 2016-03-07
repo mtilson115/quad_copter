@@ -316,7 +316,7 @@ void spi1_int_prio( uint32_t prio, uint32_t sub_prio )
 void spi1_clear_int_flags( void )
 {
     IFS0bits.SPI1AEIF   = 0;
-    IFC0bits.SPI1ARXIF  = 0;
-    IFC0bits.SPI1ATXIF  = 0;
+    IFS0bits.SPI1ARXIF  = 0;
+    IFS0bits.SPI1ATXIF  = 0;
     return;
 }
