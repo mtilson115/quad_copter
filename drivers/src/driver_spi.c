@@ -29,22 +29,17 @@ typedef struct {
     volatile __SPI1STATbits_t* SPIxSTAT; // SPI status register
     spi_num_e spi; // The SPI bus number
     void (*spi_int_en_func)( BOOL enable);
-    void (*spi_int_prio_func)( uint32_t prio );
+    void (*spi_int_prio_func)( uint32_t prio, uint32_t sub_prio );
     void (*spi_int_clear_flags_func)( void );
     BOOL initialized;
 } spi_config_t;
-
-// volatile __IEC0bits_t* IECx; // interrupt enable register
-// volatile __IPC5bits_t* IPCx; // interrupt priority register
-// &IEC0bits,
-// &IPC5bits,
 
 /*******************************************************************************
  * Local Functions
  ******************************************************************************/
 int32_t spi_set_cfg_pointer( spi_num_e spi );
 void spi1_int_en( BOOL enable );
-void spi1_int_prio( uint32_t prio );
+void spi1_int_prio( uint32_t prio, uint32_t sub_prio );
 void spi1_clear_int_flags( void );
 
 /*******************************************************************************
@@ -81,7 +76,7 @@ spi_config_t* curr_spi_cfg_p = &SPI1_cfg;
  *
  * Revision:    Initial Creation 01/24/2016 - Mitchell S. Tilson
  *
- * Notes:
+ * Notes:       Updates for interrupt enabling.
  *
  ******************************************************************************/
 void SPI_init( spi_num_e spi, spi_init_t spi_settings )
@@ -109,11 +104,18 @@ void SPI_init( spi_num_e spi, spi_init_t spi_settings )
     // Enable enhanced buffer
     curr_spi_cfg_p->SPIxCON->ENHBUF = 1;
 
+    // Set up the intterrupts for enhanced buffering
+    // Set a TX interrupt when the last data is shifted out
+    curr_spi_cfg_p->SPIxCON->STXISEL = 0;
+
+    // Interrupt when the buffer is full
+    curr_spi_cfg_p->SPIxCON->SRXISEL = 3;
+
     // Clear the interrupt flags
     curr_spi_cfg_p->spi_int_clear_flags_func();
 
     // Set up the interrupt priorities
-    curr_spi_cfg_p->spi_int_prio_func( spi_settings.interrupt_prio );
+    curr_spi_cfg_p->spi_int_prio_func( spi_settings.interrupt_prio, spi_settings.interrupt_sub_prio );
 
     // Enable interrupts
     curr_spi_cfg_p->spi_int_en_func( TRUE );
@@ -267,13 +269,54 @@ int32_t spi_set_cfg_pointer( spi_num_e spi )
  ******************************************************************************/
 void spi1_int_en( BOOL enable )
 {
+    IEC0bits.SPI1AEIE   = enable;
+    IEC0bits.SPI1ARXIE  = enable;
+    IEC0bits.SPI1ATXIE  = enable;
     return;
 }
-void spi1_int_prio( uint32_t prio )
+
+/*******************************************************************************
+ * spi1_int_prio
+ *
+ * Description: Sets the interrupt priority
+ *
+ * Inputs:      prio - the priority to set
+ *
+ * Returns:     none
+ *
+ * Revision:    Initial Creation 03/06/2016 - Mitchell S. Tilson
+ *
+ * Notes:       None
+ *
+ ******************************************************************************/
+void spi1_int_prio( uint32_t prio, uint32_t sub_prio )
 {
+    if( prio <= 7 && sub_prio <= 3 )
+    {
+        IPC6bits.SPI1AIP = prio;
+        IPC6bits.SPI1AIS = sub_prio;
+    }
     return;
 }
+
+/*******************************************************************************
+ * spi1_clear_int_flags
+ *
+ * Description: Clears the SPI1 interrupt flags
+ *
+ * Inputs:      none
+ *
+ * Returns:     none
+ *
+ * Revision:    Initial Creation 03/06/2016 - Mitchell S. Tilson
+ *
+ * Notes:       None
+ *
+ ******************************************************************************/
 void spi1_clear_int_flags( void )
 {
+    IEC0bits.SPI1AEIF   = 0;
+    IEC0bits.SPI1ARXIF  = 0;
+    IEC0bits.SPI1ATXIF  = 0;
     return;
 }

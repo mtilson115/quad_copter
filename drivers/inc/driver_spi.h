@@ -48,6 +48,7 @@ typedef enum {
 typedef struct {
     uint32_t baud;
     uint32_t interrupt_prio;
+    uint32_t interrupt_sub_prio;
     spi_width_e data_width;  // 8bit, 16bit, 32bit
 } spi_init_t;
 
