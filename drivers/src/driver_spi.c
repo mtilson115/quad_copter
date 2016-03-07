@@ -104,13 +104,6 @@ void SPI_init( spi_num_e spi, spi_init_t spi_settings )
     // Enable enhanced buffer
     curr_spi_cfg_p->SPIxCON->ENHBUF = 1;
 
-    // Set up the intterrupts for enhanced buffering
-    // Set a TX interrupt when the last data is shifted out
-    curr_spi_cfg_p->SPIxCON->STXISEL = 0;
-
-    // Interrupt when the buffer is full
-    curr_spi_cfg_p->SPIxCON->SRXISEL = 3;
-
     // Clear the interrupt flags
     curr_spi_cfg_p->spi_int_clear_flags_func();
 
@@ -132,7 +125,7 @@ void SPI_init( spi_num_e spi, spi_init_t spi_settings )
     // Set the Slave Select bit to benabled
     curr_spi_cfg_p->SPIxCON->MSSEN = 1;
 
-    // Set the spi mode 
+    // Set the spi mode
     if( spi_settings.data_width & 2 )
     {
         curr_spi_cfg_p->SPIxCON->MODE32 = 1;
@@ -142,8 +135,12 @@ void SPI_init( spi_num_e spi, spi_init_t spi_settings )
         curr_spi_cfg_p->SPIxCON->MODE16 = 1;
     }
 
-    // Set the interrupt setting ( 1 == interrupt when the buffer is empty )
-    curr_spi_cfg_p->SPIxCON->STXISEL = 1;
+    // Set up the intterrupts for enhanced buffering
+    // Set a TX interrupt when the last data is shifted out
+    curr_spi_cfg_p->SPIxCON->STXISEL = 0;
+
+    // Interrupt when the buffer is full
+    curr_spi_cfg_p->SPIxCON->SRXISEL = 3;
 
     // Set the intialized flag
     curr_spi_cfg_p->initialized = TRUE;
