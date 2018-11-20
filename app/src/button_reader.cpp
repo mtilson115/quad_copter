@@ -9,7 +9,7 @@
 #include "driver_pwm.h"
 
 static  OS_TCB    reader_TCB;
-static  CPU_STK   reaer_stack[APP_BUTTON_READER_STK_SIZE];
+static  CPU_STK   reader_stack[APP_BUTTON_READER_STK_SIZE];
 static  void  reader_task   (void  *p_arg);
 void start_reader( void )
 {
@@ -35,7 +35,7 @@ void start_reader( void )
                  (OS_TASK_PTR  )reader_task,
                  (void        *)0,
                  (OS_PRIO      )APP_BUTTON_READER_PRIO,
-                 (CPU_STK     *)&reaer_stack[0],
+                 (CPU_STK     *)&reader_stack[0],
                  (CPU_STK_SIZE )APP_BUTTON_READER_STK_SIZE/10,
                  (CPU_STK_SIZE )APP_BUTTON_READER_STK_SIZE,
                  (OS_MSG_QTY   )0u,

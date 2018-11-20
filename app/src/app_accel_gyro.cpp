@@ -39,7 +39,7 @@ AppAccelGyroClass AclGyro;
  *
  * Constructor not required at this time.
  ******************************************************************************/
- 
+
 /*******************************************************************************
 * Init
 *
@@ -56,10 +56,10 @@ void AppAccelGyroClass::Init( void )
 {
 	// Initialize the debug print system
 	BSP_PrintfInit();
-	
+
 	// Initialize the accelerometer gyroscope ( the address pin is tied low )
 	AccelGyro.SetI2CAddress( MPU6050_ADDRESS_AD0_LOW );
-	
+
 	// Intialize the chip
 	if( false == AccelGyro.Init() ) {
 		BSP_Printf("Failed to initialize the gyro\n\r");
@@ -86,25 +86,25 @@ void AppAccelGyroClass::Calibrate( void )
 {
 	motion6_data_type data;
 	memset(&data,0x00,sizeof(data));
-	
+
 	// Zero out the current offsets
 	setOffsets( &data );
-	
+
 	// Read the motion data
 	GetMotion6Data( &data );
-	
+
 	// Invert the values for calibration
 	data.ax = -data.ax;
 	data.ay = -data.ay;
 	data.az = -1 - data.az;
-	
+
 	data.gx = -data.gx;
 	data.gy = -data.gy;
 	data.gz = -data.gz;
-	
+
 	// Apply the offsets
 	setOffsets( &data );
-	
+
 	// Print the data for debuggin purposes
 	PrintMotion6Data();
 }
@@ -125,9 +125,9 @@ void AppAccelGyroClass::PrintOffsets( void )
 {
 	motion6_data_type data;
 	memset(&data,0x00,sizeof(data));
-	
+
 	readOffsets(&data);
-	
+
 	BSP_Printf("Offset values (not the actual readings)\n\r");
 	BSP_Printf("AX %d\n\rAY %d\n\rAZ %d\n\r",data.ax,data.ay,data.az);
 	BSP_Printf("GX %d\n\rGY %d\n\rGZ %d\n\r",data.gx,data.gy,data.gz);
@@ -149,7 +149,7 @@ void AppAccelGyroClass::PrintOffsets( void )
 void AppAccelGyroClass::GetMotion6Data( motion6_data_type* data )
 {
 	memset(data,0x00,sizeof(data));
-	
+
 	AccelGyro.GetMotion6( &data->ax, &data->ay, &data->az, &data->gx, &data->gy, &data->gz );
 }
 
@@ -169,9 +169,9 @@ void AppAccelGyroClass::PrintMotion6Data( void )
 {
 	motion6_data_type data;
 	memset(&data,0x00,sizeof(data));
-	
+
 	GetMotion6Data( &data );
-	
+
 	// BSP_Printf("Accel Gyro Sensor Readings\n\r");
 	BSP_Printf("%d,%d,%d,",data.ax,data.ay,data.az);
 	BSP_Printf("%d,%d,%d\n\r",data.gx,data.gy,data.gz);
@@ -180,7 +180,7 @@ void AppAccelGyroClass::PrintMotion6Data( void )
 /*******************************************************************************
  * Private Method Section
  ******************************************************************************/
- 
+
 /*******************************************************************************
  * readOffsets
  *
@@ -194,11 +194,11 @@ void AppAccelGyroClass::PrintMotion6Data( void )
  *
  ******************************************************************************/
 void AppAccelGyroClass::readOffsets( motion6_data_type* data )
-{	
+{
 	data->ax = AccelGyro.GetXAccelOffset();
 	data->ay = AccelGyro.GetYAccelOffset();
 	data->az = AccelGyro.GetZAccelOffset();
-	
+
 	data->gx = AccelGyro.GetXGyroOffset();
 	data->gy = AccelGyro.GetYGyroOffset();
 	data->gz = AccelGyro.GetZGyroOffset();
@@ -221,7 +221,7 @@ void AppAccelGyroClass::setOffsets( motion6_data_type* data )
 	AccelGyro.SetXAccelOffset( data->ax );
 	AccelGyro.SetYAccelOffset( data->ay );
 	AccelGyro.SetZAccelOffset( data->az );
-	
+
 	AccelGyro.SetXGyroOffset( data->gx );
 	AccelGyro.SetYGyroOffset( data->gy );
 	AccelGyro.SetZGyroOffset( data->gz );
