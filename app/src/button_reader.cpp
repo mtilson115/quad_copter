@@ -7,26 +7,29 @@
 #include "type_defs.h"
 #include "bsp_utils.h"
 #include "driver_pwm.h"
+#include "bsp.h"
 
 static  OS_TCB    reader_TCB;
 static  CPU_STK   reaer_stack[APP_BUTTON_READER_STK_SIZE];
 static  void  reader_task   (void  *p_arg);
+#define LOW_DUTY 4.0
+#define MAX_DUTY 9.0
 void start_reader( void )
 {
     // Initialize the AccelGyro
-    AclGyro.Init();
+/*    AclGyro.Init();
+ */
 
     // Initialize the pwm driver
     pwm_init_t init_settings = {
-        16384,
-        50,
+        25000,      // (80e6/64)/25000 = 50Hz (80e6 == clock source, 64 == pre-scale, 25000 == num ticks before roll over)
+        LOW_DUTY,
     };
     PWM_init( PWM0, init_settings );
 
     // Start the PWM
     PWM_start( PWM0 );
 
-		
     OS_ERR err;
     OSTaskCreate((OS_TCB      *)&reader_TCB,                        /* Create the start task                                    */
                  (CPU_CHAR    *)"Button Reader",
@@ -45,21 +48,25 @@ void start_reader( void )
 }
 static  void  reader_task   (void  *p_arg)
 {
-    uint32_t duty_cycle = 0;
+    float duty_cycle = LOW_DUTY;
+    OS_ERR err;
+    OSTimeDlyHMSM(0u, 0u, 30u, 0u,OS_OPT_TIME_HMSM_STRICT,&err);
     while(DEF_ON)
     {
-        AclGyro.PrintMotion6Data();
-        if( duty_cycle <= 100 )
+        //AclGyro.PrintMotion6Data();
+        if( duty_cycle <= MAX_DUTY )
         {
             PWM_chg_duty( PWM0, duty_cycle );
-            duty_cycle++;
+            duty_cycle += 0.1;
         }
         else
         {
-            duty_cycle = 0;
+            duty_cycle = LOW_DUTY;
         }
         // AclGyro.PrintOffsets();
-        OS_ERR err;
-        OSTimeDlyHMSM(0u, 0u, 0u, 500u,OS_OPT_TIME_HMSM_STRICT,&err);
+        LED_On(3);
+        OSTimeDlyHMSM(0u, 0u, 0u, 250u,OS_OPT_TIME_HMSM_STRICT,&err);
+        LED_Off(3);
+        OSTimeDlyHMSM(0u, 0u, 0u, 250u,OS_OPT_TIME_HMSM_STRICT,&err);
     }
 }

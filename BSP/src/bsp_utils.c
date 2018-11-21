@@ -67,7 +67,7 @@ void BSP_PrintfInit( void )
  * Revision:    Initial Creation 03/24/2014 - Mitchell S. Tilson
  *
  ******************************************************************************/
-void BSP_Printf( const int8_t* format, ... )
+void BSP_Printf( const char* format, ... )
 {
     va_list arg;
     int8_t* buffer;

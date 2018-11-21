@@ -39,7 +39,7 @@ extern "C" {
 
 extern void BSP_PrintfInit( void );
 
-extern void BSP_Printf( const int8_t* format, ... );
+extern void BSP_Printf( const char* format, ... );
 
 #ifdef	__cplusplus
 }
