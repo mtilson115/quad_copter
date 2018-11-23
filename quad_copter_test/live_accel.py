@@ -21,7 +21,6 @@ class accel_plotter:
 
     def __init__(self):
         self.listener = udp_listener()
-        #style.use('fivethirtyeight')
         self.fig = plt.figure()
         self.ax1 = self.fig.add_subplot(3,1,1)
         self.ax2 = self.fig.add_subplot(3,1,2)
@@ -41,7 +40,7 @@ class accel_plotter:
         try:
             int_data = map(int,data)
         except:
-            return
+            return self.ax1,self.ax2,self.ax3
         self.ax1.clear()
         self.ax2.clear()
         self.ax3.clear()
@@ -54,13 +53,14 @@ class accel_plotter:
         self.ax1.grid()
         self.ax2.grid()
         self.ax3.grid()
-        self.ax1.plot(self.i1,self.x1,'r')
-        self.ax2.plot(self.i2,self.y2,'b')
-        self.ax3.plot(self.i3,self.z3,'g')
+        self.ax1.plot(self.i1,self.x1,'r-o')
+        self.ax2.plot(self.i2,self.y2,'b-o')
+        self.ax3.plot(self.i3,self.z3,'g-o')
+        return self.ax1,self.ax2,self.ax3
 
 if __name__ == "__main__":
 
     accel_plotter = accel_plotter()
     plt.grid()
-    ani = animation.FuncAnimation(accel_plotter.fig, accel_plotter.animate, interval=500)
+    ani = animation.FuncAnimation(accel_plotter.fig, accel_plotter.animate, interval=100, blit=False)
     plt.show()
