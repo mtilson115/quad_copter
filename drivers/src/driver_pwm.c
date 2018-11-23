@@ -211,7 +211,7 @@ void PWM_stop( pwm_num_e pwm )
  * Description: changes the duty cycle
  *
  * Inputs:      pwm_num_e pwm - the pwm start
- *              uint32_t duty - duty cycle (0 to 100)
+ *              float duty - duty cycle (0 to 100)
  *
  * Returns:     None
  *
@@ -222,7 +222,7 @@ void PWM_stop( pwm_num_e pwm )
  * Notes:
  *
  ******************************************************************************/
-void PWM_chg_duty( pwm_num_e pwm, uint32_t duty_cycle )
+void PWM_chg_duty( pwm_num_e pwm, float duty_cycle )
 {
     if( -1 == pwm_set_cfg_pointer( pwm ) )
     {

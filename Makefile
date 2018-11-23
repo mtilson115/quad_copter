@@ -5,6 +5,12 @@ RM=rm -R -f
 # quad controller project
 PROJECT=quad_controller
 
+# Device
+DEVICE=32MX795F512L
+
+# Debugger/hwtool
+HWTOOL=ICD3
+
 # current directory
 CURRENT_DIR= $(shell pwd)
 
@@ -13,18 +19,22 @@ OUT:=$(CURRENT_DIR)/OUT
 BIN:=$(CURRENT_DIR)/BIN
 
 # Compiler
-export CC=/opt/microchip/xc32/v1.40/bin/xc32
+CC_VERS=v2.10
+export CC=/opt/microchip/xc32/$(CC_VERS)/bin/xc32
 
 # Linker
 LD=$(CC)-g++
 
+# Programmer
+PROGRAMMER=/opt/microchip/mplabx/v5.10/mplab_platform/bin/mdb.sh
+
 # CC Compiler directives
 #CFLAGS=-g -std=c99 -mprocessor=32MX795F512L -nostartfiles
-CFLAGS=-g -mprocessor=32MX795F512L -nostartfiles
-CPPFLAGS=-g -mprocessor=32MX795F512L -nostartfiles
+CFLAGS=-g -mprocessor=$(DEVICE) -nostartfiles
+CPPFLAGS=-g -mprocessor=$(DEVICE) -nostartfiles
 
 # LD flags --defsym=_min_heap_size=1024
-LDFLAGS=-mprocessor=32MX795F512L -nostartfiles -Wl,--defsym=_min_heap_size=0x400 -Wl,-Map=$(BIN)/$(PROJECT).map
+LDFLAGS=-mprocessor=$(DEVICE) -nostartfiles -Wl,--defsym=_min_heap_size=0x400 -Wl,-Map=$(BIN)/$(PROJECT).map
 
 # Directories of the project
 DIRS= BSP CPU app drivers uC-CPU uC-LIB uCOS-III
@@ -97,4 +107,21 @@ OUT_DIR:
 clean:
 	$(RM) $(OUT)
 	$(RM) $(BIN)
-	$(RM) .depend
+
+# programming
+install:
+ifneq ("$(wildcard $(BIN))","")
+	@echo 'Creating install config'
+	@echo 'device PIC'$(DEVICE) > install.txt
+	@echo 'hwtool '$(HWTOOL) >> install.txt
+	@echo 'program '$(PROJECT).hex >> install.txt
+	@echo 'reset MCLR' >> install.txt
+	@echo 'run' >> install.txt
+	@echo 'Moving install config'
+	mv install.txt $(BIN)
+	@echo 'Programming...' $(BIN)/$(PROJECT).hex
+	@echo $(PROGRAMMER)
+	cd $(BIN) && $(PROGRAMMER) install.txt
+else
+	@echo 'No valid binaries.  Call make first?'
+endif

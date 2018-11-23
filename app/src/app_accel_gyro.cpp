@@ -3,10 +3,10 @@
  * Author:  Mitchell S. Tilson
  * Created: 03/26/2014
  *
- * Description: This file provies the application level interface to the accelerometer 
+ * Description: This file provies the application level interface to the accelerometer
  *							gyroscope chip.
  ******************************************************************************/
- 
+
 /*******************************************************************************
  * Includes
  ******************************************************************************/
@@ -94,13 +94,13 @@ void AppAccelGyroClass::Calibrate( void )
 	GetMotion6Data( &data );
 
 	// Invert the values for calibration
-	data.ax = -data.ax;
-	data.ay = -data.ay;
-	data.az = -1 - data.az;
+	data.ax = data.ax;
+	data.ay = data.ay;
+	data.az = 1 - data.az;
 
-	data.gx = -data.gx;
-	data.gy = -data.gy;
-	data.gz = -data.gz;
+	data.gx = data.gx;
+	data.gy = data.gy;
+	data.gz = data.gz;
 
 	// Apply the offsets
 	setOffsets( &data );
@@ -174,7 +174,7 @@ void AppAccelGyroClass::PrintMotion6Data( void )
 
 	// BSP_Printf("Accel Gyro Sensor Readings\n\r");
 	BSP_Printf("%d,%d,%d,",data.ax,data.ay,data.az);
-	BSP_Printf("%d,%d,%d\n\r",data.gx,data.gy,data.gz);
+	BSP_Printf("%d,%d,%d",data.gx,data.gy,data.gz);
 }
 
 /*******************************************************************************

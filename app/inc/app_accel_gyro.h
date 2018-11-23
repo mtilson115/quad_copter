@@ -26,19 +26,19 @@ class AppAccelGyroClass {
  * Structure type definitions
  ******************************************************************************/
 public:
-	
+
 	typedef struct {
 		int16_t		ax;
 		int16_t		ay;
 		int16_t		az;
 	} accel_data_type;
-	
+
 	typedef struct {
 		int16_t		gx;
 		int16_t		gy;
 		int16_t		gz;
 	} gyro_data_type;
-	
+
 	typedef struct {
 		int16_t		ax;
 		int16_t		ay;
@@ -47,31 +47,31 @@ public:
 		int16_t		gy;
 		int16_t		gz;
 	} motion6_data_type;
- 
+
 /*******************************************************************************
  * Public Functions
  ******************************************************************************/
 public:
-	
+
 	AppAccelGyroClass(){};
-	
+
 	void Init( void );
-	
+
 	void Calibrate( void );
-	
+
 	void PrintOffsets( void );
-	
+
 	void GetMotion6Data( motion6_data_type* data  );
-	
+
 	void PrintMotion6Data( void );
-	
+
 /*******************************************************************************
  * Private Functions
  ******************************************************************************/
 private:
-	
+
 	void readOffsets( motion6_data_type* data );
-	
+
 	void setOffsets( motion6_data_type* data );
 
 };

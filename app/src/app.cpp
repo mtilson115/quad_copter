@@ -96,12 +96,12 @@ int  main (void)
                  (void        *)0,
                  (OS_OPT       )(OS_OPT_TASK_STK_CHK | OS_OPT_TASK_STK_CLR),
                  (OS_ERR      *)&os_err);
-    
+
     OSStart(&os_err);                                                     /* Start multitasking (i.e. give control to uC/OS-III).     */
-    
+
     (void)&os_err;
-    
-    return (0);                                                       
+
+    return (0);
 }
 
 /*$PAGE*/
