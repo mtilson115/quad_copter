@@ -119,7 +119,7 @@ ifneq ("$(wildcard $(BIN))","")
 	@echo 'run' >> install.txt
 	@echo 'Moving install config'
 	mv install.txt $(BIN)
-	@echo 'Programming...' $(BIN)/$(PROJECT).hex
+	@echo 'Programming...' $(BIN)/$(PROJECT).elf
 	@echo $(PROGRAMMER)
 	cd $(BIN) && $(PROGRAMMER) install.txt
 else
