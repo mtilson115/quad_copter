@@ -68,8 +68,8 @@ static  void  reader_task   (void  *p_arg)
         */
         //AclGyro.PrintOffsets();
         LED_On(3);
-        OSTimeDlyHMSM(0u, 0u, 0u, 250u,OS_OPT_TIME_HMSM_STRICT,&err);
+        OSTimeDlyHMSM(0u, 0u, 0u, 125u,OS_OPT_TIME_HMSM_STRICT,&err);
         LED_Off(3);
-        OSTimeDlyHMSM(0u, 0u, 0u, 250u,OS_OPT_TIME_HMSM_STRICT,&err);
+        OSTimeDlyHMSM(0u, 0u, 0u, 125u,OS_OPT_TIME_HMSM_STRICT,&err);
     }
 }

@@ -91,12 +91,12 @@ depend: .depend
 include .depend
 
 #Hex file generation
-$(BIN)/$(PROJECT).hex: $(BIN)/$(PROJECT).bin
-	$(CC)-bin2hex $(BIN)/$(PROJECT).bin
+$(BIN)/$(PROJECT).hex: $(BIN)/$(PROJECT).elf
+	$(CC)-bin2hex $(BIN)/$(PROJECT).elf
 
 #Binary file generation
-$(BIN)/$(PROJECT).bin: $(S_OBJ_FILES) $(C_OBJ_FILES) $(CPP_OBJ_FILES)
-	$(LD) $(LDFLAGS) $(S_OBJ_FILES) $(C_OBJ_FILES) $(CPP_OBJ_FILES) -o $(BIN)/$(PROJECT).bin
+$(BIN)/$(PROJECT).elf: $(S_OBJ_FILES) $(C_OBJ_FILES) $(CPP_OBJ_FILES)
+	$(LD) $(LDFLAGS) $(S_OBJ_FILES) $(C_OBJ_FILES) $(CPP_OBJ_FILES) -o $(BIN)/$(PROJECT).elf
 
 #output directories
 OUT_DIR:
@@ -114,7 +114,7 @@ ifneq ("$(wildcard $(BIN))","")
 	@echo 'Creating install config'
 	@echo 'device PIC'$(DEVICE) > install.txt
 	@echo 'hwtool '$(HWTOOL) >> install.txt
-	@echo 'program '$(PROJECT).hex >> install.txt
+	@echo 'program '$(PROJECT).elf >> install.txt
 	@echo 'reset MCLR' >> install.txt
 	@echo 'run' >> install.txt
 	@echo 'Moving install config'

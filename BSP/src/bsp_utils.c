@@ -67,23 +67,19 @@ void BSP_PrintfInit( void )
  * Revision:    Initial Creation 03/24/2014 - Mitchell S. Tilson
  *
  ******************************************************************************/
+static uint8_t buffer[100];
 void BSP_Printf( const char* format, ... )
 {
     va_list arg;
-    int8_t* buffer;
     uint32_t len = 0;
 
     va_start (arg, format);
     len = vsnprintf(0,0,format,arg);
     va_end (arg);
-
-    buffer = malloc(++len);
-
+    ++len;
     va_start (arg, format);
-    len = vsnprintf(buffer,len,format,arg);
+    len = vsnprintf(&buffer[0],len,format,arg);
     va_end (arg);
 
     Uart_write(id_,len,(uint8_t*)&buffer[0]);
-
-    free(buffer);
 }
