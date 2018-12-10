@@ -1,0 +1,24 @@
+EESchema-LIBRARY Version 2.4
+#encoding utf-8
+#
+# accel_gyro_conn
+#
+DEF accel_gyro_conn U2 0 40 Y Y 1 F N
+F0 "U2" 150 50 50 H V C CNN
+F1 "accel_gyro_conn" 150 -50 50 H V C CNN
+F2 "" 0 0 50 H I C CNN
+F3 "" 0 0 50 H I C CNN
+DRAW
+S -200 -100 500 -1000 0 1 0 N
+X VCC 1 -300 -200 100 R 50 50 1 1 I
+X GND 2 -300 -300 100 R 50 50 1 1 I
+X SCL 3 -300 -400 100 R 50 50 1 1 I
+X SDA 4 -300 -500 100 R 50 50 1 1 B
+X XDA 5 -300 -600 100 R 50 50 1 1 B
+X XCL 6 -300 -700 100 R 50 50 1 1 O
+X ADD 7 -300 -800 100 R 50 50 1 1 I
+X INT 8 -300 -900 100 R 50 50 1 1 O
+ENDDRAW
+ENDDEF
+#
+#End Library

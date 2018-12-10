@@ -20,8 +20,8 @@ U 1 1 5BF9DBC4
 P 6650 5050
 F 0 "U4" H 11450 5543 60  0000 C CNN
 F 1 "PIC32MX795F512L-X_PT" H 11450 5437 60  0000 C CNN
-F 2 "Package_QFP:TQFP-100_12x12mm_P0.4mm" H 6650 5050 60  0001 C CNN
-F 3 "https://www.microchip.com/wwwproducts/en/PIC32MX795F512L" H 11450 5331 60  0000 C CNN
+F 2 "TQFP100_12x12MC" H 6650 5050 60  0001 C CNN
+F 3 "http://ww1.microchip.com/downloads/en/devicedoc/60001156j.pdf" H 11450 5331 60  0000 C CNN
 	1    6650 5050
 	1    0    0    -1  
 $EndComp

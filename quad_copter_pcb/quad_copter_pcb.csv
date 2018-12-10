@@ -1,0 +1,53 @@
+Title,Quad Copter,,,,,
+Revision,1,,,,,
+Date,Sat 08 Dec 2018 03:06:19 PM PST,,,,,
+Generated,Sat 08 Dec 2018 03:06:19 PM PST,,,,,
+Company,Self,,,,,
+Comment 1,,,,,,
+Comment 2,,,,,,
+Comment 3,,,,,,
+Comment 4,,,,,,
+Total Parts,64,,,,,
+Total Unique Parts,32,,,,,
+,,,,,,
+,,,,,,
+,,,,,,
+Ref,Qty,Value,Footprint,Field4,Part Reference,Notes
+C1 ,1,C_10uF,Capacitor_SMD:C_0805_2012Metric_Pad1.15x1.40mm_HandSolder, ,https://www.digikey.com/product-detail/en/tdk-corporation/C2012JB1V106M085AC/445-11518-6-ND/3957614,Please order and solder in
+C2 ,1,C_22uF,Capacitor_SMD:C_1206_3216Metric_Pad1.42x1.75mm_HandSolder, ,https://www.digikey.com/product-detail/en/avx-corporation/TAJA226M010RNJ/478-5798-1-ND/2136389,Please order and solder in
+C5 C4 ,2,C26pF,Capacitor_SMD:C_0603_1608Metric_Pad1.05x0.95mm_HandSolder, ,https://www.digikey.com/product-detail/en/avx-corporation/06031A250GAT2A/478-10197-2-ND/1598435,Please order and solder in
+C9 C10 ,2,C_.1uF,Capacitor_SMD:C_0603_1608Metric_Pad1.05x0.95mm_HandSolder, ,https://www.digikey.com/product-detail/en/samsung-electro-mechanics/CL10F104ZO8NNNC/1276-1258-6-ND/3891772,Please order and solder in
+C6 ,1,C10uF,Capacitor_SMD:C_0603_1608Metric_Pad1.05x0.95mm_HandSolder, ,ttps://www.digikey.com/product-detail/en/tdk-corporation/C1608X5R0J106M080AB/445-4112-2-ND/1975459,Please order and solder in
+C8 C7 C11 C13 C12 ,5,C.1uF,Capacitor_SMD:C_0603_1608Metric_Pad1.05x0.95mm_HandSolder, ,https://www.digikey.com/product-detail/en/samsung-electro-mechanics/CL10F104ZO8NNNC/1276-1258-6-ND/3891772,Please order and solder in
+C15 C14 ,2,C15pF,Capacitor_SMD:C_0603_1608Metric_Pad1.05x0.95mm_HandSolder, ,https://www.digikey.com/product-detail/en/avx-corporation/06033A150JAT2A/478-10804-2-ND/1599104,Please order and solder in
+D3 D2 D1 ,3,LED,LED_SMD:LED_1206_3216Metric_Pad1.42x1.75mm_HandSolder, ,https://www.digikey.com/product-detail/en/lumex-opto-components-inc/SML-LXFT1206SGD-TR/SML-LXFT1206SGD-TR-ND/7364535,Please order and solder in
+H1 H2 H3 H4 H5 H6 H7 H8 H9 H10 ,10,MountingHole_Pad,MountingHole:MountingHole_2.5mm_Pad, ,,I have this already
+H11 H13 H12 H_4 ,4,MountingHole,MountingHole:MountingHole_3.2mm_M3, ,,I have this already
+J4 J3 J2 J1 ,4,Conn_01x03_Male,Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical, ,,I have this already
+J5 ,1,Conn_02x05_Odd_Even,Connector_PinHeader_2.54mm:PinHeader_2x05_P2.54mm_Vertical, ,,I have this already
+J6 J9 ,2,Conn_02x02_Odd_Even,Connector_PinHeader_2.54mm:PinHeader_2x02_P2.54mm_Vertical, ,,I have this already
+J7 J11 ,2,Conn_01x05,Connector_PinHeader_2.54mm:PinHeader_1x05_P2.54mm_Vertical, ,,I have this already
+J8 ,1,Conn_02x04_Odd_Even,Connector_PinHeader_2.54mm:PinHeader_2x04_P2.54mm_Vertical, ,,I have this already
+J12,1,USB_B_Micro,Connector_USB:USB_Micro-B_Amphenol_10103594-0001LF_Horizontal, ,https://www.digikey.com/product-detail/en/amphenol-fci/10103594-0001LF/609-4050-1-ND/2350357,Please order and solder in
+J10 ,1,Conn_02x03_Odd_Even,Connector_PinHeader_2.54mm:PinHeader_2x03_P2.54mm_Vertical, ,,I have this already
+JP2 ,1,XBEE LEAVE EMPTY,RF:XBEE,S6B,https://www.digikey.com/product-detail/en/preci-dip/317-87-121-41-005101/1212-1133-ND/3757383,"Please order.  I will solder this one in.  If part is unavailable, don’t hold up order."
+JP1 ,1,RJ11-6,Connectors:RJ11-6,CONN-08590,https://www.digikey.com/product-detail/en/te-connectivity-corcom-filters/RJ11-6N-B/CCM1394-ND/260247,Please order and solder in
+R4 R6 ,2,R10k,Resistor_SMD:R_0805_2012Metric_Pad1.15x1.40mm_HandSolder, ,https://www.digikey.com/product-detail/en/susumu/RR1220P-103-D/RR12P10.0KDTR-ND/432315,Please order and solder in
+R9 R8 R1 ,3,R_56,Resistor_SMD:R_0805_2012Metric_Pad1.15x1.40mm_HandSolder, ,https://www.digikey.com/product-detail/en/stackpole-electronics-inc/RMCF0805JT56R0/RMCF0805JT56R0DKR-ND/2427421,Please order and solder in
+R5 R7 ,2,R470,Resistor_SMD:R_0603_1608Metric_Pad1.05x0.95mm_HandSolder, ,https://www.digikey.com/product-detail/en/bourns-inc/CR0603-JW-471ELF/CR0603-JW-471ELFCT-ND/3740990,Please order and solder in
+R2 ,1,R10K,Resistor_SMD:R_0805_2012Metric_Pad1.15x1.40mm_HandSolder, ,https://www.digikey.com/product-detail/en/susumu/RR1220P-103-D/RR12P10.0KDTR-ND/432315,Please order and solder in
+R3 ,1,R2.8k,Resistor_SMD:R_0805_2012Metric_Pad1.15x1.40mm_HandSolder, ,https://www.digikey.com/product-detail/en/yageo/RC0805FR-072K8L/311-2.80KCRTR-ND/727711,Please order and solder in
+R12 R13 ,2,R2.4k,Resistor_SMD:R_0805_2012Metric_Pad1.15x1.40mm_HandSolder, ,https://www.digikey.com/product-detail/en/susumu/RR1220P-242-D/RR12P2.4KDTR-ND/432300,Please order and solder in
+R14 ,1,R10,Resistor_SMD:R_0805_2012Metric_Pad1.15x1.40mm_HandSolder, ,https://www.digikey.com/product-detail/en/stackpole-electronics-inc/RNCS0805BKE10R0/RNCS0805BKE10R0TR-ND/1800064,Please order and solder in
+S1 S2 ,2,MOMENTARY-SWITCH-SPST-2-SMD-5.2MM,Switches:TACTILE_SWITCH_SMD_5.2MM,SWCH-08247,https://www.digikey.com/product-detail/en/c-k/RS-187R05A2-DS-MT-RT/CKN10361TR-ND/2747186,Please order and solder in
+U4 ,1,PIC32MX795F512L-X_PT,Package_QFP:TQFP-100_12x12mm_P0.4mm, ,https://www.microchip.com/wwwproducts/en/PIC32MX795F512L,"Please order and solder in.  Seriously, I can’t solder this."
+U1 ,1,LT1085-3.3,Package_TO_SOT_SMD:TO-263-3_TabPin2, ,http://cds.linear.com/docs/en/datasheet/1083ffe.pdf,Please order and solder in
+U3 ,1,accel_gyro_conn,Connector_PinSocket_2.54mm:PinSocket_1x08_P2.54mm_Vertical, ,https://www.digikey.com/product-detail/en/sullins-connector-solutions/PPTC081LFBN-RC/S7006-ND/810147,Please order.  I will solder this one in.
+Y2 ,1,Crystal_GND23,Crystal:Crystal_SMD_7050-4Pin_7.0x5.0mm, ,https://www.digikey.com/product-detail/en/citizen-finedevice-co-ltd/CM200C32768HZFT/300-8742-1-ND/2108134,Please order and solder in
+Y1 ,1,Crystal_8MHz,Clocks:HC49UP, ,https://www.digikey.com/product-detail/en/txc-corporation/9C-8.000MEEJ-T/887-1263-2-ND/2207683,Please order and solder in
+,,,,,,
+,,,,,,
+,,,,,,
+,,,,,,
+BOM made with KICAD_BOM_WIZARD (https://github.com/HashDefineElectronics/KiCad_BOM_Wizard.git),,,,,,
+Generated Sat 08 Dec 2018 03:06:19 PM PST,,,,,,
