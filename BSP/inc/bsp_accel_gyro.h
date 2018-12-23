@@ -375,6 +375,14 @@
 #define MPU6050_DMP_MEMORY_CHUNK_SIZE   16
 
 /*******************************************************************************
+ * Short term
+ ******************************************************************************/
+#define pgm_read_byte(addr) (*(const unsigned char *)(addr))
+#define pgm_read_word(addr) (*(const unsigned short *)(addr))
+#define pgm_read_dword(addr) (*(const unsigned long *)(addr))
+#define pgm_read_float(addr) (*(const float *)(addr))
+
+/*******************************************************************************
  * Class Definition
  ******************************************************************************/
 class Accel_Gyro {
@@ -384,47 +392,47 @@ class Accel_Gyro {
  ******************************************************************************/
 public:
 
- void SetI2CAddress		( uint8_t address );
- bool Init						( void						);
- bool TestConnection	( void						);
+ void SetI2CAddress	( uint8_t address );
+ bool Init( void );
+ bool TestConnection( void );
 
  // AUX_VDDIO register
- uint8_t	GetAuxVDDIOLevel	( void 					);
- void 		SetAuxVDDIOLevel	( uint8_t level	);
+ uint8_t GetAuxVDDIOLevel( void );
+ void SetAuxVDDIOLevel( uint8_t level	);
 
  // SMPLRT_DIV register
- uint8_t 	GetGyroRateDiv	( void					);
- void 		SetGyroRateDiv	( uint8_t rate	);
+ uint8_t GetGyroRateDiv( void );
+ void SetGyroRateDiv( uint8_t rate );
 
  // CONFIG register
- uint8_t	GetExternalFrameSync	( void 					);
- void 		SetExternalFrameSync	( uint8_t sync	);
- uint8_t	GetDLPFMode						( void					);
- void 		SetDLPFMode						( uint8_t mode	);
+ uint8_t GetExternalFrameSync( void );
+ void SetExternalFrameSync( uint8_t sync );
+ uint8_t GetDLPFMode( void );
+ void SetDLPFMode( uint8_t mode );
 
  // GYRO_CONFIG register
- uint8_t GetFullScaleGyroRange	( void 					);
- void 		SetFullScaleGyroRange	(uint8_t range	);
+ uint8_t GetFullScaleGyroRange( void );
+ void SetFullScaleGyroRange( uint8_t range );
 
  // ACCEL_CONFIG register
- bool			GetAccelXSelfTest				( void 					);
- void			SetAccelXSelfTest				( bool enabled	);
- bool			GetAccelYSelfTest				( void					);
- void			SetAccelYSelfTest				( bool enabled	);
- bool			GetAccelZSelfTest				( void					);
- void			SetAccelZSelfTest				( bool enabled	);
- uint8_t	GetFullScaleAccelRange	( void					);
- void 		SetFullScaleAccelRange	( uint8_t range	);
- uint8_t	GetDHPFMode							( void					);
- void			SetDHPFMode							( uint8_t mode	);
+ bool GetAccelXSelfTest( void );
+ void SetAccelXSelfTest( bool enabled );
+ bool GetAccelYSelfTest( void );
+ void SetAccelYSelfTest( bool enabled );
+ bool GetAccelZSelfTest( void );
+ void SetAccelZSelfTest( bool enabled );
+ uint8_t GetFullScaleAccelRange( void );
+ void SetFullScaleAccelRange( uint8_t range	);
+ uint8_t GetDHPFMode( void );
+ void SetDHPFMode( uint8_t mode	);
 
  // FF_THR register
- uint8_t	GetFreefallDetectionThreshold	( void 							);
- void 		SetFreefallDetectionThreshold	( uint8_t threshold	);
+ uint8_t GetFreefallDetectionThreshold( void );
+ void SetFreefallDetectionThreshold( uint8_t threshold	);
 
  // FF_DUR register
- uint8_t 	GetFreefallDetectionDuration( void 							);
- void 		SetFreefallDetectionDuration( uint8_t duration	);
+ uint8_t GetFreefallDetectionDuration( void 							);
+ void SetFreefallDetectionDuration( uint8_t duration );
 
  // MOT_THR register
  uint8_t GetMotionDetectionThreshold( void );
@@ -744,11 +752,11 @@ public:
  uint8_t readMemoryByte( void );
  void writeMemoryByte(uint8_t data);
  void readMemoryBlock(uint8_t *data, uint16_t dataSize, uint8_t bank=0, uint8_t address=0);
- // bool writeMemoryBlock(const uint8_t *data, uint16_t dataSize, uint8_t bank=0, uint8_t address=0, bool verify=true, bool useProgMem=false);
- // bool writeProgMemoryBlock(const uint8_t *data, uint16_t dataSize, uint8_t bank=0, uint8_t address=0, bool verify=true);
+ bool writeMemoryBlock(const uint8_t *data, uint16_t dataSize, uint8_t bank=0, uint8_t address=0, bool verify=true, bool useProgMem=false);
+ bool writeProgMemoryBlock(const uint8_t *data, uint16_t dataSize, uint8_t bank=0, uint8_t address=0, bool verify=true);
 
- // bool writeDMPConfigurationSet(const uint8_t *data, uint16_t dataSize, bool useProgMem=false);
- // bool writeProgDMPConfigurationSet(const uint8_t *data, uint16_t dataSize);
+ bool writeDMPConfigurationSet(const uint8_t *data, uint16_t dataSize, bool useProgMem=false);
+ bool writeProgDMPConfigurationSet(const uint8_t *data, uint16_t dataSize);
 
  // DMP_CFG_1 register
  uint8_t GetDMPConfig1( void );

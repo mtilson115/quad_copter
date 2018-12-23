@@ -49,7 +49,7 @@
 *********************************************************************************************************
 */
 
-static  OS_TCB    App_TaskStartTCB; 
+static  OS_TCB    App_TaskStartTCB;
 static  CPU_STK   App_TaskStartStk[APP_CFG_TASK_START_STK_SIZE];
 
 /*
@@ -85,7 +85,7 @@ int  main (void)
 
     OSTaskCreate((OS_TCB      *)&App_TaskStartTCB,                        /* Create the start task                                    */
                  (CPU_CHAR    *)"Start",
-                 (OS_TASK_PTR  )App_TaskStart, 
+                 (OS_TASK_PTR  )App_TaskStart,
                  (void        *)0,
                  (OS_PRIO      )APP_CFG_TASK_START_PRIO,
                  (CPU_STK     *)&App_TaskStartStk[0],
@@ -118,7 +118,7 @@ int  main (void)
 static  void  App_TaskStart (void *p_arg)
 {
     OS_ERR  err;
-        
+
 
     (void)p_arg;
 
@@ -129,12 +129,12 @@ static  void  App_TaskStart (void *p_arg)
 
 #if (OS_CFG_STAT_TASK_EN > 0u)
     OSStatTaskCPUUsageInit(&err);                               /* Determine CPU capacity                               */
-#endif    
-    
+#endif
+
 #ifdef CPU_CFG_INT_DIS_MEAS_EN
     CPU_IntDisMeasMaxCurReset();
 #endif
-                              
+
     App_TaskCreate();                                           /* Create Application tasks                             */
 
     App_ObjCreate();                                            /* Create Applicaiton kernel objects                    */
@@ -142,7 +142,7 @@ static  void  App_TaskStart (void *p_arg)
     while (DEF_TRUE) {                                          /* Task body, always written as an infinite loop.       */
         // LED_Toggle(1);
         OSTimeDlyHMSM(0u, 0u, 2u, 0u,
-                      OS_OPT_TIME_HMSM_STRICT, 
+                      OS_OPT_TIME_HMSM_STRICT,
                       &err);
     }
 }
@@ -163,7 +163,7 @@ static  void  App_TaskStart (void *p_arg)
 *********************************************************************************************************
 */
 
-static  void  App_TaskCreate (void)
+static void App_TaskCreate(void)
 {
     start_reader();
 }

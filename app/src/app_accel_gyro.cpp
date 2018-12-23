@@ -66,7 +66,7 @@ void AppAccelGyroClass::Init( void )
 		return;
 	}
 
-    // Calibrate();
+    Calibrate();
 }
 
 /*******************************************************************************
@@ -86,29 +86,9 @@ void AppAccelGyroClass::Init( void )
  ******************************************************************************/
 void AppAccelGyroClass::Calibrate( void )
 {
-	motion6_data_type data;
-	memset(&data,0x00,sizeof(data));
-
-	// Zero out the current offsets
-	// setOffsets( &data );
-
-	// Read the motion data
-	GetMotion6Data( &data );
-
-	// Invert the values for calibration
-	data.ax = data.ax;
-	data.ay = data.ay;
-	data.az = 1 - data.az;
-
-	data.gx = data.gx;
-	data.gy = data.gy;
-	data.gz = data.gz;
-
-	// Apply the offsets
-	setOffsets( &data );
-
-	// Print the data for debuggin purposes
-	PrintMotion6Data();
+	memset(&offsets,0x00,sizeof(offsets));
+    GetMotion6Data( &offsets );
+    offsets.az += 16384;
 }
 
 /*******************************************************************************
@@ -125,15 +105,9 @@ void AppAccelGyroClass::Calibrate( void )
  ******************************************************************************/
 void AppAccelGyroClass::PrintOffsets( void )
 {
-	motion6_data_type data;
-	memset(&data,0x00,sizeof(data));
-
-	readOffsets(&data);
-
 	BSP_Printf("Offset values (not the actual readings)\n\r");
-	BSP_Printf("AX %d\n\rAY %d\n\rAZ %d\n\r",data.ax,data.ay,data.az);
-	BSP_Printf("GX %d\n\rGY %d\n\rGZ %d\n\r",data.gx,data.gy,data.gz);
-
+	BSP_Printf("AX %d\n\rAY %d\n\rAZ %d\n\r",offsets.ax,offsets.ay,offsets.az);
+	BSP_Printf("GX %d\n\rGY %d\n\rGZ %d\n\r",offsets.gx,offsets.gy,offsets.gz);
 }
 
 /*******************************************************************************
@@ -151,7 +125,6 @@ void AppAccelGyroClass::PrintOffsets( void )
 void AppAccelGyroClass::GetMotion6Data( motion6_data_type* data )
 {
 	memset(data,0x00,sizeof(data));
-
 	AccelGyro.GetMotion6( &data->ax, &data->ay, &data->az, &data->gx, &data->gy, &data->gz );
 }
 
@@ -173,6 +146,12 @@ void AppAccelGyroClass::PrintMotion6Data( void )
 	memset(&data,0x00,sizeof(data));
 
 	GetMotion6Data( &data );
+    data.ax -= offsets.ax;
+    data.ay -= offsets.ay;
+    data.az -= offsets.az;
+    data.gx -= offsets.gx;
+    data.gy -= offsets.gy;
+    data.gz -= offsets.gz;
 
 	// BSP_Printf("Accel Gyro Sensor Readings\n\r");
 	BSP_Printf("%d,%d,%d,",data.ax,data.ay,data.az);

@@ -61,6 +61,7 @@
 #include "type_defs.h"
 #include "bsp_utils.h"
 #include <stdlib.h>
+#include <string.h>
 
 /*******************************************************************************
  * Public Objects Section
@@ -3842,7 +3843,7 @@ void Accel_Gyro::readMemoryBlock(uint8_t *data, uint16_t dataSize, uint8_t bank,
     }
 }
 // Not supported at this time
-/*bool Accel_Gyro::writeMemoryBlock(const uint8_t *data, uint16_t dataSize, uint8_t bank, uint8_t address, bool verify, bool useProgMem) {
+bool Accel_Gyro::writeMemoryBlock(const uint8_t *data, uint16_t dataSize, uint8_t bank, uint8_t address, bool verify, bool useProgMem) {
     SetMemoryBank(bank);
     SetMemoryStartAddress(address);
     uint8_t chunkSize;
@@ -3878,23 +3879,23 @@ void Accel_Gyro::readMemoryBlock(uint8_t *data, uint16_t dataSize, uint8_t bank,
             SetMemoryStartAddress(address);
             I2C1.ReadRegBytes(devAddr, MPU6050_RA_MEM_R_W, chunkSize, verifyBuffer);
             if (memcmp(progBuffer, verifyBuffer, chunkSize) != 0) {
-                /*Serial.print("Block write verification error, bank ");
-                Serial.print(bank, DEC);
-                Serial.print(", address ");
-                Serial.print(address, DEC);
-                Serial.print("!\nExpected:");
+                BSP_Printf("Block write verification error, bank ");
+                BSP_Printf("%d",bank);
+                BSP_Printf(", address ");
+                BSP_Printf("%d",address);
+                BSP_Printf("!\nExpected:");
                 for (j = 0; j < chunkSize; j++) {
-                    Serial.print(" 0x");
-                    if (progBuffer[j] < 16) Serial.print("0");
-                    Serial.print(progBuffer[j], HEX);
+                    BSP_Printf(" 0x");
+                    if (progBuffer[j] < 16) BSP_Printf("0");
+                    BSP_Printf("0x%X",progBuffer[j]);
                 }
-                Serial.print("\nReceived:");
+                BSP_Printf("\nReceived:");
                 for (uint8_t j = 0; j < chunkSize; j++) {
-                    Serial.print(" 0x");
-                    if (verifyBuffer[i + j] < 16) Serial.print("0");
-                    Serial.print(verifyBuffer[i + j], HEX);
+                    BSP_Printf(" 0x");
+                    if (verifyBuffer[i + j] < 16) BSP_Printf("0");
+                    BSP_Printf("0x%X",verifyBuffer[i + j]);
                 }
-                Serial.print("\n");
+                BSP_Printf("\n");
                 free(verifyBuffer);
                 if (useProgMem) free(progBuffer);
                 return false; // uh oh.
@@ -3947,12 +3948,12 @@ bool Accel_Gyro::writeDMPConfigurationSet(const uint8_t *data, uint16_t dataSize
         // write data or perform special action
         if (length > 0) {
             // regular block of data to write
-            /*Serial.print("Writing config block to bank ");
-            Serial.print(bank);
-            Serial.print(", offset ");
-            Serial.print(offset);
-            Serial.print(", length=");
-            Serial.println(length);
+            BSP_Printf("Writing config block to bank ");
+            BSP_Printf("%d",bank);
+            BSP_Printf(", offset ");
+            BSP_Printf("%d",offset);
+            BSP_Printf(", length=");
+            BSP_Printf("%d",length);
             if (useProgMem) {
                 if (sizeof(progBuffer) < length) progBuffer = (uint8_t *)realloc(progBuffer, length);
                 for (j = 0; j < length; j++) progBuffer[j] = pgm_read_byte(data + i + j);
@@ -3972,9 +3973,9 @@ bool Accel_Gyro::writeDMPConfigurationSet(const uint8_t *data, uint16_t dataSize
             } else {
                 special = data[i++];
             }
-            /*Serial.print("Special command code ");
-            Serial.print(special, HEX);
-            Serial.println(" found...");
+            BSP_Printf("Special command code ");
+            BSP_Printf("0x%X",special);
+            BSP_Printf(" found...");
             if (special == 0x01) {
                 // enable DMP-related interrupts
 
@@ -4001,7 +4002,7 @@ bool Accel_Gyro::writeDMPConfigurationSet(const uint8_t *data, uint16_t dataSize
 bool Accel_Gyro::writeProgDMPConfigurationSet(const uint8_t *data, uint16_t dataSize)
 {
     return writeDMPConfigurationSet(data, dataSize, true);
-}*/
+}
 
 // DMP_CFG_1 register
 
