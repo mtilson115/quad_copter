@@ -65,6 +65,8 @@ void AppAccelGyroClass::Init( void )
 		BSP_Printf("Failed to initialize the gyro\n\r");
 		return;
 	}
+
+    // Calibrate();
 }
 
 /*******************************************************************************
@@ -88,7 +90,7 @@ void AppAccelGyroClass::Calibrate( void )
 	memset(&data,0x00,sizeof(data));
 
 	// Zero out the current offsets
-	setOffsets( &data );
+	// setOffsets( &data );
 
 	// Read the motion data
 	GetMotion6Data( &data );

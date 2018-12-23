@@ -40,7 +40,7 @@
 #pragma config CP       = OFF           // Code Protect
 #pragma config BWP      = OFF           // Boot Flash Write Protect
 #pragma config PWP      = OFF           // Program Flash Write Protect
-#pragma config ICESEL   = ICS_PGx2      // ICE/ICD Comm Channel Select
+#pragma config ICESEL   = ICS_PGx1      // ICE/ICD Comm Channel Select
 #pragma config DEBUG    = OFF           // Debugger Disabled for Starter Kit
 
 /*

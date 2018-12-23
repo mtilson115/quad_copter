@@ -141,13 +141,13 @@ extern inline uint32_t __attribute__((always_inline)) SYSTEMConfigPerformance(ui
     uint32_t pb_clk;
 #ifdef _PCACHE
     uint32_t cache_status;
-#endif    
+#endif
     uint32_t int_status;
 
     pb_clk = SYSTEMConfigWaitStatesAndPB(sys_clock);
-    
+
     int_status=INTDisableInterrupts();
-    
+
     mBMXDisableDRMWaitState();
 
 #ifdef _PCACHE

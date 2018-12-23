@@ -11,7 +11,8 @@ try:
     while True:
         data, addr = sock.recvfrom(1024) # buffer size is 1024 bytes
         data = data.split(',')
-        int_data = map(int,data)
-        print int_data
+        print data
+        #int_data = map(int,data)
+        #print int_data
 except:
     print "Exiting..."

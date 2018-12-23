@@ -193,7 +193,8 @@ void  LED_Init (void)
 
 static  void  BSP_IO_Init (void)
 {
-    mPORTDOutputConfig((IOPORT_BIT_0 | IOPORT_BIT_1 | IOPORT_BIT_2));         /* Each LED pin is set up as an output        */
+    // No LEDs on the quad copter setup
+    //mPORTDOutputConfig((IOPORT_BIT_0 | IOPORT_BIT_1 | IOPORT_BIT_2));         /* Each LED pin is set up as an output        */
 }
 
 /*
@@ -458,6 +459,8 @@ void  BSP_InitIO (void)
     BSP_InitIntCtrl();                                                  /* Initialize the interrupt controller              */
     BSP_IO_Init();                                                      /* Initialize the board's I/Os                      */
     Tmr_Init();                                                         /* Initialize the timers                            */
-    LED_Init();                                                         /* Initialize LEDs                                  */
-    PB_Init();                                                          /* Initialize the push buttons                      */
+    //No LEDs
+    //LED_Init();                                                         /* Initialize LEDs                                  */
+    //No Push buttons
+    //PB_Init();                                                          /* Initialize the push buttons                      */
 }

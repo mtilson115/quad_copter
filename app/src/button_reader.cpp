@@ -52,6 +52,8 @@ static  void  reader_task   (void  *p_arg)
 {
     float duty_cycle = LOW_DUTY;
     OS_ERR err;
+    // Allow the xbee-wifi to associate
+    OSTimeDlyHMSM(0u, 0u, 10u, 0u,OS_OPT_TIME_HMSM_STRICT,&err);
     while(DEF_ON)
     {
         AclGyro.PrintMotion6Data();
@@ -67,9 +69,9 @@ static  void  reader_task   (void  *p_arg)
         }
         */
         //AclGyro.PrintOffsets();
-        LED_On(3);
+        //LED_On(3);
         OSTimeDlyHMSM(0u, 0u, 0u, 125u,OS_OPT_TIME_HMSM_STRICT,&err);
-        LED_Off(3);
-        OSTimeDlyHMSM(0u, 0u, 0u, 125u,OS_OPT_TIME_HMSM_STRICT,&err);
+        //LED_Off(3);
+        //OSTimeDlyHMSM(0u, 0u, 0u, 125u,OS_OPT_TIME_HMSM_STRICT,&err);
     }
 }
