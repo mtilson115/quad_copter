@@ -33,57 +33,49 @@ THE SOFTWARE.
 #ifndef _MPU6050_6AXIS_MOTIONAPPS20_H_
 #define _MPU6050_6AXIS_MOTIONAPPS20_H_
 
-#include "driver_i2c.h"
 #include "helper_3dmath.h"
+#include "bsp_accel_gyro.h"
 
 // MotionApps 2.0 DMP implementation, built using the MPU-6050EVB evaluation board
 #define MPU6050_INCLUDE_DMP_MOTIONAPPS20
 
-#include "bsp_accel_gyro.h"
+// Teensy 3.0 library conditional PROGMEM code from Paul Stoffregen
+#ifndef __PGMSPACE_H_
+    #define __PGMSPACE_H_ 1
+    #include <inttypes.h>
 
-// Tom Carpenter's conditional PROGMEM code
-// http://forum.arduino.cc/index.php?topic=129407.0
-#ifdef __AVR__
-    #include <avr/pgmspace.h>
-#else
-    // Teensy 3.0 library conditional PROGMEM code from Paul Stoffregen
-    #ifndef __PGMSPACE_H_
-        #define __PGMSPACE_H_ 1
-        #include <inttypes.h>
+    #define PROGMEM
+    #define PGM_P  const char *
+    #define PSTR(str) (str)
+    #define F(x) x
 
-        #define PROGMEM
-        #define PGM_P  const char *
-        #define PSTR(str) (str)
-        #define F(x) x
+    typedef void prog_void;
+    typedef char prog_char;
+    typedef unsigned char prog_uchar;
+    typedef int8_t prog_int8_t;
+    typedef uint8_t prog_uint8_t;
+    typedef int16_t prog_int16_t;
+    typedef uint16_t prog_uint16_t;
+    typedef int32_t prog_int32_t;
+    typedef uint32_t prog_uint32_t;
 
-        typedef void prog_void;
-        typedef char prog_char;
-        typedef unsigned char prog_uchar;
-        typedef int8_t prog_int8_t;
-        typedef uint8_t prog_uint8_t;
-        typedef int16_t prog_int16_t;
-        typedef uint16_t prog_uint16_t;
-        typedef int32_t prog_int32_t;
-        typedef uint32_t prog_uint32_t;
+    #define strcpy_P(dest, src) strcpy((dest), (src))
+    #define strcat_P(dest, src) strcat((dest), (src))
+    #define strcmp_P(a, b) strcmp((a), (b))
 
-        #define strcpy_P(dest, src) strcpy((dest), (src))
-        #define strcat_P(dest, src) strcat((dest), (src))
-        #define strcmp_P(a, b) strcmp((a), (b))
+    #define pgm_read_byte(addr) (*(const unsigned char *)(addr))
+    #define pgm_read_word(addr) (*(const unsigned short *)(addr))
+    #define pgm_read_dword(addr) (*(const unsigned long *)(addr))
+    #define pgm_read_float(addr) (*(const float *)(addr))
 
-        #define pgm_read_byte(addr) (*(const unsigned char *)(addr))
-        #define pgm_read_word(addr) (*(const unsigned short *)(addr))
-        #define pgm_read_dword(addr) (*(const unsigned long *)(addr))
-        #define pgm_read_float(addr) (*(const float *)(addr))
-
-        #define pgm_read_byte_near(addr) pgm_read_byte(addr)
-        #define pgm_read_word_near(addr) pgm_read_word(addr)
-        #define pgm_read_dword_near(addr) pgm_read_dword(addr)
-        #define pgm_read_float_near(addr) pgm_read_float(addr)
-        #define pgm_read_byte_far(addr) pgm_read_byte(addr)
-        #define pgm_read_word_far(addr) pgm_read_word(addr)
-        #define pgm_read_dword_far(addr) pgm_read_dword(addr)
-        #define pgm_read_float_far(addr) pgm_read_float(addr)
-    #endif
+    #define pgm_read_byte_near(addr) pgm_read_byte(addr)
+    #define pgm_read_word_near(addr) pgm_read_word(addr)
+    #define pgm_read_dword_near(addr) pgm_read_dword(addr)
+    #define pgm_read_float_near(addr) pgm_read_float(addr)
+    #define pgm_read_byte_far(addr) pgm_read_byte(addr)
+    #define pgm_read_word_far(addr) pgm_read_word(addr)
+    #define pgm_read_dword_far(addr) pgm_read_dword(addr)
+    #define pgm_read_float_far(addr) pgm_read_float(addr)
 #endif
 
 /* Source is from the InvenSense MotionApps v2 demo code. Original source is
@@ -333,7 +325,7 @@ uint8_t Accel_Gyro::dmpInitialize() {
     delay(30); // wait after reset
 
     // enable sleep mode and wake cycle
-    /*Serial.println("Enabling sleep mode..."));
+    /*Serial.println("Enabling sleep mode...");
     setSleepEnabled(true);
     Serial.println("Enabling wake cycle...");
     setWakeCycleEnabled(true);*/
@@ -383,14 +375,14 @@ uint8_t Accel_Gyro::dmpInitialize() {
 
     // load DMP code into memory banks
     DEBUG_PRINT("Writing DMP code to MPU memory banks (");
-    DEBUG_PRINT("%d",MPU6050_DMP_CODE_SIZE);
+    DEBUG_PRINTF("%d",MPU6050_DMP_CODE_SIZE);
     DEBUG_PRINTLN(" bytes)");
     if (writeProgMemoryBlock(dmpMemory, MPU6050_DMP_CODE_SIZE)) {
         DEBUG_PRINTLN("Success! DMP code written and verified.");
 
         // write DMP configuration
         DEBUG_PRINT("Writing DMP configuration to MPU memory banks (");
-        DEBUG_PRINT(MPU6050_DMP_CONFIG_SIZE);
+        DEBUG_PRINTF("%d",MPU6050_DMP_CONFIG_SIZE);
         DEBUG_PRINTLN(" bytes in config def)");
         if (writeProgDMPConfigurationSet(dmpConfig, MPU6050_DMP_CONFIG_SIZE)) {
             DEBUG_PRINTLN("Success! DMP configuration written and verified.");
@@ -493,14 +485,14 @@ uint8_t Accel_Gyro::dmpInitialize() {
             while ((fifoCount = getFIFOCount()) < 3);
 
             DEBUG_PRINT("Current FIFO count=");
-            DEBUG_PRINTLN(fifoCount);
+            DEBUG_PRINTLNF("%d",fifoCount);
             DEBUG_PRINTLN("Reading FIFO data...");
             getFIFOBytes(fifoBuffer, fifoCount);
 
             DEBUG_PRINTLN("Reading interrupt status...");
 
             DEBUG_PRINT("Current interrupt status=");
-            DEBUG_PRINTLNF("0x%X",getIntStatus();
+            DEBUG_PRINTLNF("0x%X",getIntStatus());
 
             DEBUG_PRINTLN("Reading final memory update 6/7 (function unknown)...");
             for (j = 0; j < 4 || j < dmpUpdate[2] + 3; j++, pos++) dmpUpdate[j] = pgm_read_byte(&dmpUpdates[pos]);
@@ -510,7 +502,7 @@ uint8_t Accel_Gyro::dmpInitialize() {
             while ((fifoCount = getFIFOCount()) < 3);
 
             DEBUG_PRINT("Current FIFO count=");
-            DEBUG_PRINTLN("%d",fifoCount);
+            DEBUG_PRINTLNF("%d",fifoCount);
 
             DEBUG_PRINTLN("Reading FIFO data...");
             getFIFOBytes(fifoBuffer, fifoCount);
@@ -518,7 +510,7 @@ uint8_t Accel_Gyro::dmpInitialize() {
             DEBUG_PRINTLN("Reading interrupt status...");
 
             DEBUG_PRINT("Current interrupt status=");
-            DEBUG_PRINTLNF("0x%X",getIntStatus();
+            DEBUG_PRINTLNF("0x%X",getIntStatus());
 
             DEBUG_PRINTLN("Writing final memory update 7/7 (function unknown)...");
             for (j = 0; j < 4 || j < dmpUpdate[2] + 3; j++, pos++) dmpUpdate[j] = pgm_read_byte(&dmpUpdates[pos]);
@@ -741,13 +733,6 @@ uint8_t Accel_Gyro::dmpGetYawPitchRoll(float *data, Quaternion *q, VectorFloat *
 // uint8_t Accel_Gyro::dmpGetQuaternionFloat(float *data, const uint8_t* packet);
 
 uint8_t Accel_Gyro::dmpProcessFIFOPacket(const unsigned char *dmpData) {
-    /*for (uint8_t k = 0; k < dmpPacketSize; k++) {
-        if (dmpData[k] < 0x10) Serial.print("0");
-        Serial.print(dmpData[k], HEX);
-        Serial.print(" ");
-    }
-    Serial.print("\n");*/
-    //Serial.println((uint16_t)dmpPacketBuffer);
     return 0;
 }
 uint8_t Accel_Gyro::dmpReadAndProcessFIFOPacket(uint8_t numPackets, uint8_t *processed) {

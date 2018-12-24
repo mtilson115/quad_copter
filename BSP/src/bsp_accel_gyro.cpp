@@ -58,6 +58,7 @@
  ******************************************************************************/
 #include "bsp_accel_gyro.h"
 #include "driver_i2c.h"
+#include "MPU6050_6Axis_MotionApps20.h"
 #include "type_defs.h"
 #include "bsp_utils.h"
 #include <stdlib.h>
