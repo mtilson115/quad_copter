@@ -12,11 +12,13 @@
 #ifndef BSP_ACCEL_GYRO_H
 #define	BSP_ACCEL_GYRO_H
 
+#define MPU6050_INCLUDE_DMP_MOTIONAPPS20
+
 /*******************************************************************************
  * Includes
  ******************************************************************************/
 #include "type_defs.h"
-#include "MPU6050_6Axis_MotionApps20.h"
+#include "helper_3dmath.h"
 
 /*******************************************************************************
  * Definitions
@@ -416,6 +418,10 @@ public:
  // AUX_VDDIO register
  uint8_t GetAuxVDDIOLevel( void );
  void SetAuxVDDIOLevel( uint8_t level	);
+
+ // Set gyro sampling rate
+ uint8_t GetRate( void );
+ void SetRate( uint8_t rate );
 
  // SMPLRT_DIV register
  uint8_t GetGyroRateDiv( void );
@@ -868,7 +874,7 @@ public:
   uint8_t dmpGetQuaternionFloat(float *data, const uint8_t* packet=0);
 
   uint8_t dmpProcessFIFOPacket(const unsigned char *dmpData);
-  uint8_t dmpReadAndProcessFIFOPacket(uint8_t numPackets, uint8_t *processed=NULL);
+  uint8_t dmpReadAndProcessFIFOPacket(uint8_t numPackets, uint8_t *processed=0);
 
   uint8_t dmpSetFIFOProcessedCallback(void (*func) (void));
 
@@ -897,8 +903,12 @@ private:
  ******************************************************************************/
 private:
 
-	uint8_t devAddr;
-  uint8_t buffer[14];
+ uint8_t devAddr;
+ uint8_t buffer[14];
+#if defined(MPU6050_INCLUDE_DMP_MOTIONAPPS20)
+ uint8_t *dmpPacketBuffer;
+ uint16_t dmpPacketSize;
+#endif
 
 };
 

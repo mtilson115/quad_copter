@@ -33,11 +33,12 @@ THE SOFTWARE.
 #ifndef _MPU6050_6AXIS_MOTIONAPPS20_H_
 #define _MPU6050_6AXIS_MOTIONAPPS20_H_
 
-#include "helper_3dmath.h"
 #include "bsp_accel_gyro.h"
+#include <os.h>
+#include <string.h>
 
 // MotionApps 2.0 DMP implementation, built using the MPU-6050EVB evaluation board
-#define MPU6050_INCLUDE_DMP_MOTIONAPPS20
+// #define MPU6050_INCLUDE_DMP_MOTIONAPPS20
 
 // Teensy 3.0 library conditional PROGMEM code from Paul Stoffregen
 #ifndef __PGMSPACE_H_
@@ -77,6 +78,8 @@ THE SOFTWARE.
     #define pgm_read_dword_far(addr) pgm_read_dword(addr)
     #define pgm_read_float_far(addr) pgm_read_float(addr)
 #endif
+
+#define M_PI 3.1415926535
 
 /* Source is from the InvenSense MotionApps v2 demo code. Original source is
  * unavailable, unless you happen to be amazing as decompiling binary by
@@ -319,42 +322,44 @@ const unsigned char dmpUpdates[MPU6050_DMP_UPDATES_SIZE] PROGMEM = {
 };
 
 uint8_t Accel_Gyro::dmpInitialize() {
+    OS_ERR err;
     // reset device
     DEBUG_PRINTLN("\n\nResetting MPU6050...");
     reset();
-    delay(30); // wait after reset
+    OSTimeDlyHMSM(0u, 0u, 0u, 1u,OS_OPT_TIME_HMSM_STRICT,&err); // wait after reset
+    // delay(30); // wait after reset
 
     // enable sleep mode and wake cycle
     /*Serial.println("Enabling sleep mode...");
-    setSleepEnabled(true);
+    SetSleepEnabled(true);
     Serial.println("Enabling wake cycle...");
     setWakeCycleEnabled(true);*/
 
     // disable sleep mode
     DEBUG_PRINTLN("Disabling sleep mode...");
-    setSleepEnabled(false);
+    SetSleepEnabled(false);
 
     // get MPU hardware revision
     DEBUG_PRINTLN("Selecting user bank 16...");
-    setMemoryBank(0x10, true, true);
+    SetMemoryBank(0x10, true, true);
     DEBUG_PRINTLN("Selecting memory byte 6...");
-    setMemoryStartAddress(0x06);
+    SetMemoryStartAddress(0x06);
     DEBUG_PRINTLN("Checking hardware revision...");
     DEBUG_PRINT("Revision @ user[16][6] = ");
     DEBUG_PRINTLNF("0x%X",readMemoryByte());
     DEBUG_PRINTLN("Resetting memory bank selection to 0...");
-    setMemoryBank(0, false, false);
+    SetMemoryBank(0, false, false);
 
     // check OTP bank valid
     DEBUG_PRINTLN("Reading OTP bank valid flag...");
     DEBUG_PRINT("OTP bank is ");
-    DEBUG_PRINTLN(getOTPBankValid() ? "valid!" : "invalid!");
+    DEBUG_PRINTLN(GetOTPBankValid() ? "valid!" : "invalid!");
 
     // get X/Y/Z gyro offsets
     DEBUG_PRINTLN("Reading gyro offset TC values...");
-    int8_t xgOffsetTC = getXGyroOffsetTC();
-    int8_t ygOffsetTC = getYGyroOffsetTC();
-    int8_t zgOffsetTC = getZGyroOffsetTC();
+    int8_t xgOffsetTC = GetXGyroOffsetTC();
+    int8_t ygOffsetTC = GetYGyroOffsetTC();
+    int8_t zgOffsetTC = GetZGyroOffsetTC();
     DEBUG_PRINT("X gyro offset = ");
     DEBUG_PRINTLNF("%d",xgOffsetTC);
     DEBUG_PRINT("Y gyro offset = ");
@@ -364,14 +369,15 @@ uint8_t Accel_Gyro::dmpInitialize() {
 
     // setup weird slave stuff (?)
     DEBUG_PRINTLN("Setting slave 0 address to 0x7F...");
-    setSlaveAddress(0, 0x7F);
+    SetSlaveAddress(0, 0x7F);
     DEBUG_PRINTLN("Disabling I2C Master mode...");
-    setI2CMasterModeEnabled(false);
+    SetI2CMasterModeEnabled(false);
     DEBUG_PRINTLN("Setting slave 0 address to 0x68 (self)...");
-    setSlaveAddress(0, 0x68);
+    SetSlaveAddress(0, 0x68);
     DEBUG_PRINTLN("Resetting I2C Master control...");
     resetI2CMaster();
-    delay(20);
+    OSTimeDlyHMSM(0u, 0u, 0u, 1u,OS_OPT_TIME_HMSM_STRICT,&err);
+    // delay(20);
 
     // load DMP code into memory banks
     DEBUG_PRINT("Writing DMP code to MPU memory banks (");
@@ -388,36 +394,36 @@ uint8_t Accel_Gyro::dmpInitialize() {
             DEBUG_PRINTLN("Success! DMP configuration written and verified.");
 
             DEBUG_PRINTLN("Setting clock source to Z Gyro...");
-            setClockSource(MPU6050_CLOCK_PLL_ZGYRO);
+            SetClockSource(MPU6050_CLOCK_PLL_ZGYRO);
 
             DEBUG_PRINTLN("Setting DMP and FIFO_OFLOW interrupts enabled...");
-            setIntEnabled(1<<MPU6050_INTERRUPT_FIFO_OFLOW_BIT|1<<MPU6050_INTERRUPT_DMP_INT_BIT);
+            SetIntEnabled(1<<MPU6050_INTERRUPT_FIFO_OFLOW_BIT|1<<MPU6050_INTERRUPT_DMP_INT_BIT);
 
             DEBUG_PRINTLN("Setting sample rate to 200Hz...");
-            setRate(4); // 1khz / (1 + 4) = 200 Hz
+            SetRate(4); // 1khz / (1 + 4) = 200 Hz
 
             DEBUG_PRINTLN("Setting external frame sync to TEMP_OUT_L[0]...");
-            setExternalFrameSync(MPU6050_EXT_SYNC_TEMP_OUT_L);
+            SetExternalFrameSync(MPU6050_EXT_SYNC_TEMP_OUT_L);
 
             DEBUG_PRINTLN("Setting DLPF bandwidth to 42Hz...");
-            setDLPFMode(MPU6050_DLPF_BW_42);
+            SetDLPFMode(MPU6050_DLPF_BW_42);
 
             DEBUG_PRINTLN("Setting gyro sensitivity to +/- 2000 deg/sec...");
-            setFullScaleGyroRange(MPU6050_GYRO_FS_2000);
+            SetFullScaleGyroRange(MPU6050_GYRO_FS_2000);
 
             DEBUG_PRINTLN("Setting DMP programm start address");
             //write start address MSB into register
-            setDMPConfig1(0x03);
+            SetDMPConfig1(0x03);
             //write start address LSB into register
-            setDMPConfig2(0x00);
+            SetDMPConfig2(0x00);
 
             DEBUG_PRINTLN("Clearing OTP Bank flag...");
-            setOTPBankValid(false);
+            SetOTPBankValid(false);
 
             DEBUG_PRINTLN("Setting X/Y/Z gyro offset TCs to previous values...");
-            setXGyroOffsetTC(xgOffsetTC);
-            setYGyroOffsetTC(ygOffsetTC);
-            setZGyroOffsetTC(zgOffsetTC);
+            SetXGyroOffsetTC(xgOffsetTC);
+            SetYGyroOffsetTC(ygOffsetTC);
+            SetZGyroOffsetTC(zgOffsetTC);
 
             //DEBUG_PRINTLN("Setting X/Y/Z gyro user offsets to zero...");
             //setXGyroOffset(0);
@@ -438,33 +444,33 @@ uint8_t Accel_Gyro::dmpInitialize() {
             resetFIFO();
 
             DEBUG_PRINTLN("Reading FIFO count...");
-            uint16_t fifoCount = getFIFOCount();
+            uint16_t fifoCount = GetFIFOCount();
             uint8_t fifoBuffer[128];
 
             DEBUG_PRINT("Current FIFO count=");
             DEBUG_PRINTLN(fifoCount);
-            getFIFOBytes(fifoBuffer, fifoCount);
+            GetFIFOBytes(fifoBuffer, fifoCount);
 
             DEBUG_PRINTLN("Setting motion detection threshold to 2...");
-            setMotionDetectionThreshold(2);
+            SetMotionDetectionThreshold(2);
 
             DEBUG_PRINTLN("Setting zero-motion detection threshold to 156...");
-            setZeroMotionDetectionThreshold(156);
+            SetZeroMotionDetectionThreshold(156);
 
             DEBUG_PRINTLN("Setting motion detection duration to 80...");
-            setMotionDetectionDuration(80);
+            SetMotionDetectionDuration(80);
 
             DEBUG_PRINTLN("Setting zero-motion detection duration to 0...");
-            setZeroMotionDetectionDuration(0);
+            SetZeroMotionDetectionDuration(0);
 
             DEBUG_PRINTLN("Resetting FIFO...");
             resetFIFO();
 
             DEBUG_PRINTLN("Enabling FIFO...");
-            setFIFOEnabled(true);
+            SetFIFOEnabled(true);
 
             DEBUG_PRINTLN("Enabling DMP...");
-            setDMPEnabled(true);
+            SetDMPEnabled(true);
 
             DEBUG_PRINTLN("Resetting DMP...");
             resetDMP();
@@ -482,35 +488,35 @@ uint8_t Accel_Gyro::dmpInitialize() {
             writeMemoryBlock(dmpUpdate + 3, dmpUpdate[2], dmpUpdate[0], dmpUpdate[1]);
 
             DEBUG_PRINTLN("Waiting for FIFO count > 2...");
-            while ((fifoCount = getFIFOCount()) < 3);
+            while ((fifoCount = GetFIFOCount()) < 3);
 
             DEBUG_PRINT("Current FIFO count=");
             DEBUG_PRINTLNF("%d",fifoCount);
             DEBUG_PRINTLN("Reading FIFO data...");
-            getFIFOBytes(fifoBuffer, fifoCount);
+            GetFIFOBytes(fifoBuffer, fifoCount);
 
             DEBUG_PRINTLN("Reading interrupt status...");
 
             DEBUG_PRINT("Current interrupt status=");
-            DEBUG_PRINTLNF("0x%X",getIntStatus());
+            DEBUG_PRINTLNF("0x%X",GetIntStatus());
 
             DEBUG_PRINTLN("Reading final memory update 6/7 (function unknown)...");
             for (j = 0; j < 4 || j < dmpUpdate[2] + 3; j++, pos++) dmpUpdate[j] = pgm_read_byte(&dmpUpdates[pos]);
             readMemoryBlock(dmpUpdate + 3, dmpUpdate[2], dmpUpdate[0], dmpUpdate[1]);
 
             DEBUG_PRINTLN("Waiting for FIFO count > 2...");
-            while ((fifoCount = getFIFOCount()) < 3);
+            while ((fifoCount = GetFIFOCount()) < 3);
 
             DEBUG_PRINT("Current FIFO count=");
             DEBUG_PRINTLNF("%d",fifoCount);
 
             DEBUG_PRINTLN("Reading FIFO data...");
-            getFIFOBytes(fifoBuffer, fifoCount);
+            GetFIFOBytes(fifoBuffer, fifoCount);
 
             DEBUG_PRINTLN("Reading interrupt status...");
 
             DEBUG_PRINT("Current interrupt status=");
-            DEBUG_PRINTLNF("0x%X",getIntStatus());
+            DEBUG_PRINTLNF("0x%X",GetIntStatus());
 
             DEBUG_PRINTLN("Writing final memory update 7/7 (function unknown)...");
             for (j = 0; j < 4 || j < dmpUpdate[2] + 3; j++, pos++) dmpUpdate[j] = pgm_read_byte(&dmpUpdates[pos]);
@@ -519,7 +525,7 @@ uint8_t Accel_Gyro::dmpInitialize() {
             DEBUG_PRINTLN("DMP is good to go! Finally.");
 
             DEBUG_PRINTLN("Disabling DMP (you turn it on later)...");
-            setDMPEnabled(false);
+            SetDMPEnabled(false);
 
             DEBUG_PRINTLN("Setting up internal 42-byte (default) DMP packet buffer...");
             dmpPacketSize = 42;
@@ -529,7 +535,7 @@ uint8_t Accel_Gyro::dmpInitialize() {
 
             DEBUG_PRINTLN("Resetting FIFO and clearing INT status one last time...");
             resetFIFO();
-            getIntStatus();
+            GetIntStatus();
         } else {
             DEBUG_PRINTLN("ERROR! DMP configuration verification failed.");
             return 2; // configuration block loading failed
@@ -542,7 +548,7 @@ uint8_t Accel_Gyro::dmpInitialize() {
 }
 
 bool Accel_Gyro::dmpPacketAvailable() {
-    return getFIFOCount() >= dmpGetFIFOPacketSize();
+    return GetFIFOCount() >= dmpGetFIFOPacketSize();
 }
 
 // uint8_t Accel_Gyro::dmpSetFIFORate(uint8_t fifoRate);
@@ -710,7 +716,7 @@ uint8_t Accel_Gyro::dmpGetYawPitchRoll(float *data, Quaternion *q, VectorFloat *
     data[2] = atan(gravity -> y / sqrt(gravity -> x*gravity -> x + gravity -> z*gravity -> z));
     return 0;
 }
-#else 
+#else
 uint8_t Accel_Gyro::dmpGetYawPitchRoll(float *data, Quaternion *q, VectorFloat *gravity) {
     // yaw: (about Z axis)
     data[0] = atan2(2*q -> x*q -> y - 2*q -> w*q -> z, 2*q -> w*q -> w + 2*q -> x*q -> x - 1);
@@ -720,9 +726,9 @@ uint8_t Accel_Gyro::dmpGetYawPitchRoll(float *data, Quaternion *q, VectorFloat *
     data[2] = atan2(gravity -> y , gravity -> z);
     if (gravity -> z < 0) {
         if(data[1] > 0) {
-            data[1] = PI - data[1]; 
-        } else { 
-            data[1] = -PI - data[1];
+            data[1] = M_PI - data[1];
+        } else {
+            data[1] = -M_PI - data[1];
         }
     }
     return 0;
@@ -740,7 +746,7 @@ uint8_t Accel_Gyro::dmpReadAndProcessFIFOPacket(uint8_t numPackets, uint8_t *pro
     uint8_t buf[dmpPacketSize];
     for (uint8_t i = 0; i < numPackets; i++) {
         // read packet from FIFO
-        getFIFOBytes(buf, dmpPacketSize);
+        GetFIFOBytes(buf, dmpPacketSize);
 
         // process packet
         if ((status = dmpProcessFIFOPacket(buf)) > 0) return status;
