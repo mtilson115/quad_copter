@@ -74,6 +74,11 @@ private:
 
 	void setOffsets( motion6_data_type* data );
 
+/*******************************************************************************
+ * Private Data
+ ******************************************************************************/
+private:
+    motion6_data_type offsets;
 };
 
 extern AppAccelGyroClass AclGyro;

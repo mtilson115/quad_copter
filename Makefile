@@ -2,6 +2,9 @@
 MKDIR=mkdir -p
 RM=rm -R -f
 
+# to debug or not to debug
+DEBUG?=1
+
 # quad controller project
 PROJECT=quad_controller
 
@@ -30,8 +33,10 @@ PROGRAMMER=/opt/microchip/mplabx/v5.10/mplab_platform/bin/mdb.sh
 
 # CC Compiler directives
 #CFLAGS=-g -std=c99 -mprocessor=32MX795F512L -nostartfiles
-CFLAGS=-g -mprocessor=$(DEVICE) -nostartfiles
-CPPFLAGS=-g -mprocessor=$(DEVICE) -nostartfiles
+#CFLAGS=-mprocessor=32MX795F512L -nostartfiles
+#CPPFLAGS=-mprocessor=$(DEVICE) -nostartfiles
+CFLAGS=-mprocessor=$(DEVICE) -nostartfiles
+CPPFLAGS=-mprocessor=$(DEVICE) -nostartfiles
 
 # LD flags --defsym=_min_heap_size=1024
 LDFLAGS=-mprocessor=$(DEVICE) -nostartfiles -Wl,--defsym=_min_heap_size=0x400 -Wl,-Map=$(BIN)/$(PROJECT).map
@@ -114,12 +119,24 @@ ifneq ("$(wildcard $(BIN))","")
 	@echo 'Creating install config'
 	@echo 'device PIC'$(DEVICE) > install.txt
 	@echo 'hwtool '$(HWTOOL) >> install.txt
+ifeq ($(DEBUG),1)
+	@echo 'programming in debug mode'
 	@echo 'program '$(PROJECT).elf >> install.txt
 	@echo 'reset MCLR' >> install.txt
 	@echo 'run' >> install.txt
+else
+	@echo 'programming in normal mode'
+	@echo 'program '$(PROJECT).hex >> install.txt
+	@echo 'reset MCLR' >> install.txt
+	@echo 'run' >> install.txt
+endif
 	@echo 'Moving install config'
 	mv install.txt $(BIN)
+ifeq ($(DEBUG),1)
 	@echo 'Programming...' $(BIN)/$(PROJECT).elf
+else
+	@echo 'Programming...' $(BIN)/$(PROJECT).hex
+endif
 	@echo $(PROGRAMMER)
 	cd $(BIN) && $(PROGRAMMER) install.txt
 else

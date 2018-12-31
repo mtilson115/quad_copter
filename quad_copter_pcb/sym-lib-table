@@ -1,0 +1,5 @@
+(sym_lib_table
+  (lib (name quad_PIC32MX)(type Legacy)(uri ${KIPRJMOD}/KiCAD/symbols.lib)(options "")(descr ""))
+  (lib (name PIC32)(type Legacy)(uri /home/mitchell/Downloads/UL_Export/KiCAD/symbols.lib)(options "")(descr ""))
+  (lib (name quad_copter_pcb-rescue)(type Legacy)(uri ${KIPRJMOD}/quad_copter_pcb-rescue.lib)(options "")(descr ""))
+)

@@ -23,7 +23,7 @@ extern "C" {
 #endif
 
 #define  BSP_CLK_FREQ               80000000
-#define  JTAG_ENABLE                DEF_ENABLED
+#define  JTAG_ENABLE                DEF_DISABLED // No JTAG
 #define  LCD_LINE_1                 0x02
 #define  LCD_LINE_2                 0xC0
 

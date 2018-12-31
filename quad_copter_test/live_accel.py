@@ -14,7 +14,7 @@ class udp_listener:
         self.sock.bind((self.UDP_IP, self.UDP_PORT))
 
     def get_data(self):
-        data, addr = self.sock.recvfrom(1024) # buffer size is 1024 bytes
+        data, addr = self.sock.recvfrom(40) # buffer size is 32 bytes
         return [data,addr]
 
 class accel_plotter:
@@ -62,5 +62,5 @@ if __name__ == "__main__":
 
     accel_plotter = accel_plotter()
     plt.grid()
-    ani = animation.FuncAnimation(accel_plotter.fig, accel_plotter.animate, interval=100, blit=False)
+    ani = animation.FuncAnimation(accel_plotter.fig, accel_plotter.animate, interval=10, blit=False)
     plt.show()
