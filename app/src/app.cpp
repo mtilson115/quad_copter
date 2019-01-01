@@ -14,9 +14,7 @@
 */
 
 #include "includes.h"
-#include "app_accel_gyro.h"
 #include "button_reader.h"
-#include "driver_i2c.h"
 #include <p32xxxx.h>
 
 /*
