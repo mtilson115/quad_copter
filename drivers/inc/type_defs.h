@@ -23,6 +23,17 @@ typedef enum {
     TRUE,
 } BOOL;
 
+/*******************************************************************************
+ * Common return types
+ ******************************************************************************/
+typedef enum {
+    rSUCCESS,
+    rFAILURE,
+    rSPI_SUCCESS,
+    rSPI_BUFF_FULL,
+    rSPI_ERROR,
+} ret_t;
+
 #ifdef	__cplusplus
 }
 #endif

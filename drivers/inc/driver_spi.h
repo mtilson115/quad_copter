@@ -71,7 +71,7 @@ typedef void (*spi_call_back_t)( uint8_t* spi_data, uint32_t data_len );
  *
  * Revision:    Initial Creation 02/15/2016 - Mitchell S. Tilson
  *
- * Notes:       
+ * Notes:
  *
  ******************************************************************************/
 void SPI_init( spi_num_e spi, spi_init_t spi_settings );
@@ -102,11 +102,11 @@ void SPI_enable( spi_num_e spi, BOOL enable );
  *              uint8_t* data - a pointer to the data to send
  *              uint32_t data_len - the number of bytes to send
  *
- * Returns:     
+ * Returns:
  *
  * Revision:    Initial Creation 02/15/2016 - Mitchell S. Tilson
  *
- * Notes: 
+ * Notes:
  *
  ******************************************************************************/
 spi_ret_e SPI_write( spi_num_e spi, uint8_t* data, uint32_t data_len );
