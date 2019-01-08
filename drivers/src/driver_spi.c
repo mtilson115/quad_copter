@@ -155,6 +155,7 @@ void SPI_init( spi_num_e spi, spi_init_t spi_settings )
     {
         curr_spi_cfg_p->SPIxCON->MODE16 = 1;
     }
+    // If neither are set, the mode will be 8bit
 
     // Set up the intterrupts for enhanced buffering
     // Set a TX interrupt when the last data is shifted out
