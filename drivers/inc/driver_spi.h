@@ -50,6 +50,7 @@ typedef struct {
     uint32_t interrupt_prio;
     uint32_t interrupt_sub_prio;
     spi_width_e data_width;  // 8bit, 16bit, 32bit
+    BOOL use_interrupts;
 } spi_init_t;
 
 typedef void (*spi_call_back_t)( uint8_t* spi_data, uint32_t data_len );

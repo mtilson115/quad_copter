@@ -267,6 +267,24 @@ void  BSP_DefaultHandler (void)
 
 /*
 *********************************************************************************************************
+*                                    BSP_RegisterInterruptHandler()
+*
+* Description: This function registers a call back for an interrupt.
+*
+*
+* Arguments  :  BSP_interrupt_cb - The call back function
+*               BSP_interrupt_reason - The reason the interrupt should be called for
+*
+* Returns    : None
+*********************************************************************************************************
+*/
+void BSP_RegisterInterruptHandler( BSP_interrupt_cb cb, BSP_interrupt_reason reason )
+{
+
+}
+
+/*
+*********************************************************************************************************
 *                                    OSProbe_TmrInit()
 *
 * Description: Initialize the timer used by uC/Probe.
@@ -313,8 +331,11 @@ CPU_INT32U  OSProbe_TmrRd (void)
 
 static  void  PB_Init (void)
 {
-    PB_Config();                                                        /* Configure the port pins                                  */
-    PB_IntInit();                                                       /* Configure interrupt settings                             */
+    /*
+     * There isn't any push buttons
+    PB_Config();                                                        // Configure the port pins
+    PB_IntInit();                                                       // Configure interrupt settings
+    */
 }
 
 /*
@@ -418,7 +439,8 @@ void  BSP_IntDisAll (void)
 *********************************************************************************************************
 *                                      BSP_InitIntCtrl()
 *
-* Description: This function intializes the external interrupt controller.
+* Description: This function intializes the external interrupt controller. Note that it sets up for multivector
+*               interrupts.
 *
 * Arguments  : None
 *

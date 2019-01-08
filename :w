@@ -37,13 +37,10 @@ typedef struct {
 /*******************************************************************************
  * Local Functions
  ******************************************************************************/
-static int32_t spi_set_cfg_pointer( spi_num_e spi );
-static void spi1_int_en( BOOL enable );
-static void spi1_int_prio( uint32_t prio, uint32_t sub_prio );
-static void spi1_clear_int_flags( void );
-static void spi2_int_en( BOOL enable );
-static void spi2_int_prio( uint32_t prio, uint32_t sub_prio );
-static void spi2_clear_int_flags( void );
+int32_t spi_set_cfg_pointer( spi_num_e spi );
+void spi1_int_en( BOOL enable );
+void spi1_int_prio( uint32_t prio, uint32_t sub_prio );
+void spi1_clear_int_flags( void );
 
 /*******************************************************************************
  * Local Data
@@ -79,7 +76,7 @@ spi_config_t* curr_spi_cfg_p = &SPI2_cfg;
  ******************************************************************************/
 
 /*******************************************************************************
- * SPI_init
+ * SPI1_init
  *
  * Description: Initializes the SPI identified by the spi_num_e using the passed
  *              baud rate.
@@ -92,9 +89,6 @@ spi_config_t* curr_spi_cfg_p = &SPI2_cfg;
  * Revision:    Initial Creation 01/24/2016 - Mitchell S. Tilson
  *
  * Notes:       Updates for interrupt enabling.
- *              Fsck = Fpb / (2*SPIxBRG + 1)
- *              Fpb = 80e6
- *              Fsck Max = 6MHz
  *
  ******************************************************************************/
 void SPI_init( spi_num_e spi, spi_init_t spi_settings )
@@ -129,10 +123,7 @@ void SPI_init( spi_num_e spi, spi_init_t spi_settings )
     curr_spi_cfg_p->spi_int_prio_func( spi_settings.interrupt_prio, spi_settings.interrupt_sub_prio );
 
     // Enable interrupts
-    if( spi_settings.use_interrupts )
-    {
-        curr_spi_cfg_p->spi_int_en_func( TRUE );
-    }
+    curr_spi_cfg_p->spi_int_en_func( TRUE );
 
     // Write the baud rate register
     *curr_spi_cfg_p->SPIxBRG = spi_settings.baud;
@@ -250,7 +241,7 @@ spi_ret_e SPI_write( spi_num_e spi, uint8_t* data, uint32_t data_len )
  * Notes:       None
  *
  ******************************************************************************/
-static int32_t spi_set_cfg_pointer( spi_num_e spi )
+int32_t spi_set_cfg_pointer( spi_num_e spi )
 {
     if( spi != SPI1 )
     {
@@ -270,7 +261,7 @@ static int32_t spi_set_cfg_pointer( spi_num_e spi )
             break;
 
         default:
-            curr_spi_cfg_p = &SPI2_cfg;
+            curr_spi_cfg_p = &SPI1_cfg;
             break;
     }
 }
@@ -289,7 +280,7 @@ static int32_t spi_set_cfg_pointer( spi_num_e spi )
  * Notes:       None
  *
  ******************************************************************************/
-static void spi1_int_en( BOOL enable )
+void spi1_int_en( BOOL enable )
 {
     IEC0bits.SPI1AEIE   = enable;
     IEC0bits.SPI1ARXIE  = enable;
@@ -311,7 +302,7 @@ static void spi1_int_en( BOOL enable )
  * Notes:       None
  *
  ******************************************************************************/
-static void spi1_int_prio( uint32_t prio, uint32_t sub_prio )
+void spi1_int_prio( uint32_t prio, uint32_t sub_prio )
 {
     if( prio <= 7 && sub_prio <= 3 )
     {
@@ -335,78 +326,10 @@ static void spi1_int_prio( uint32_t prio, uint32_t sub_prio )
  * Notes:       None
  *
  ******************************************************************************/
-static void spi1_clear_int_flags( void )
+void spi1_clear_int_flags( void )
 {
     IFS0bits.SPI1AEIF   = 0;
     IFS0bits.SPI1ARXIF  = 0;
     IFS0bits.SPI1ATXIF  = 0;
-    return;
-}
-
-/*******************************************************************************
- * spi2_int_en
- *
- * Description: Sets the SPI 2 interrupt enable
- *
- * Inputs:      BOOL enable - TRUE to enable FALSE otherwise
- *
- * Returns:     none
- *
- * Revision:    Initial Creation 01/07/2019 - Mitchell S. Tilson
- *
- * Notes:       None
- *
- ******************************************************************************/
-static void spi2_int_en( BOOL enable )
-{
-    IEC1bits.SPI2AEIE   = enable;
-    IEC1bits.SPI2ARXIE  = enable;
-    IEC1bits.SPI2ATXIE  = enable;
-    return;
-}
-
-/*******************************************************************************
- * spi2_int_prio
- *
- * Description: Sets the interrupt priority
- *
- * Inputs:      prio - the priority to set
- *
- * Returns:     none
- *
- * Revision:    Initial Creation 01/07/2019 - Mitchell S. Tilson
- *
- * Notes:       None
- *
- ******************************************************************************/
-static void spi2_int_prio( uint32_t prio, uint32_t sub_prio )
-{
-    if( prio <= 7 && sub_prio <= 3 )
-    {
-        IPC7bits.SPI2AIP = prio;
-        IPC7bits.SPI2AIS = sub_prio;
-    }
-    return;
-}
-
-/*******************************************************************************
- * spi2_clear_int_flags
- *
- * Description: Clears the SPI2 interrupt flags
- *
- * Inputs:      none
- *
- * Returns:     none
- *
- * Revision:    Initial Creation 01/07/2019 - Mitchell S. Tilson
- *
- * Notes:       None
- *
- ******************************************************************************/
-static void spi2_clear_int_flags( void )
-{
-    IFS1bits.SPI2AEIF   = 0;
-    IFS1bits.SPI2ARXIF  = 0;
-    IFS1bits.SPI2ATXIF  = 0;
     return;
 }
