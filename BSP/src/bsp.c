@@ -14,6 +14,7 @@
 #include "osc.h"
 #include "system.h"
 #include "timer.h"
+#include "hal_xbee.h"
 
 /*
 *********************************************************************************************************
@@ -263,6 +264,14 @@ void  BSP_Except_Handler (void)
 
 void  BSP_DefaultHandler (void)
 {
+    /*
+     * Interrupt handler testing code.  Remove this later.
+     */
+    TRISEbits.TRISE6 = 0;  // output
+    ODCEbits.ODCE6 = 0; // CMOS outout
+    PORTEINV = (1<<6); // Invert the bit so that we can see the change
+    HAL_xbee_test();
+    IFS0bits.INT2IF = 0; // Clear the interrupt status flag
 }
 
 /*
@@ -278,10 +287,12 @@ void  BSP_DefaultHandler (void)
 * Returns    : None
 *********************************************************************************************************
 */
+/*
 void BSP_RegisterInterruptHandler( BSP_interrupt_cb cb, BSP_interrupt_reason reason )
 {
 
 }
+*/
 
 /*
 *********************************************************************************************************

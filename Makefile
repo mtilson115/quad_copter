@@ -35,14 +35,14 @@ PROGRAMMER=/opt/microchip/mplabx/v5.10/mplab_platform/bin/mdb.sh
 #CFLAGS=-g -std=c99 -mprocessor=32MX795F512L -nostartfiles
 #CFLAGS=-mprocessor=32MX795F512L -nostartfiles
 #CPPFLAGS=-mprocessor=$(DEVICE) -nostartfiles
-CFLAGS=-mprocessor=$(DEVICE) -nostartfiles
-CPPFLAGS=-mprocessor=$(DEVICE) -nostartfiles
+CFLAGS=-g -std=c99 -mprocessor=$(DEVICE) -nostartfiles
+CPPFLAGS=-g -mprocessor=$(DEVICE) -nostartfiles
 
 # LD flags --defsym=_min_heap_size=1024
 LDFLAGS=-mprocessor=$(DEVICE) -nostartfiles -Wl,--defsym=_min_heap_size=0x400 -Wl,-Map=$(BIN)/$(PROJECT).map
 
 # Directories of the project
-DIRS= BSP CPU app drivers uC-CPU uC-LIB uCOS-III algs
+DIRS= BSP CPU app drivers uC-CPU uC-LIB uCOS-III algs HAL
 INC:=$(DIRS:%=-I./%/inc)
 VSRC:=$(DIRS:%=./%/src)
 VINC:=$(DIRS:%=./%/inc)
@@ -123,14 +123,11 @@ ifneq ("$(wildcard $(BIN))","")
 ifeq ($(DEBUG),1)
 	@echo 'programming in debug mode'
 	@echo 'program '$(PROJECT).elf >> install.txt
-	@echo 'reset MCLR' >> install.txt
-	@echo 'run' >> install.txt
 else
 	@echo 'programming in normal mode'
 	@echo 'program '$(PROJECT).hex >> install.txt
-	@echo 'reset MCLR' >> install.txt
-	@echo 'run' >> install.txt
 endif
+	@echo 'reset MCLR' >> install.txt
 	@echo 'Moving install config'
 	mv install.txt $(BIN)
 ifeq ($(DEBUG),1)

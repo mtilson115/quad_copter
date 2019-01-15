@@ -23,10 +23,10 @@
  * Local Type Defs
  ******************************************************************************/
 typedef struct {
-    volatile __SPI1CONbits_t* SPIxCON; // SPI control register
+    volatile __SPI2CONbits_t* SPIxCON; // SPI control register
     volatile uint32_t* SPIxBUFF; // SPI buffer register
     volatile uint32_t* SPIxBRG; // SPI baud rate register
-    volatile __SPI1STATbits_t* SPIxSTAT; // SPI status register
+    volatile __SPI2STATbits_t* SPIxSTAT; // SPI status register
     spi_num_e spi; // The SPI bus number
     void (*spi_int_en_func)( BOOL enable);
     void (*spi_int_prio_func)( uint32_t prio, uint32_t sub_prio );
@@ -143,6 +143,12 @@ void SPI_init( spi_num_e spi, spi_init_t spi_settings )
     // Set the master mode enabled
     curr_spi_cfg_p->SPIxCON->MSTEN = 1;
 
+    // Set the clock polarity
+    curr_spi_cfg_p->SPIxCON->CKP = 0;
+
+    // Output data changes on the falling edge of the clock
+    curr_spi_cfg_p->SPIxCON->CKE = 1;
+
     // Set the Slave Select bit to benabled
     curr_spi_cfg_p->SPIxCON->MSSEN = 1;
 
@@ -232,7 +238,9 @@ spi_ret_e SPI_write( spi_num_e spi, uint8_t* data, uint32_t data_len )
     for( i = 0; i < data_len; i++ )
     {
         while( curr_spi_cfg_p->SPIxSTAT->SPIBUSY );
-        *curr_spi_cfg_p->SPIxBUFF = data[i];
+        *curr_spi_cfg_p->SPIxBUFF = data[i];        // Write the data
+        while( curr_spi_cfg_p->SPIxSTAT->SPIBUSY );
+        data[i] = *curr_spi_cfg_p->SPIxBUFF;        // Read the data
     }
     return SPI_SUCCESS;
 }
@@ -253,11 +261,6 @@ spi_ret_e SPI_write( spi_num_e spi, uint8_t* data, uint32_t data_len )
  ******************************************************************************/
 static int32_t spi_set_cfg_pointer( spi_num_e spi )
 {
-    if( spi != SPI1 )
-    {
-        return -1;
-    }
-
     // Get the appropriate configuration
     // to modify
     switch( spi )

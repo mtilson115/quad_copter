@@ -14,7 +14,7 @@
 */
 
 #include "includes.h"
-#include "button_reader.h"
+#include "app_test.h"
 #include <p32xxxx.h>
 
 /*
@@ -163,7 +163,7 @@ static  void  App_TaskStart (void *p_arg)
 
 static void App_TaskCreate(void)
 {
-    start_reader();
+    start_test();
 }
 
 

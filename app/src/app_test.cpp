@@ -8,16 +8,17 @@
 #include "bsp_utils.h"
 #include "driver_pwm.h"
 #include "bsp.h"
+#include "hal_xbee.h"
 
-static  OS_TCB    reader_TCB;
-static  CPU_STK   reader_stack[APP_BUTTON_READER_STK_SIZE];
-static  void  reader_task   (void  *p_arg);
+static  OS_TCB    test_TCB;
+static  CPU_STK   test_stack[APP_BUTTON_READER_STK_SIZE];
+static  void  test_task   (void  *p_arg);
 #define LOW_DUTY 4.0
 #define MAX_DUTY 9.0
-void start_reader( void )
+void start_test( void )
 {
     // Initialize the AccelGyro
-    AclGyro.Init();
+    // AclGyro.Init();
 
     // Initialize the pwm driver
 
@@ -32,13 +33,19 @@ void start_reader( void )
     PWM_start( PWM0 );
     */
 
+    // Make the RE0 pin an output
+    TRISEbits.TRISE7 = 0;  // output
+    ODCEbits.ODCE7 = 0; // CMOS outout
+
+    HAL_xbee_init();
+
     OS_ERR err;
-    OSTaskCreate((OS_TCB      *)&reader_TCB,                        /* Create the start task                                    */
+    OSTaskCreate((OS_TCB      *)&test_TCB,                        /* Create the start task                                    */
                  (CPU_CHAR    *)"Button Reader",
-                 (OS_TASK_PTR  )reader_task,
+                 (OS_TASK_PTR  )test_task,
                  (void        *)0,
                  (OS_PRIO      )APP_BUTTON_READER_PRIO,
-                 (CPU_STK     *)&reader_stack[0],
+                 (CPU_STK     *)&test_stack[0],
                  (CPU_STK_SIZE )APP_BUTTON_READER_STK_SIZE/10,
                  (CPU_STK_SIZE )APP_BUTTON_READER_STK_SIZE,
                  (OS_MSG_QTY   )0u,
@@ -48,15 +55,15 @@ void start_reader( void )
                  (OS_ERR      *)&err);
 
 }
-static  void  reader_task   (void  *p_arg)
+static void test_task(void  *p_arg)
 {
-    float duty_cycle = LOW_DUTY;
+    // float duty_cycle = LOW_DUTY;
     OS_ERR err;
     // Allow the xbee-wifi to associate
-    OSTimeDlyHMSM(0u, 0u, 10u, 0u,OS_OPT_TIME_HMSM_STRICT,&err);
+    // OSTimeDlyHMSM(0u, 0u, 10u, 0u,OS_OPT_TIME_HMSM_STRICT,&err);
     while(DEF_ON)
     {
-        AclGyro.PrintMotion6Data();
+        // AclGyro.PrintMotion6Data();
         /*
         if( duty_cycle <= 7.0 )
         {
@@ -69,9 +76,8 @@ static  void  reader_task   (void  *p_arg)
         }
         */
         //AclGyro.PrintOffsets();
-        //LED_On(3);
-        OSTimeDlyHMSM(0u, 0u, 0u, 125u,OS_OPT_TIME_HMSM_STRICT,&err);
-        //LED_Off(3);
-        //OSTimeDlyHMSM(0u, 0u, 0u, 125u,OS_OPT_TIME_HMSM_STRICT,&err);
+        OSTimeDlyHMSM(0u, 0u, 0u, 250u,OS_OPT_TIME_HMSM_STRICT,&err);
+        PORTEINV = (1<<7);
+        // HAL_xbee_test();
     }
 }
