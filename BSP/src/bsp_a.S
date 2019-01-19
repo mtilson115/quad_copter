@@ -517,7 +517,7 @@ BSP_EXT2ISR:
 
     ISR_PROLOGUE
 
-    la    $8,  BSP_DefaultHandler            /* Call BSP_DefaultHandler() to handle the interrupt  */
+    la    $8,  BSP_xbee_int_handler     /* Call BSP_DefaultHandler() to handle the interrupt  */
     jalr  $8
     nop
 

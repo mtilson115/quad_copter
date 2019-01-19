@@ -95,22 +95,23 @@ void SPI_init( spi_num_e spi, spi_init_t spi_settings );
 void SPI_enable( spi_num_e spi, BOOL enable );
 
 /*******************************************************************************
- * SPI_write
+ * SPI_write_read
  *
- * Description: Writes to the selected SPI
+ * Description: Writes/reads the selected SPI
  *
- * Inputs:      spi_num_e spi - the spi to write data to.
- *              uint8_t* data - a pointer to the data to send
+ * Inputs:      spi_num_e spi - the spi to use
+ *              uint8_t* wdata - a pointer to the data to send
+ *              uint8_t* rdata - a pointer to the data to read
  *              uint32_t data_len - the number of bytes to send
  *
- * Returns:
+ * Returns:     spi_ret_e - ERROR, BUFF_FULL, or SUCCESS.
  *
- * Revision:    Initial Creation 02/15/2016 - Mitchell S. Tilson
+ * Revision:    Initial Creation 01/18/2018 - Mitchell S. Tilson
  *
- * Notes:
+ * Notes:       wdata and rdata must be the same size
  *
  ******************************************************************************/
-spi_ret_e SPI_write( spi_num_e spi, uint8_t* data, uint32_t data_len );
+spi_ret_e SPI_write_read( spi_num_e spi, uint8_t* wdata, uint8_t* rdata, uint32_t data_len );
 
 /*******************************************************************************
  * SPI_register_read_call_back
