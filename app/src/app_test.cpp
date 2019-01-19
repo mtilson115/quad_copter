@@ -43,8 +43,8 @@ void start_test( void )
     char name[] = "test";
     OSSemCreate(&sem,name,0,&err);
     BSP_xbee_register_sem(&sem);
-    OSTaskCreate((OS_TCB      *)&test_TCB,                        /* Create the start task                                    */
-                 (CPU_CHAR    *)"Button Reader",
+    OSTaskCreate((OS_TCB      *)&test_TCB,      /* Create the start task */
+                 (CPU_CHAR    *)"Test Task",
                  (OS_TASK_PTR  )test_task,
                  (void        *)0,
                  (OS_PRIO      )APP_BUTTON_READER_PRIO,
@@ -80,8 +80,8 @@ static void test_task(void  *p_arg)
             duty_cycle = LOW_DUTY;
         }
         */
-        //AclGyro.PrintOffsets();
-        OSTimeDlyHMSM(0u, 0u, 0u, 250u,OS_OPT_TIME_HMSM_STRICT,&err);
+        // AclGyro.PrintOffsets();
+        // OSTimeDlyHMSM(0u, 0u, 0u, 250u,OS_OPT_TIME_HMSM_STRICT,&err);
         PORTEINV = (1<<7);
         BSP_xbee_test();
     }
