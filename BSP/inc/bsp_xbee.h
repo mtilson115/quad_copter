@@ -14,10 +14,12 @@
 extern "C" {
 #endif
 #include <os.h>
+#include <stdint.h>
 
-void BSP_xbee_init( void );
-void BSP_xbee_register_sem(OS_SEM* sem);
-void BSP_xbee_test( void );
+void BSP_xbee_init(void);
+void BSP_xbee_register_tcb(OS_TCB* tcb);
+void BSP_xbee_write_read(uint8_t* wdata, uint8_t* rdata, uint16_t len);
+void BSP_xbee_test(void);
 
 #ifdef	__cplusplus
 }

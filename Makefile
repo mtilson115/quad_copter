@@ -42,7 +42,7 @@ CPPFLAGS=-g -mprocessor=$(DEVICE) -nostartfiles
 LDFLAGS=-mprocessor=$(DEVICE) -nostartfiles -Wl,--defsym=_min_heap_size=0x400 -Wl,-Map=$(BIN)/$(PROJECT).map
 
 # Directories of the project
-DIRS= BSP CPU app drivers uC-CPU uC-LIB uCOS-III algs
+DIRS= BSP CPU app drivers uC-CPU uC-LIB uCOS-III algs comms
 INC:=$(DIRS:%=-I./%/inc)
 VSRC:=$(DIRS:%=./%/src)
 VINC:=$(DIRS:%=./%/inc)
@@ -110,7 +110,6 @@ OUT_DIR:
 
 #cleaning
 clean:
-	$(RM) .depend
 	$(RM) $(OUT)
 	$(RM) $(BIN)
 

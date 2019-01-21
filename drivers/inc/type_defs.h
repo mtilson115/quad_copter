@@ -34,6 +34,9 @@ typedef enum {
     rSPI_ERROR,
 } ret_t;
 
+typedef __attribute__((aligned(1))) uint8_t uint8_ua_t;
+typedef __attribute__((aligned(1))) uint16_t uint16_ua_t;
+
 #ifdef	__cplusplus
 }
 #endif

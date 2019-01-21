@@ -222,7 +222,7 @@ void SPI_enable( spi_num_e spi, BOOL enable )
  * Notes:       wdata and rdata must be the same size
  *
  ******************************************************************************/
-spi_ret_e SPI_write_read( spi_num_e spi, uint8_t* wdata, uint8_t* rdata, uint32_t data_len )
+spi_ret_e SPI_write_read( spi_num_e spi, uint8_ua_t* wdata, uint8_ua_t* rdata, uint32_t data_len )
 {
     uint32_t i = 0;
 

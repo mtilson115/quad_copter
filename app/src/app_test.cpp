@@ -13,7 +13,6 @@
 static  OS_TCB    test_TCB;
 static  CPU_STK   test_stack[APP_BUTTON_READER_STK_SIZE];
 static  void  test_task   (void  *p_arg);
-static OS_SEM sem;
 #define LOW_DUTY 4.0
 #define MAX_DUTY 9.0
 void start_test( void )
@@ -37,12 +36,8 @@ void start_test( void )
     // Make the RE0 pin an output
     TRISEbits.TRISE7 = 0;  // output
     ODCEbits.ODCE7 = 0; // CMOS outout
-    BSP_xbee_init();
 
     OS_ERR err;
-    char name[] = "test";
-    OSSemCreate(&sem,name,0,&err);
-    BSP_xbee_register_sem(&sem);
     OSTaskCreate((OS_TCB      *)&test_TCB,      /* Create the start task */
                  (CPU_CHAR    *)"Test Task",
                  (OS_TASK_PTR  )test_task,
@@ -57,7 +52,12 @@ void start_test( void )
                  (OS_OPT       )(OS_OPT_TASK_STK_CHK | OS_OPT_TASK_STK_CLR),
                  (OS_ERR      *)&err);
 
+    /*
+    BSP_xbee_register_tcb(&test_TCB);
+    BSP_xbee_init();
+    */
 }
+
 static void test_task(void  *p_arg)
 {
     // float duty_cycle = LOW_DUTY;
@@ -67,7 +67,7 @@ static void test_task(void  *p_arg)
     CPU_TS ts;
     while(DEF_ON)
     {
-        OSSemPend(&sem,0,OS_OPT_PEND_BLOCKING,&ts,&err);
+        // OSTaskSemPend(0,OS_OPT_PEND_BLOCKING,&ts,&err);
         // AclGyro.PrintMotion6Data();
         /*
         if( duty_cycle <= 7.0 )
@@ -81,8 +81,8 @@ static void test_task(void  *p_arg)
         }
         */
         // AclGyro.PrintOffsets();
-        // OSTimeDlyHMSM(0u, 0u, 0u, 250u,OS_OPT_TIME_HMSM_STRICT,&err);
+        OSTimeDlyHMSM(0u, 0u, 0u, 500u,OS_OPT_TIME_HMSM_STRICT,&err);
         PORTEINV = (1<<7);
-        BSP_xbee_test();
+        // BSP_xbee_test();
     }
 }

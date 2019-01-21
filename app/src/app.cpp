@@ -15,6 +15,7 @@
 
 #include "includes.h"
 #include "app_test.h"
+#include "comms_xbee.h"
 #include <p32xxxx.h>
 
 /*
@@ -164,6 +165,7 @@ static  void  App_TaskStart (void *p_arg)
 static void App_TaskCreate(void)
 {
     start_test();
+    COMMS_xbee_init();
 }
 
 

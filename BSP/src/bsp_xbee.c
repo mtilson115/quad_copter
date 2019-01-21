@@ -15,11 +15,12 @@
 #include "type_defs.h"
 #include "bsp.h"
 #include <p32xxxx.h>
+#include <assert.h>
 
 /*******************************************************************************
  * Local definitions
  ******************************************************************************/
-#define MAX_SEM_CNT (2)
+#define MAX_TCB_CNT (2)
 
 /*******************************************************************************
  * Local static function definitions
@@ -27,8 +28,8 @@
 static void bsp_xbee_int_init( void );
 static void bsp_xbee_spi_en_seq( void );
 
-static OS_SEM* bsp_xbee_sem_list[MAX_SEM_CNT] = {0};
-static uint32_t bsp_xbee_sem_list_cnt = 0;
+static OS_TCB* bsp_xbee_tcb_list[MAX_TCB_CNT] = {0};
+static uint32_t bsp_xbee_tcb_list_cnt = 0;
 
 /*******************************************************************************
  * Public function section
@@ -90,32 +91,57 @@ void BSP_xbee_init( void )
 void BSP_xbee_int_handler( void )
 {
     OS_ERR err;
-    for( uint32_t sem_idx = 0; sem_idx < bsp_xbee_sem_list_cnt; sem_idx++ )
+    for( uint32_t tcb_idx = 0; tcb_idx < bsp_xbee_tcb_list_cnt; tcb_idx++ )
     {
-        OSSemPost(bsp_xbee_sem_list[sem_idx],OS_OPT_POST_NO_SCHED,&err);
+        OSTaskSemPost(bsp_xbee_tcb_list[tcb_idx],OS_OPT_POST_NO_SCHED,&err);
     }
     IFS0bits.INT2IF = 0; // Clear the interrupt status flag
 }
 
 /*******************************************************************************
- * BSP_xbee_register_sem
+ * BSP_xbee_register_tcb
  *
- * Description: Register a semaphore with the xbee BSP code
+ * Description: Register a task control block (TCB) with the xbee BSP code
  *
  *
- * Inputs:      semaphore
+ * Inputs:      the tcb
  *
  * Returns:     none
  *
  * Revision:    Initial Creation 01/18/2019 - Mitchell S. Tilson
  *
  ******************************************************************************/
-void BSP_xbee_register_sem(OS_SEM* sem)
+void BSP_xbee_register_tcb(OS_TCB* tcb)
 {
-    if( bsp_xbee_sem_list_cnt++ <= MAX_SEM_CNT )
+    if( bsp_xbee_tcb_list_cnt++ <= MAX_TCB_CNT )
     {
-        bsp_xbee_sem_list[bsp_xbee_sem_list_cnt-1] = sem;
+        bsp_xbee_tcb_list[bsp_xbee_tcb_list_cnt-1] = tcb;
     }
+}
+
+/*******************************************************************************
+ * BSP_xbee_write_read
+ *
+ * Description: Sends or receives data from the xbee module over spi
+ *
+ *
+ * Inputs:      uint8_t* wdata - the data to write
+ *              uint8_t* rdata - a pointer to the buffer to read data into
+ *              uint16_t len - the length of the data in bytes
+ *
+ * Returns:     none
+ *
+ * Revision:    Initial Creation 01/20/2019 - Mitchell S. Tilson
+ *
+ * Notes:       The write and read data arrays must be the same length.
+ *              Its ok if the wdata and rdata point to the same location.  It
+ *              just means the wdata will be overwritten with the result.
+ *
+ ******************************************************************************/
+void BSP_xbee_write_read( uint8_ua_t* wdata, uint8_ua_t* rdata, uint16_t len )
+{
+    spi_ret_e ret_val = SPI_write_read( SPI2, wdata, rdata, len );
+    assert(ret_val==SPI_SUCCESS);
 }
 
 /*******************************************************************************
