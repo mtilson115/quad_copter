@@ -19,7 +19,7 @@ static  void  test_task   (void  *p_arg);
 void start_test( void )
 {
     // Initialize the AccelGyro
-    // AclGyro.Init();
+    AclGyro.Init();
 
     // Initialize the pwm driver
 
@@ -64,14 +64,12 @@ static void test_task(void  *p_arg)
     // float duty_cycle = LOW_DUTY;
     OS_ERR err;
     // Allow the xbee-wifi to associate
-    // OSTimeDlyHMSM(0u, 0u, 10u, 0u,OS_OPT_TIME_HMSM_STRICT,&err);
-    // CPU_TS ts;
     BSP_PrintfInit();
     uint32_t idx = 0;
     while(DEF_ON)
     {
         // OSTaskSemPend(0,OS_OPT_PEND_BLOCKING,&ts,&err);
-        // AclGyro.PrintMotion6Data();
+        AclGyro.PrintMotion6Data();
         /*
         if( duty_cycle <= 7.0 )
         {
@@ -84,9 +82,9 @@ static void test_task(void  *p_arg)
         }
         */
         // AclGyro.PrintOffsets();
-        OSTimeDlyHMSM(0u, 0u, 0u, 50u,OS_OPT_TIME_HMSM_STRICT,&err);
+        OSTimeDlyHMSM(0u, 0u, 0u, 100u,OS_OPT_TIME_HMSM_STRICT,&err);
         PORTEINV = (1<<7);
-        BSP_Printf("Hello %d\n",idx++);
+        // BSP_Printf("Hello %d\n",idx++);
         // BSP_xbee_test();
     }
 }

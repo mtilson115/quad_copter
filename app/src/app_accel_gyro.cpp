@@ -54,9 +54,6 @@ AppAccelGyroClass AclGyro;
 ******************************************************************************/
 void AppAccelGyroClass::Init( void )
 {
-	// Initialize the debug print system
-	BSP_PrintfInit();
-
 	// Initialize the accelerometer gyroscope ( the address pin is tied low )
 	AccelGyro.SetI2CAddress( MPU6050_ADDRESS_AD0_LOW );
 
@@ -154,8 +151,8 @@ void AppAccelGyroClass::PrintMotion6Data( void )
     data.gz -= offsets.gz;
 
 	// BSP_Printf("Accel Gyro Sensor Readings\n\r");
-	BSP_Printf("%d,%d,%d,",data.ax,data.ay,data.az);
-	BSP_Printf("%d,%d,%d",data.gx,data.gy,data.gz);
+	BSP_Printf("%d,%d,%d,%d,%d,%d",data.ax,data.ay,data.az,data.gx,data.gy,data.gz);
+	// BSP_Printf("%d,%d,%d",data.gx,data.gy,data.gz);
 }
 
 /*******************************************************************************

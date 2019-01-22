@@ -37,9 +37,9 @@ extern "C" {
  * Public Functions
  ******************************************************************************/
 
-extern void BSP_PrintfInit( void );
+void BSP_PrintfInit( void );
 
-extern void BSP_Printf( const char* format, ... );
+void BSP_Printf( const char* format, ... );
 
 #ifdef	__cplusplus
 }
