@@ -16,13 +16,14 @@ extern "C" {
 
 #include <stdint.h>
 
-typedef struct __attribute__((packed)) { 
+typedef struct __attribute__((packed)) {
     uint16_t    len;
     uint8_t*    data;
 }comms_xbee_msg_t;
 
 void COMMS_xbee_send(comms_xbee_msg_t msg);
 void COMMS_xbee_init(void);
+uint8_t COMMS_xbee_ready( void );
 
 #ifdef	__cplusplus
 }

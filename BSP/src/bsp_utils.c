@@ -9,11 +9,12 @@
 /*******************************************************************************
  * Includes
  ******************************************************************************/
-#include "driver_uart.h"
 #include "type_defs.h"
+#include "comms_xbee.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <os.h>
 
 
 /*******************************************************************************
@@ -27,7 +28,6 @@
 /*******************************************************************************
  * Local Data
  ******************************************************************************/
-UART_ID id_;
 
 /*******************************************************************************
  * Local Functions
@@ -51,8 +51,12 @@ UART_ID id_;
  ******************************************************************************/
 void BSP_PrintfInit( void )
 {
-    id_ = Uart_init(UART_1, 115200, 8, PARITY_NONE, 1);
-    Uart_enable(id_);
+    OS_ERR err;
+    while( !COMMS_xbee_ready() )
+    {
+        // Delay 100ms (this part isn't really time sensitive)
+        OSTimeDlyHMSM(0u, 0u, 0u, 100u,OS_OPT_TIME_HMSM_STRICT,&err);
+    }
 }
 
 /*******************************************************************************
@@ -81,5 +85,8 @@ void BSP_Printf( const char* format, ... )
     len = vsnprintf(&buffer[0],len,format,arg);
     va_end (arg);
 
-    Uart_write(id_,len,(uint8_t*)&buffer[0]);
+    comms_xbee_msg_t msg;
+    msg.data = buffer;
+    msg.len = len;
+    COMMS_xbee_send(msg);
 }

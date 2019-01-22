@@ -62,7 +62,7 @@ void BSP_xbee_init( void )
 
     // Initialize the SPI
     spi_init_t spi_settings = {
-        .baud = 7,              // Exactly 5MHz
+        .baud = 8,              // ~4MHz see SPI_init code
         .interrupt_prio = 4,
         .interrupt_sub_prio = 1,
         .data_width = SPI_8BIT,
