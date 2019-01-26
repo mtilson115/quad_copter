@@ -18,8 +18,6 @@ static  void  test_task   (void  *p_arg);
 #define MAX_DUTY 9.0
 void start_test( void )
 {
-    // Initialize the AccelGyro
-    AclGyro.Init();
 
     // Initialize the pwm driver
 
@@ -63,8 +61,15 @@ static void test_task(void  *p_arg)
 {
     // float duty_cycle = LOW_DUTY;
     OS_ERR err;
-    // Allow the xbee-wifi to associate
+
+    // Allow the printf system to init (xbee has to associate)
     BSP_PrintfInit();
+
+    OSTimeDlyHMSM(0u, 0u, 2u, 0u,OS_OPT_TIME_HMSM_STRICT,&err);
+
+    // Initialize the AccelGyro
+    AclGyro.Init();
+
     uint32_t idx = 0;
     while(DEF_ON)
     {

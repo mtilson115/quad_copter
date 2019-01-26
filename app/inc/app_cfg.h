@@ -44,7 +44,7 @@
 */
 
 #define APP_CFG_TASK_START_STK_SIZE     512u
-#define APP_BUTTON_READER_STK_SIZE      128u
+#define APP_BUTTON_READER_STK_SIZE      1024u
 #define COMMS_XBEE_STK_SIZE             512u
 
 

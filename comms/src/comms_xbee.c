@@ -241,12 +241,12 @@ void COMMS_xbee_send(comms_xbee_msg_t msg)
         OSTaskQPost(&comms_xbee_TCB,(void*)&api_msg,sizeof(api_msg),OS_OPT_POST_NO_SCHED,&err);
         if( err == OS_ERR_Q_MAX || err == OS_ERR_MSG_POOL_EMPTY )
         {
-            while(1);
+            __builtin_software_breakpoint();
         }
         OSTaskSemPost(&comms_xbee_TCB,OS_OPT_POST_NONE,&err);
         if( err == OS_ERR_SEM_OVF )
         {
-            while(1);
+            __builtin_software_breakpoint();
         }
         // Trigger the semaphore
         frame_id++;

@@ -63,7 +63,22 @@ void AppAccelGyroClass::Init( void )
 		return;
 	}
 
-    Calibrate();
+    // Calibrate();
+    /*
+    BSP_Printf("Initializing the DMP...");
+    uint8_t devStatus = AccelGyro.dmpInitialize();
+    if( devStatus )
+    {
+        BSP_Printf("Failed to initialize the DMP: %d\n",devStatus);
+    }
+    else
+    {
+        BSP_Printf("DMP initialized: %d\n",devStatus);
+    }
+    */
+
+    // Creat the main thread
+    //
 }
 
 /*******************************************************************************
@@ -85,7 +100,7 @@ void AppAccelGyroClass::Calibrate( void )
 {
 	memset(&offsets,0x00,sizeof(offsets));
     GetMotion6Data( &offsets );
-    offsets.az += 16384;
+    //offsets.az += 16384;
 }
 
 /*******************************************************************************
