@@ -393,7 +393,7 @@ BSP_EXT1ISR:
 
     ISR_PROLOGUE
 
-    la    $8,  BSP_DefaultHandler            /* Call BSP_DefaultHandler() to handle the interrupt  */
+    la    $8,  AccelGyroIntHandler              /* Call AccelGyroIntHandler() to handle the interrupt  */
     jalr  $8
     nop
 

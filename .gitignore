@@ -28,3 +28,6 @@ tags-he
 
 # dependencies files
 .depend
+
+# KiCad
+_saved_quad_copter_pcb.sch

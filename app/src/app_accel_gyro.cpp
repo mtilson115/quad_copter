@@ -57,6 +57,9 @@ void AppAccelGyroClass::Init( void )
 	// Initialize the accelerometer gyroscope ( the address pin is tied low )
 	AccelGyro.SetI2CAddress( MPU6050_ADDRESS_AD0_LOW );
 
+    // Setup the microchip interrupts
+    AccelGyro.IntEnable();
+
 	// Intialize the chip
 	if( false == AccelGyro.Init() ) {
 		BSP_Printf("Failed to initialize the gyro\n\r");

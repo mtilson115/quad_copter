@@ -65,6 +65,7 @@
 #include "bsp_utils.h"
 #include <stdlib.h>
 #include <string.h>
+#include <p32xxxx.h>
 
 #ifndef MPU6050_INCLUDE_DMP_MOTIONAPPS20
     #define pgm_read_byte(addr) (*(const unsigned char *)(addr))
@@ -125,9 +126,71 @@ bool Accel_Gyro::Init( void )
     SetFullScaleGyroRange(MPU6050_GYRO_FS_250);
     SetFullScaleAccelRange(MPU6050_ACCEL_FS_2);
     SetSleepEnabled(false); // thanks to Jack Elston for pointing this one out!
+    SetIntDataReadyEnabled(true); // Assert the interrupt when data is ready
 
     // Test the connection
     return TestConnection();
+}
+
+/*******************************************************************************
+ * IntEnable
+ *
+ * Description:	Sets up the microchip interrupts
+ *
+ * Inputs: none
+ *
+ * Revision: Initial Mitch Tilson 01/26/19
+ *			
+ *
+ * Notes: None
+ *
+ ******************************************************************************/
+void Accel_Gyro::IntEnable( void )
+{
+    // INT is on pin 8 of port E
+    // This configures it as an input
+    TRISEbits.TRISE8 = 1;
+
+    // INT1 enable bit (disable the interrupt)
+    IEC0bits.INT1IE = 0;
+
+    // Set the interrupt polarity for falling edge
+    INTCONbits.INT1EP = 0;
+
+    // Clear the interrupt status flag
+    IFS0bits.INT1IF = 0;
+
+    // Interrupt priority
+    IPC2bits.INT1IP = 4;
+
+    // Interrupt sub-priority
+    IPC2bits.INT1IS = 1;
+
+    // INT1 enable bit
+    IEC0bits.INT1IE = 1;
+}
+
+/*******************************************************************************
+ * IntHanlder (called from bsp_a.S)
+ *
+ * Description:	Called when the interrupt happens (INT1, RE8 from the MPU6050)
+ *
+ * Inputs: none
+ *
+ * Revision: Initial Mitch Tilson 01/26/19
+ *			
+ *
+ * Notes: None
+ *
+ ******************************************************************************/
+extern "C" {
+void AccelGyroIntHandler( void )
+{
+    TRISEbits.TRISE6 = 0;
+    IFS0bits.INT1IF = 0; 
+    ODCEbits.ODCE6 = 0;
+    PORTEINV = (1<<6);
+}
 }
 
 /*******************************************************************************

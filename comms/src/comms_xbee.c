@@ -314,8 +314,8 @@ uint8_t COMMS_xbee_ready( void )
  ******************************************************************************/
 static void comms_xbee_task(void *p_arg)
 {
-    TRISEbits.TRISE6 = 0;  // output
-    ODCEbits.ODCE6 = 0; // CMOS outout
+    // TRISEbits.TRISE6 = 0;  // output
+    // ODCEbits.ODCE6 = 0; // CMOS outout
     OS_ERR err;
     while(DEF_ON)
     {

@@ -401,6 +401,12 @@
 #define MPU6050_DMP_MEMORY_BANK_SIZE    256
 #define MPU6050_DMP_MEMORY_CHUNK_SIZE   16
 
+/*
+ * This has to be declared as a style function so that is callable from bsp_a.S
+ */
+extern "C" {
+    void AccelGyroIntHandler( void );
+}
 /*******************************************************************************
  * Class Definition
  ******************************************************************************/
@@ -413,6 +419,7 @@ public:
 
  void SetI2CAddress	( uint8_t address );
  bool Init( void );
+ void IntEnable( void );
  bool TestConnection( void );
 
  // AUX_VDDIO register
