@@ -34,6 +34,7 @@ THE SOFTWARE.
 #define _MPU6050_6AXIS_MOTIONAPPS20_H_
 
 #include "bsp_accel_gyro.h"
+#include "bsp_utils.h"
 #include <os.h>
 #include <string.h>
 
@@ -95,7 +96,7 @@ THE SOFTWARE.
 // after moving string constants to flash memory storage using the F()
 // compiler macro (Arduino IDE 1.0+ required).
 
-//#define DEBUG
+#define DEBUG
 #ifdef DEBUG
     #define DEBUG_PRINT(x) BSP_Printf(x)
     #define DEBUG_PRINTF(x, y) BSP_Printf(x, y)
@@ -325,7 +326,7 @@ uint8_t Accel_Gyro::dmpInitialize() {
     OS_ERR err;
     // reset device
     DEBUG_PRINTLN("\n\nResetting MPU6050...");
-    reset();
+    ag_reset();
     OSTimeDlyHMSM(0u, 0u, 0u, 1u,OS_OPT_TIME_HMSM_STRICT,&err); // wait after reset
     // delay(30); // wait after reset
 
@@ -448,7 +449,7 @@ uint8_t Accel_Gyro::dmpInitialize() {
             uint8_t fifoBuffer[128];
 
             DEBUG_PRINT("Current FIFO count=");
-            DEBUG_PRINTLN(fifoCount);
+            DEBUG_PRINTLNF("%d\n",fifoCount);
             GetFIFOBytes(fifoBuffer, fifoCount);
 
             DEBUG_PRINTLN("Setting motion detection threshold to 2...");

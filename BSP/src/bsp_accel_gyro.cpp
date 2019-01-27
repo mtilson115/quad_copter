@@ -58,11 +58,17 @@
  ******************************************************************************/
 #include "bsp_accel_gyro.h"
 #include "driver_i2c.h"
-#include "MPU6050_6Axis_MotionApps20.h"
+#ifdef MPU6050_INCLUDE_DMP_MOTIONAPPS20
+    #include "MPU6050_6Axis_MotionApps20.h"
+#endif
 #include "type_defs.h"
 #include "bsp_utils.h"
 #include <stdlib.h>
 #include <string.h>
+
+#ifndef MPU6050_INCLUDE_DMP_MOTIONAPPS20
+    #define pgm_read_byte(addr) (*(const unsigned char *)(addr))
+#endif
 
 /*******************************************************************************
  * Public Objects Section
@@ -3194,7 +3200,7 @@ void Accel_Gyro::resetSensors( void )
  * @see MPU6050_RA_PWR_MGMT_1
  * @see MPU6050_PWR1_DEVICE_RESET_BIT
  */
-void Accel_Gyro::reset( void )
+void Accel_Gyro::ag_reset( void )
 {
     I2C1.WriteRegBitB(devAddr, MPU6050_RA_PWR_MGMT_1, MPU6050_PWR1_DEVICE_RESET_BIT, true);
 }

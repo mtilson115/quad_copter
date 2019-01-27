@@ -63,20 +63,7 @@ void AppAccelGyroClass::Init( void )
 		return;
 	}
 
-    // Calibrate();
-    /*
-    BSP_Printf("Initializing the DMP...");
-    uint8_t devStatus = AccelGyro.dmpInitialize();
-    if( devStatus )
-    {
-        BSP_Printf("Failed to initialize the DMP: %d\n",devStatus);
-    }
-    else
-    {
-        BSP_Printf("DMP initialized: %d\n",devStatus);
-    }
-    */
-
+    Calibrate();
     // Creat the main thread
     //
 }
@@ -99,8 +86,11 @@ void AppAccelGyroClass::Init( void )
 void AppAccelGyroClass::Calibrate( void )
 {
 	memset(&offsets,0x00,sizeof(offsets));
-    GetMotion6Data( &offsets );
-    //offsets.az += 16384;
+    offsets.ax = 300;
+    offsets.gx = -300;
+    offsets.gy = -100;
+    offsets.gz = 200;
+    // GetMotion6Data( &offsets );
 }
 
 /*******************************************************************************
@@ -165,9 +155,7 @@ void AppAccelGyroClass::PrintMotion6Data( void )
     data.gy -= offsets.gy;
     data.gz -= offsets.gz;
 
-	// BSP_Printf("Accel Gyro Sensor Readings\n\r");
 	BSP_Printf("%d,%d,%d,%d,%d,%d",data.ax,data.ay,data.az,data.gx,data.gy,data.gz);
-	// BSP_Printf("%d,%d,%d",data.gx,data.gy,data.gz);
 }
 
 /*******************************************************************************

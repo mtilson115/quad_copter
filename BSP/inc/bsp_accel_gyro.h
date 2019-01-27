@@ -12,7 +12,7 @@
 #ifndef BSP_ACCEL_GYRO_H
 #define	BSP_ACCEL_GYRO_H
 
-#define MPU6050_INCLUDE_DMP_MOTIONAPPS20
+// #define MPU6050_INCLUDE_DMP_MOTIONAPPS20
 
 /*******************************************************************************
  * Includes
@@ -652,7 +652,7 @@ public:
  void resetSensors( void );
 
  // PWR_MGMT_1 register
- void reset( void );
+ void ag_reset( void );
  bool GetSleepEnabled( void );
  void SetSleepEnabled(bool enabled);
  bool GetWakeCycleEnabled( void );

@@ -329,7 +329,7 @@ const unsigned char dmpUpdates[MPU6050_DMP_UPDATES_SIZE] PROGMEM = {
 uint8_t Accel_Gyro::dmpInitialize() {
     // reset device
     DEBUG_PRINTLN("\n\nResetting MPU6050...");
-    reset();
+    ag_reset();
     delay(30); // wait after reset
 
     // enable sleep mode and wake cycle
