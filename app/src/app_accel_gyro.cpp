@@ -147,18 +147,21 @@ void AppAccelGyroClass::GetMotion6Data( motion6_data_type* data )
  ******************************************************************************/
 void AppAccelGyroClass::PrintMotion6Data( void )
 {
-	motion6_data_type data;
+    // Read the status
+    motion6_data_type data;
 	memset(&data,0x00,sizeof(data));
 
-	GetMotion6Data( &data );
+    GetMotion6Data( &data );
     data.ax -= offsets.ax;
     data.ay -= offsets.ay;
     data.az -= offsets.az;
     data.gx -= offsets.gx;
     data.gy -= offsets.gy;
     data.gz -= offsets.gz;
+    uint8_t status = AccelGyro.GetIntStatus();
+    BSP_Printf("Status: 0x%X",status);
 
-	BSP_Printf("%d,%d,%d,%d,%d,%d",data.ax,data.ay,data.az,data.gx,data.gy,data.gz);
+    // BSP_Printf("%d,%d,%d,%d,%d,%d",data.ax,data.ay,data.az,data.gx,data.gy,data.gz);
 }
 
 /*******************************************************************************

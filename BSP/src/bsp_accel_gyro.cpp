@@ -66,6 +66,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <p32xxxx.h>
+#include "bsp.h"
 
 #ifndef MPU6050_INCLUDE_DMP_MOTIONAPPS20
     #define pgm_read_byte(addr) (*(const unsigned char *)(addr))
@@ -122,14 +123,23 @@ bool Accel_Gyro::Init( void )
     I2C1.Init( I2C_Class::I2C_1, 400000.0 );
 
     // Set up the MPU6050
+    ag_reset();
+    BSP_Dly(1000);
     SetClockSource(MPU6050_CLOCK_PLL_XGYRO);
     SetFullScaleGyroRange(MPU6050_GYRO_FS_250);
     SetFullScaleAccelRange(MPU6050_ACCEL_FS_2);
     SetSleepEnabled(false); // thanks to Jack Elston for pointing this one out!
+    SetExternalFrameSync(0); // No external chips
+    SetDLPFMode(2); // 98Hz, 94Hz, 1khz
+    SetInterruptLatchClear(true); // clear for any register read
+    SetInterruptMode(true); // Active low interrupt
+    SetInterruptDrive(false); // Push-Pull
+    SetInterruptLatch(true); // Latch INT until cleared
+    SetRate(24); // 1kHz/(1+24) == 40Hz
+    bool ret = TestConnection();
     SetIntDataReadyEnabled(true); // Assert the interrupt when data is ready
-
     // Test the connection
-    return TestConnection();
+    return ret;
 }
 
 /*******************************************************************************
@@ -140,7 +150,7 @@ bool Accel_Gyro::Init( void )
  * Inputs: none
  *
  * Revision: Initial Mitch Tilson 01/26/19
- *			
+ *
  *
  * Notes: None
  *
@@ -161,10 +171,10 @@ void Accel_Gyro::IntEnable( void )
     IFS0bits.INT1IF = 0;
 
     // Interrupt priority
-    IPC2bits.INT1IP = 4;
+    IPC1bits.INT1IP = 4;
 
     // Interrupt sub-priority
-    IPC2bits.INT1IS = 1;
+    IPC1bits.INT1IS = 1;
 
     // INT1 enable bit
     IEC0bits.INT1IE = 1;
@@ -178,7 +188,7 @@ void Accel_Gyro::IntEnable( void )
  * Inputs: none
  *
  * Revision: Initial Mitch Tilson 01/26/19
- *			
+ *
  *
  * Notes: None
  *
@@ -187,9 +197,23 @@ extern "C" {
 void AccelGyroIntHandler( void )
 {
     TRISEbits.TRISE6 = 0;
-    IFS0bits.INT1IF = 0; 
     ODCEbits.ODCE6 = 0;
     PORTEINV = (1<<6);
+    /*
+    if( AccelGyro.GetIntDataReadyStatus() )
+    {
+        PORTEINV = (1<<6);
+        int16_t ax;
+        int16_t ay;
+        int16_t az;
+        int16_t gx;
+        int16_t gy;
+        int16_t gz;
+        // AccelGyro.GetMotion6(&ax,&ay,&az,&gx,&gy,&gz);
+        // AccelGyro.GetTemperature();
+    }
+    */
+    IFS0bits.INT1IF = 0;
 }
 }
 

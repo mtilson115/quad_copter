@@ -74,7 +74,7 @@ static void test_task(void  *p_arg)
     while(DEF_ON)
     {
         // OSTaskSemPend(0,OS_OPT_PEND_BLOCKING,&ts,&err);
-        // AclGyro.PrintMotion6Data();
+        AclGyro.PrintMotion6Data();
         /*
         if( duty_cycle <= 7.0 )
         {
@@ -87,7 +87,7 @@ static void test_task(void  *p_arg)
         }
         */
         // AclGyro.PrintOffsets();
-        OSTimeDlyHMSM(0u, 0u, 0u, 500u,OS_OPT_TIME_HMSM_STRICT,&err);
+        OSTimeDlyHMSM(0u, 0u, 0u, 240u,OS_OPT_TIME_HMSM_STRICT,&err);
         PORTEINV = (1<<7);
         // BSP_Printf("Hello %d\n",idx++);
         // BSP_xbee_test();
