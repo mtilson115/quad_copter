@@ -21,8 +21,11 @@
 /*******************************************************************************
  * Constants
  ******************************************************************************/
-#define XBEE_MAX_RX (128)
-#define XBEE_MAX_TX (128)
+#define XBEE_MAX_HDR (12)
+// This value should include any TX headers because the
+// RX buffer is written to any time a TX is completed
+#define XBEE_MAX_TX (256)
+#define XBEE_MAX_RX (XBEE_MAX_TX + XBEE_MAX_HDR)
 
 /*******************************************************************************
  * XBEE states
@@ -76,6 +79,8 @@ enum {
  * Misc
  ******************************************************************************/
 #define XBEE_IP_UDP (0x00)
+#define XBEE_IP_TCP (0x01)
+#define XBEE_IP     (XBEE_IP_UDP)
 
 /*******************************************************************************
  * Local Type Defs
@@ -141,6 +146,7 @@ typedef struct {
     uint8_t     xbee_protocol;
     uint8_t     xbee_dl_ip[4];
     char        xbee_ssid[32];
+    // TODO: Add power level
 } comms_xbee_status_t;
 
 /*******************************************************************************
@@ -191,8 +197,9 @@ static void comms_xbee_set_rx_buffer(uint8_t* buffer, size_t len);
 static void comms_xbee_handle_status(comms_xbee_api_msg_t* api_msg);
 static uint8_t comms_xbee_compute_cksum(comms_xbee_api_msg_t* api_msg);
 static comms_xbee_api_msg_t comms_xbee_at_cmd_rd(const char at_cmd[2]);
-static void comms_send_api_msg(comms_xbee_api_msg_t* api_msg);
+static void comms_xbee_send_api_msg(comms_xbee_api_msg_t* api_msg);
 static void comms_xbee_handle_at_rsp(comms_xbee_api_msg_t* api_msg);
+static void comms_xbee_handle_int_msg( void );
 
 /*******************************************************************************
  * Public Function Section
@@ -224,7 +231,7 @@ void COMMS_xbee_send(comms_xbee_msg_t msg)
         tx_frame.addr = comms_xbee_addr_desktop;
         memcpy(tx_frame.dest_port,comms_xbee_dest_port,sizeof(tx_frame.dest_port));
         memcpy(tx_frame.src_port,comms_xbee_src_port,sizeof(tx_frame.src_port));
-        tx_frame.protocol = XBEE_IP_UDP;
+        tx_frame.protocol = XBEE_IP;
         tx_frame.opt = XBEE_TX_UDP_OPT;
         memcpy(tx_frame.data,msg.data,msg.len);
         uint16_t len = sizeof(tx_frame)-sizeof(tx_frame.data)+msg.len;
@@ -241,14 +248,14 @@ void COMMS_xbee_send(comms_xbee_msg_t msg)
         OSTaskQPost(&comms_xbee_TCB,(void*)&api_msg,sizeof(api_msg),OS_OPT_POST_NO_SCHED,&err);
         if( err == OS_ERR_Q_MAX || err == OS_ERR_MSG_POOL_EMPTY )
         {
-            __builtin_software_breakpoint();
+            while(1);
         }
+        // Trigger the semaphore
         OSTaskSemPost(&comms_xbee_TCB,OS_OPT_POST_NONE,&err);
         if( err == OS_ERR_SEM_OVF )
         {
-            __builtin_software_breakpoint();
+            while(1);
         }
-        // Trigger the semaphore
         frame_id++;
     }
 }
@@ -337,50 +344,13 @@ static void comms_xbee_task(void *p_arg)
          */
         if( !msg )
         {
-            // Read the first byte to see if we actually have data from the xbee
-            comms_xbee_api_msg_t api_msg = {0};
-            BSP_xbee_write_read(&api_msg.start_delim,&api_msg.start_delim,sizeof(api_msg.start_delim));
-            if( api_msg.start_delim == XBEE_START_DELIM )
-            {
-                // We have valid data, read the length
-                BSP_xbee_write_read(&api_msg.MSB_len,&api_msg.MSB_len,2*sizeof(api_msg.MSB_len));
-                uint16_t len = api_msg.LSB_len | (api_msg.MSB_len << 8);
-
-                // Read in the data
-                memset(&comms_xbee_rx_buff,0x00,len);
-                BSP_xbee_write_read(&comms_xbee_rx_buff[0],&comms_xbee_rx_buff[0],len);
-
-                // Compute the ckecksum
-                api_msg.frame_data_ptr = &comms_xbee_rx_buff[0];
-                uint8_t cksum = comms_xbee_compute_cksum(&api_msg);
-                uint8_t xbee_cksum = 0;
-
-                // Compare the checksum
-                BSP_xbee_write_read(&xbee_cksum,&xbee_cksum,sizeof(xbee_cksum));
-                if( xbee_cksum == cksum )
-                {
-                    // Parse the data
-                    uint8_t api_frame_id = api_msg.frame_data_ptr[0];
-                    switch( api_frame_id )
-                    {
-                        case XBEE_STATUS:
-                            comms_xbee_handle_status(&api_msg);
-                            break;
-                        case XBEE_AT_CMD_RSP:
-                            comms_xbee_handle_at_rsp(&api_msg);
-                            break;
-                        default:
-                            break;
-                    }
-                }
-            }
-            // else no valid data to read
+            comms_xbee_handle_int_msg();
         }
 
         if( msg )
         {
             comms_xbee_api_msg_t* api_msg = (comms_xbee_api_msg_t*)msg;
-            comms_send_api_msg(api_msg);
+            comms_xbee_send_api_msg(api_msg);
         }
     }
 }
@@ -466,13 +436,14 @@ static comms_xbee_api_msg_t comms_xbee_at_cmd_rd(const char at_cmd[2])
     api_msg.LSB_len = (uint8_t)(len & 0xFF);
     api_msg.frame_data_ptr = (uint8_t*)&at_cmd_rd;
     api_msg.cksum = comms_xbee_compute_cksum(&api_msg);
-    comms_send_api_msg(&api_msg);
+    comms_xbee_send_api_msg(&api_msg);
 }
 
-static void comms_send_api_msg(comms_xbee_api_msg_t* api_msg)
+static void comms_xbee_send_api_msg(comms_xbee_api_msg_t* api_msg)
 {
     uint16_t len = ((uint16_t)(api_msg->MSB_len << 8)) | (uint16_t)(api_msg->LSB_len);
     uint32_t header_size = sizeof(api_msg->start_delim)+sizeof(api_msg->MSB_len)+sizeof(api_msg->LSB_len);
+    memset(comms_xbee_rx_buff,0x00, sizeof(comms_xbee_rx_buff));
 
     // Send the start delim and the message length
     BSP_xbee_write_read(&api_msg->start_delim,comms_xbee_rx_buff,header_size);
@@ -482,4 +453,117 @@ static void comms_send_api_msg(comms_xbee_api_msg_t* api_msg)
 
     // Send the checksum
     BSP_xbee_write_read(&api_msg->cksum,&comms_xbee_rx_buff[header_size+len],(uint16_t)sizeof(api_msg->cksum));
+
+    // Handle any valid data form the xbee that was received while sending the message
+    comms_xbee_handle_rx_during_tx(header_size+len+sizeof(api_msg->cksum));
+}
+
+static void comms_xbee_handle_int_msg( void )
+{
+    // Read the first byte to see if we actually have data from the xbee
+    comms_xbee_api_msg_t api_msg = {0};
+    uint8_t empty = 0;
+    BSP_xbee_write_read(&empty,&api_msg.start_delim,sizeof(api_msg.start_delim));
+    if( api_msg.start_delim == XBEE_START_DELIM )
+    {
+        // We have valid data, read the length
+        BSP_xbee_write_read(&api_msg.MSB_len,&api_msg.MSB_len,2*sizeof(api_msg.MSB_len));
+        uint16_t len = api_msg.LSB_len | (api_msg.MSB_len << 8);
+
+        // Read in the data
+        memset(&comms_xbee_rx_buff,0x00,len);
+        if( len <= sizeof(comms_xbee_rx_buff) )
+        {
+            BSP_xbee_write_read(&empty,&comms_xbee_rx_buff[0],len);
+        }
+        else
+        {
+            // critical fault
+            while(1);
+        }
+
+        // Compute the ckecksum
+        api_msg.frame_data_ptr = &comms_xbee_rx_buff[0];
+        uint8_t cksum = comms_xbee_compute_cksum(&api_msg);
+        uint8_t xbee_cksum = 0;
+
+        // Compare the checksum
+        BSP_xbee_write_read(&xbee_cksum,&xbee_cksum,sizeof(xbee_cksum));
+        if( xbee_cksum == cksum )
+        {
+            // Parse the data
+            uint8_t api_frame_id = api_msg.frame_data_ptr[0];
+            switch( api_frame_id )
+            {
+                case XBEE_STATUS:
+                    comms_xbee_handle_status(&api_msg);
+                    break;
+                case XBEE_AT_CMD_RSP:
+                    comms_xbee_handle_at_rsp(&api_msg);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+}
+
+static void comms_xbee_handle_rx_during_tx( uint16_t bytes_read )
+{
+    if( bytes_read > sizeof(comms_xbee_rx_buff) )
+    {
+        // Critical error
+        while(1);
+    }
+
+    comms_xbee_api_msg_t api_msg = {0};
+    uint16_t msg_len = 0;
+    uint8_t empty = 0;
+    uint16_t header_size = sizeof(api_msg.start_delim) + sizeof(api_msg.MSB_len) + sizeof(api_msg.LSB_len);
+    for( uint32_t byte_idx = 0; byte_idx < bytes_read; byte_idx++ )
+    {
+        if( comms_xbee_rx_buff[byte_idx] == XBEE_START_DELIM )
+        {
+            api_msg.start_delim = comms_xbee_rx_buff[byte_idx];
+            uint16_t msg_len_read = bytes_read - byte_idx;
+            if( msg_len_read == 1 )
+            {
+                // Read the length
+                BSP_xbee_write_read(&empty,&api_msg.MSB_len,2*sizeof(api_msg.MSB_len));
+                msg_len_read += 1;
+                msg_len = (uint16_t)api_msg.LSB_len | ((uint16_t)api_msg.MSB_len << 8);
+            }
+            else if( msg_len_read == 2 )
+            {
+                api_msg.MSB_len = comms_xbee_rx_buff[byte_idx+1];
+                // Read LSB_len
+                BSP_xbee_write_read(&empty,&api_msg.LSB_len,sizeof(api_msg.LSB_len));
+                msg_len_read += 2;
+                msg_len = (uint16_t)api_msg.LSB_len | ((uint16_t)api_msg.MSB_len << 8);
+            }
+            // The length was read
+            else if( msg_len_read >= header_size )
+            {
+                api_msg.MSB_len = comms_xbee_rx_buff[byte_idx+1];
+                api_msg.LSB_len = comms_xbee_rx_buff[byte_idx+2];
+                msg_len = (uint16_t)api_msg.LSB_len | ((uint16_t)api_msg.MSB_len << 8);
+            }
+            if( msg_len_read > header_size )
+            {
+                // TODO: What if the message was read at the end of the buffer when reading in the length above?
+                memmove(&comms_xbee_rx_buff[0],&comms_xbee_rx_buff[byte_idx+header_size],msg_len_read-header_size);
+                if( (msg_len_read-header_size) < msg_len )
+                {
+                    // Read the message
+                    BSP_xbee_write_read(&empty,&comms_xbee_rx_buff[msg_len_read-header_size],msg_len-msg_len_read-header_size);
+                }
+            }
+            else
+            {
+                // Read the message
+                BSP_xbee_write_read(&empty,&comms_xbee_rx_buff[0],msg_len);
+            }
+            break;
+        }
+    }
 }
