@@ -457,7 +457,7 @@ static void comms_xbee_send_api_msg(comms_xbee_api_msg_t* api_msg)
     BSP_xbee_write_read(&api_msg->cksum,&comms_xbee_rx_buff[header_size+len],(uint16_t)sizeof(api_msg->cksum));
 
     // Handle any valid data form the xbee that was received while sending the message
-    comms_xbee_handle_rx_during_tx(header_size+len+sizeof(api_msg->cksum));
+    // comms_xbee_handle_rx_during_tx(header_size+len+sizeof(api_msg->cksum));
 }
 
 static void comms_xbee_handle_int_msg( void )
@@ -473,9 +473,9 @@ static void comms_xbee_handle_int_msg( void )
         uint16_t len = api_msg.LSB_len | (api_msg.MSB_len << 8);
 
         // Read in the data
-        memset(comms_xbee_rx_buff,0x00,len);
         if( len <= sizeof(comms_xbee_rx_buff) )
         {
+            memset(comms_xbee_rx_buff,0x00,len);
             BSP_xbee_write_read(&empty,&comms_xbee_rx_buff[0],len);
         }
         else

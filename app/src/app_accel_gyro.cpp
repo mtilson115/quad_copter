@@ -158,10 +158,10 @@ void AppAccelGyroClass::PrintMotion6Data( void )
     data.gx -= offsets.gx;
     data.gy -= offsets.gy;
     data.gz -= offsets.gz;
-    uint8_t status = AccelGyro.GetIntStatus();
-    BSP_Printf("Status: 0x%X",status);
+    // uint8_t status = AccelGyro.GetIntStatus();
+    // BSP_Printf("Status: 0x%X",status);
 
-    // BSP_Printf("%d,%d,%d,%d,%d,%d",data.ax,data.ay,data.az,data.gx,data.gy,data.gz);
+    BSP_Printf("%d,%d,%d,%d,%d,%d",data.ax,data.ay,data.az,data.gx,data.gy,data.gz);
 }
 
 /*******************************************************************************

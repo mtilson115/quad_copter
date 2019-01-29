@@ -19,6 +19,7 @@
  ******************************************************************************/
 #include "type_defs.h"
 #include "algs_helper_3dmath.h"
+#include <os.h>
 
 /*******************************************************************************
  * Definitions
@@ -420,6 +421,7 @@ public:
  void SetI2CAddress	( uint8_t address );
  bool Init( void );
  void IntEnable( void );
+ void RegisterTCB( OS_TCB* tcb );
  bool TestConnection( void );
 
  // AUX_VDDIO register

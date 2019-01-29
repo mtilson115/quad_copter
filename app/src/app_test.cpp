@@ -51,6 +51,7 @@ void start_test( void )
                  (OS_OPT       )(OS_OPT_TASK_STK_CHK | OS_OPT_TASK_STK_CLR),
                  (OS_ERR      *)&err);
 
+    AccelGyro.RegisterTCB(&test_TCB);
     /*
     BSP_xbee_register_tcb(&test_TCB);
     BSP_xbee_init();
@@ -71,9 +72,10 @@ static void test_task(void  *p_arg)
     AclGyro.Init();
 
     uint32_t idx = 0;
+    uint32_t ts = 0;
     while(DEF_ON)
     {
-        // OSTaskSemPend(0,OS_OPT_PEND_BLOCKING,&ts,&err);
+        OSTaskSemPend(0,OS_OPT_PEND_BLOCKING,&ts,&err);
         AclGyro.PrintMotion6Data();
         /*
         if( duty_cycle <= 7.0 )
@@ -87,7 +89,7 @@ static void test_task(void  *p_arg)
         }
         */
         // AclGyro.PrintOffsets();
-        OSTimeDlyHMSM(0u, 0u, 0u, 240u,OS_OPT_TIME_HMSM_STRICT,&err);
+        // OSTimeDlyHMSM(0u, 0u, 0u, 240u,OS_OPT_TIME_HMSM_STRICT,&err);
         PORTEINV = (1<<7);
         // BSP_Printf("Hello %d\n",idx++);
         // BSP_xbee_test();

@@ -63,14 +63,19 @@
 #endif
 #include "type_defs.h"
 #include "bsp_utils.h"
+#include "bsp.h"
+
 #include <stdlib.h>
 #include <string.h>
 #include <p32xxxx.h>
-#include "bsp.h"
 
 #ifndef MPU6050_INCLUDE_DMP_MOTIONAPPS20
     #define pgm_read_byte(addr) (*(const unsigned char *)(addr))
 #endif
+
+#define TCB_LIST_LEN (2)
+OS_TCB* tcb_list[TCB_LIST_LEN];
+static uint32_t tcb_cnt = 0;
 
 /*******************************************************************************
  * Public Objects Section
@@ -118,13 +123,13 @@ void Accel_Gyro::SetI2CAddress(uint8_t address)
  ******************************************************************************/
 bool Accel_Gyro::Init( void )
 {
-
     // Initialize the I2C 1
     I2C1.Init( I2C_Class::I2C_1, 400000.0 );
 
     // Set up the MPU6050
     ag_reset();
-    BSP_Dly(1000);
+    OS_ERR err;
+    OSTimeDlyHMSM(0u, 0u, 0u, 100u,OS_OPT_TIME_HMSM_STRICT,&err);
     SetClockSource(MPU6050_CLOCK_PLL_XGYRO);
     SetFullScaleGyroRange(MPU6050_GYRO_FS_250);
     SetFullScaleAccelRange(MPU6050_ACCEL_FS_2);
@@ -135,7 +140,7 @@ bool Accel_Gyro::Init( void )
     SetInterruptMode(true); // Active low interrupt
     SetInterruptDrive(false); // Push-Pull
     SetInterruptLatch(true); // Latch INT until cleared
-    SetRate(24); // 1kHz/(1+24) == 40Hz
+    SetRate(200); // 1kHz/(1+24) == 40Hz
     bool ret = TestConnection();
     SetIntDataReadyEnabled(true); // Assert the interrupt when data is ready
     // Test the connection
@@ -199,22 +204,36 @@ void AccelGyroIntHandler( void )
     TRISEbits.TRISE6 = 0;
     ODCEbits.ODCE6 = 0;
     PORTEINV = (1<<6);
-    /*
-    if( AccelGyro.GetIntDataReadyStatus() )
+    OS_ERR err;
+    for( uint32_t tcb_idx = 0; tcb_idx < tcb_cnt; tcb_idx++ )
     {
-        PORTEINV = (1<<6);
-        int16_t ax;
-        int16_t ay;
-        int16_t az;
-        int16_t gx;
-        int16_t gy;
-        int16_t gz;
-        // AccelGyro.GetMotion6(&ax,&ay,&az,&gx,&gy,&gz);
-        // AccelGyro.GetTemperature();
+        OSTaskSemPost(tcb_list[tcb_idx],OS_OPT_POST_NO_SCHED,&err);
     }
-    */
     IFS0bits.INT1IF = 0;
 }
+}
+
+/*******************************************************************************
+ * RegisterTCB
+ *
+ * Description:	Registers a task control block so that a task can be signaled
+ *              when a sample is available.
+ *
+ * Inputs: OS_TCB* tcb - a pointer to a task control block
+ *
+ * Revision: Initial Mitch Tilson 01/28/19
+ *
+ *
+ * Notes: None
+ *
+ ******************************************************************************/
+void Accel_Gyro::RegisterTCB( OS_TCB* tcb )
+{
+    tcb_cnt++;
+    if( tcb_cnt <= TCB_LIST_LEN )
+    {
+        tcb_list[tcb_cnt-1] = tcb;
+    }
 }
 
 /*******************************************************************************
