@@ -22,10 +22,11 @@
  * Constants
  ******************************************************************************/
 #define XBEE_MAX_HDR (12)
+#define XBEE_CKSM_SZ (1)
 // This value should include any TX headers because the
 // RX buffer is written to any time a TX is completed
 #define XBEE_MAX_TX (256)
-#define XBEE_MAX_RX (XBEE_MAX_TX + XBEE_MAX_HDR)
+#define XBEE_MAX_RX (XBEE_MAX_TX + XBEE_MAX_HDR + XBEE_CKSM_SZ)
 
 /*******************************************************************************
  * XBEE states
@@ -359,7 +360,7 @@ static void comms_xbee_task(void *p_arg)
 
 static uint8_t comms_xbee_compute_cksum(comms_xbee_api_msg_t* api_msg)
 {
-    uint16_t len = api_msg->LSB_len | (api_msg->MSB_len << 8);
+    uint16_t len = (uint16_t)api_msg->LSB_len | ((uint16_t)api_msg->MSB_len << 8);
     uint32_t cksum = 0;
     for( uint32_t idx = 0; idx < len; idx++ )
     {
@@ -470,7 +471,7 @@ static void comms_xbee_handle_int_msg( void )
     {
         // We have valid data, read the length
         BSP_xbee_write_read(&api_msg.MSB_len,&api_msg.MSB_len,2*sizeof(api_msg.MSB_len));
-        uint16_t len = api_msg.LSB_len | (api_msg.MSB_len << 8);
+        uint16_t len = (uint16_t)api_msg.LSB_len | ((uint16_t)api_msg.MSB_len << 8);
 
         // Read in the data
         if( len <= sizeof(comms_xbee_rx_buff) )

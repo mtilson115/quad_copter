@@ -89,7 +89,6 @@ all: OUT_DIR $(BIN)/$(PROJECT).hex $(BIN)/$(PROJECT).lst
 depend: .depend
 
 .depend: $(S_FILES) $(CPP_FILES) $(C_FILES)
-	rm -f ./.depend
 	$(CC)-g++ $(INC) $(CPPFLAGS) -MM $^ | sed -e 's/\(\w*.\.o\)/.\/OUT\/\1/' > $@
 
 include .depend

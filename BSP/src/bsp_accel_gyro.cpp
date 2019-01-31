@@ -129,7 +129,7 @@ bool Accel_Gyro::Init( void )
     // Set up the MPU6050
     ag_reset();
     OS_ERR err;
-    OSTimeDlyHMSM(0u, 0u, 0u, 100u,OS_OPT_TIME_HMSM_STRICT,&err);
+    OSTimeDlyHMSM(0u, 0u, 0u, 200u,OS_OPT_TIME_HMSM_STRICT,&err);
     SetClockSource(MPU6050_CLOCK_PLL_XGYRO);
     SetFullScaleGyroRange(MPU6050_GYRO_FS_250);
     SetFullScaleAccelRange(MPU6050_ACCEL_FS_2);
@@ -140,7 +140,7 @@ bool Accel_Gyro::Init( void )
     SetInterruptMode(true); // Active low interrupt
     SetInterruptDrive(false); // Push-Pull
     SetInterruptLatch(true); // Latch INT until cleared
-    SetRate(200); // 1kHz/(1+24) == 40Hz
+    SetRate(250); // 1kHz/(1+24) == 40Hz
     bool ret = TestConnection();
     SetIntDataReadyEnabled(true); // Assert the interrupt when data is ready
     // Test the connection

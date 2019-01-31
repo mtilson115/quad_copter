@@ -14,6 +14,7 @@
 #include "osc.h"
 #include "system.h"
 #include "timer.h"
+#include <cp0defs.h>
 
 /*
 *********************************************************************************************************
@@ -246,6 +247,24 @@ void  BSP_TickISR_Handler (void)
 
 void  BSP_Except_Handler (void)
 {
+    uint32_t except_cause = _CP0_GET_CAUSE();
+    except_cause &= 0xFF;
+    uint32_t bad_var = _CP0_GET_BADVADDR();
+    switch( except_cause )
+    {
+        case 0x04: // addr error (load or fetch)
+        case 0x05: // addr error store
+        case 0x06: // Bus error instruction fetch
+        case 0x07: // Bus error data reference load or store
+        case 0x0A: // Reserved instruction exception
+        case 0x0B: // coprocessor unusable except
+        case 0x0C: // Arithmetic overflow
+        case 0x0D: // Trap except
+            while(1);
+            break;
+        default:
+            return;
+    }
 }
 
 /*
