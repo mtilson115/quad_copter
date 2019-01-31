@@ -64,8 +64,7 @@ space :=
 space +=
 VPATH:=$(subst $(space),:,$(VDIRS))
 
-# final executable
-all: OUT_DIR $(BIN)/$(PROJECT).hex
+all: OUT_DIR $(BIN)/$(PROJECT).hex $(BIN)/$(PROJECT).lst
 
 # Rules for building various files
 ./OUT/%.o: %.c %.h
@@ -102,6 +101,9 @@ $(BIN)/$(PROJECT).hex: $(BIN)/$(PROJECT).elf
 #Binary file generation
 $(BIN)/$(PROJECT).elf: $(S_OBJ_FILES) $(C_OBJ_FILES) $(CPP_OBJ_FILES)
 	$(LD) $(LDFLAGS) $(S_OBJ_FILES) $(C_OBJ_FILES) $(CPP_OBJ_FILES) -o $(BIN)/$(PROJECT).elf
+
+$(BIN)/$(PROJECT).lst: $(BIN)/$(PROJECT).elf
+	$(CC)-objdump -d $(BIN)/$(PROJECT).elf > $(BIN)/$(PROJECT).lst
 
 #output directories
 OUT_DIR:
