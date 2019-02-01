@@ -248,8 +248,9 @@ void  BSP_TickISR_Handler (void)
 void  BSP_Except_Handler (void)
 {
     uint32_t except_cause = _CP0_GET_CAUSE();
-    except_cause &= 0xFF;
+    except_cause = (except_cause & 0x7C) >> 2;
     uint32_t bad_var = _CP0_GET_BADVADDR();
+    uint32_t excep_addr =_CP0_GET_EPC();
     switch( except_cause )
     {
         case 0x04: // addr error (load or fetch)

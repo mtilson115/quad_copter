@@ -78,7 +78,11 @@ void BSP_Printf( const char* format, ... )
     uint32_t len = 0;
 
     va_start (arg, format);
-    len = vsnprintf(&buffer[0],sizeof(buffer),format,arg);
+    len = vsnprintf(&buffer[0],sizeof(buffer)-1,format,arg);
+    if( len > sizeof(buffer) )
+    {
+        while(1);
+    }
     va_end (arg);
 
     comms_xbee_msg_t msg;
