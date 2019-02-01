@@ -64,6 +64,7 @@
 #include "type_defs.h"
 #include "bsp_utils.h"
 #include "bsp.h"
+#include "bsp_accel_gyro_int.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -72,10 +73,6 @@
 #ifndef MPU6050_INCLUDE_DMP_MOTIONAPPS20
     #define pgm_read_byte(addr) (*(const unsigned char *)(addr))
 #endif
-
-#define TCB_LIST_LEN (2)
-OS_TCB* tcb_list[TCB_LIST_LEN];
-static uint32_t tcb_cnt = 0;
 
 /*******************************************************************************
  * Public Objects Section
@@ -140,100 +137,12 @@ bool Accel_Gyro::Init( void )
     SetInterruptMode(true); // Active low interrupt
     SetInterruptDrive(false); // Push-Pull
     SetInterruptLatch(true); // Latch INT until cleared
-    SetRate(250); // 1kHz/(1+24) == 40Hz
+    SetRate(20); // 1kHz/(1+24) == 40Hz
     bool ret = TestConnection();
-    SetIntDataReadyEnabled(true); // Assert the interrupt when data is ready
+    // bsp_accel_gyro_int_en();
+    // SetIntDataReadyEnabled(true); // Assert the interrupt when data is ready
     // Test the connection
     return ret;
-}
-
-/*******************************************************************************
- * IntEnable
- *
- * Description:	Sets up the microchip interrupts
- *
- * Inputs: none
- *
- * Revision: Initial Mitch Tilson 01/26/19
- *
- *
- * Notes: None
- *
- ******************************************************************************/
-void Accel_Gyro::IntEnable( void )
-{
-    // INT is on pin 8 of port E
-    // This configures it as an input
-    TRISEbits.TRISE8 = 1;
-
-    // INT1 enable bit (disable the interrupt)
-    IEC0bits.INT1IE = 0;
-
-    // Set the interrupt polarity for falling edge
-    INTCONbits.INT1EP = 0;
-
-    // Clear the interrupt status flag
-    IFS0bits.INT1IF = 0;
-
-    // Interrupt priority
-    IPC1bits.INT1IP = 4;
-
-    // Interrupt sub-priority
-    IPC1bits.INT1IS = 1;
-
-    // INT1 enable bit
-    IEC0bits.INT1IE = 1;
-}
-
-/*******************************************************************************
- * IntHanlder (called from bsp_a.S)
- *
- * Description:	Called when the interrupt happens (INT1, RE8 from the MPU6050)
- *
- * Inputs: none
- *
- * Revision: Initial Mitch Tilson 01/26/19
- *
- *
- * Notes: None
- *
- ******************************************************************************/
-extern "C" {
-void AccelGyroIntHandler( void )
-{
-    TRISEbits.TRISE6 = 0;
-    ODCEbits.ODCE6 = 0;
-    PORTEINV = (1<<6);
-    OS_ERR err;
-    for( uint32_t tcb_idx = 0; tcb_idx < tcb_cnt; tcb_idx++ )
-    {
-        OSTaskSemPost(tcb_list[tcb_idx],OS_OPT_POST_NO_SCHED,&err);
-    }
-    IFS0bits.INT1IF = 0;
-}
-}
-
-/*******************************************************************************
- * RegisterTCB
- *
- * Description:	Registers a task control block so that a task can be signaled
- *              when a sample is available.
- *
- * Inputs: OS_TCB* tcb - a pointer to a task control block
- *
- * Revision: Initial Mitch Tilson 01/28/19
- *
- *
- * Notes: None
- *
- ******************************************************************************/
-void Accel_Gyro::RegisterTCB( OS_TCB* tcb )
-{
-    tcb_cnt++;
-    if( tcb_cnt <= TCB_LIST_LEN )
-    {
-        tcb_list[tcb_cnt-1] = tcb;
-    }
 }
 
 /*******************************************************************************

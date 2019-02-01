@@ -32,9 +32,11 @@ LD=$(CC)-g++
 PROGRAMMER=/opt/microchip/mplabx/v5.10/mplab_platform/bin/mdb.sh
 
 # CC Compiler directives
-CFLAGS=-g -std=c99 -mprocessor=$(DEVICE) -nostartfiles -x c
-CPPFLAGS=-g -mprocessor=$(DEVICE) -nostartfiles -x c++ -frtti -fexceptions -fenforce-eh-specs
-ASMFLAGS=-nostartfiles
+#CFLAGS=-g -std=c99 -mprocessor=32MX795F512L -nostartfiles
+#CFLAGS=-mprocessor=32MX795F512L -nostartfiles
+#CPPFLAGS=-mprocessor=$(DEVICE) -nostartfiles
+CFLAGS=-g -std=c99 -mprocessor=$(DEVICE) -nostartfiles -legacy-libc
+CPPFLAGS=-g -mprocessor=$(DEVICE) -nostartfiles -legacy-libc
 
 # LD flags --defsym=_min_heap_size=1024
 LDFLAGS=-mprocessor=$(DEVICE) -nostartfiles -Wl,--defsym=_min_heap_size=0x400 -Wl,-Map=$(BIN)/$(PROJECT).map
@@ -66,22 +68,22 @@ all: OUT_DIR $(BIN)/$(PROJECT).hex $(BIN)/$(PROJECT).lst
 
 # Rules for building various files
 ./OUT/%.o: %.c %.h
-	$(CC)-g++ $(INC) $(CFLAGS)  -c -o $@ $<
+	$(CC)-g++ $(INC) $(CFLAGS) -x c -c -o $@ $<
 
 ./OUT/%.o: %.c
-	$(CC)-g++ $(INC) $(CFLAGS) -c -o $@ $<
+	$(CC)-g++ $(INC) $(CFLAGS) -x c -c -o $@ $<
 
 ./OUT/%.o: %.cpp %.h
-	$(CC)-g++ $(CPPFLAGS) $(INC) -c -o $@ $<
+	$(CC)-g++ $(CPPFLAGS) -x c++ -frtti -fexceptions -fno-check-new -fenforce-eh-specs $(INC) -c -o $@ $<
 
 ./OUT/%.o: %.cpp
-	$(CC)-g++ $(CPPFLAGS) $(INC) -c -o $@ $<
+	$(CC)-g++ $(CPPFLAGS) -x c++ -frtti -fexceptions -fno-check-new -fenforce-eh-specs $(INC) -c -o $@ $<
 
 ./OUT/%.o: %.S %.h
-	$(CC)-g++ $(INC) $(ASMFLAGS) -c -o $@ $<
+	$(CC)-g++ $(INC) -nostartfiles -c -o $@ $<
 
 ./OUT/%.o: %.S
-	$(CC)-g++ $(INC) $(ASMFLAGS) -c -o $@ $<
+	$(CC)-g++ $(INC) -nostartfiles -c -o $@ $<
 
 #dependency generation
 depend: .depend

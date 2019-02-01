@@ -19,6 +19,7 @@
 // Temp testing
 #include <stdio.h>
 #include "comms_xbee.h"
+#include "driver_uart.h"
 
 /*******************************************************************************
  * Public Object declaration
@@ -59,9 +60,6 @@ void AppAccelGyroClass::Init( void )
 {
 	// Initialize the accelerometer gyroscope ( the address pin is tied low )
 	AccelGyro.SetI2CAddress( MPU6050_ADDRESS_AD0_LOW );
-
-    // Setup the microchip interrupts
-    AccelGyro.IntEnable();
 
 	// Intialize the chip
 	if( false == AccelGyro.Init() ) {
@@ -164,17 +162,20 @@ void AppAccelGyroClass::PrintMotion6Data( void )
     // uint8_t status = AccelGyro.GetIntStatus();
     // BSP_Printf("Status: 0x%X",status);
 
-    // BSP_Printf("%d,%d,%d,%d,%d,%d",data.ax,data.ay,data.az,data.gx,data.gy,data.gz);
+    BSP_Printf("%d,%d,%d,%d,%d,%d",data.ax,data.ay,data.az,data.gx,data.gy,data.gz);
+    /*
     char buffer[100];
     int cnt = snprintf(buffer,sizeof(buffer),"%d,%d,%d,%d,%d,%d",data.ax,data.ay,data.az,data.gx,data.gy,data.gz);
     if( cnt > sizeof(buffer) )
     {
         while(1);
     }
+    // Uart_write(UART_1,cnt,(uint8_t*)buffer);
     comms_xbee_msg_t msg;
-    msg.data = buffer;
-    msg.len = len;
+    msg.data = (uint8_t*)buffer;
+    msg.len = cnt;
     COMMS_xbee_send(msg);
+    */
 }
 
 /*******************************************************************************

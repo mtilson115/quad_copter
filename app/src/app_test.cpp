@@ -10,6 +10,7 @@
 #include "bsp.h"
 #include "bsp_xbee.h"
 #include "comms_xbee.h"
+#include "bsp_accel_gyro_int.h"
 
 static  OS_TCB    test_TCB;
 static  CPU_STK   test_stack[APP_BUTTON_READER_STK_SIZE];
@@ -45,17 +46,17 @@ void start_test( void )
                  (CPU_STK     *)&test_stack[0],
                  (CPU_STK_SIZE )APP_BUTTON_READER_STK_SIZE/10,
                  (CPU_STK_SIZE )APP_BUTTON_READER_STK_SIZE,
-                 (OS_MSG_QTY   )0u,
+                 (OS_MSG_QTY   )10u,
                  (OS_TICK      )0u,
                  (void        *)0,
                  (OS_OPT       )(OS_OPT_TASK_STK_CHK | OS_OPT_TASK_STK_CLR),
                  (OS_ERR      *)&err);
 
-    AccelGyro.RegisterTCB(&test_TCB);
     /*
     BSP_xbee_register_tcb(&test_TCB);
     BSP_xbee_init();
     */
+    bsp_accel_gyro_int_register(&test_TCB);
 }
 
 static void test_task(void  *p_arg)
@@ -75,7 +76,7 @@ static void test_task(void  *p_arg)
     uint32_t ts = 0;
     while(DEF_ON)
     {
-        OSTaskSemPend(0,OS_OPT_PEND_BLOCKING,&ts,&err);
+        // OSTaskSemPend(0,OS_OPT_PEND_BLOCKING,&ts,&err);
         AclGyro.PrintMotion6Data();
         /*
         if( duty_cycle <= 7.0 )
@@ -89,7 +90,7 @@ static void test_task(void  *p_arg)
         }
         */
         // AclGyro.PrintOffsets();
-        // OSTimeDlyHMSM(0u, 0u, 0u, 240u,OS_OPT_TIME_HMSM_STRICT,&err);
+        OSTimeDlyHMSM(0u, 0u, 0u, 20u,OS_OPT_TIME_HMSM_STRICT,&err);
         PORTEINV = (1<<7);
         // BSP_Printf("Hello %d\n",idx++);
         // BSP_xbee_test();
