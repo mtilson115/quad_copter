@@ -16,6 +16,9 @@
 #include "driver_i2c.h"
 #include "bsp_utils.h"
 #include <string.h>
+// Temp testing
+#include <stdio.h>
+#include "comms_xbee.h"
 
 /*******************************************************************************
  * Public Object declaration
@@ -161,7 +164,17 @@ void AppAccelGyroClass::PrintMotion6Data( void )
     // uint8_t status = AccelGyro.GetIntStatus();
     // BSP_Printf("Status: 0x%X",status);
 
-    BSP_Printf("%d,%d,%d,%d,%d,%d",data.ax,data.ay,data.az,data.gx,data.gy,data.gz);
+    // BSP_Printf("%d,%d,%d,%d,%d,%d",data.ax,data.ay,data.az,data.gx,data.gy,data.gz);
+    char buffer[100];
+    int cnt = snprintf(buffer,sizeof(buffer),"%d,%d,%d,%d,%d,%d",data.ax,data.ay,data.az,data.gx,data.gy,data.gz);
+    if( cnt > sizeof(buffer) )
+    {
+        while(1);
+    }
+    comms_xbee_msg_t msg;
+    msg.data = buffer;
+    msg.len = len;
+    COMMS_xbee_send(msg);
 }
 
 /*******************************************************************************

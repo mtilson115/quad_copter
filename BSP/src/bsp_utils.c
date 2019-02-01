@@ -62,7 +62,7 @@ void BSP_PrintfInit( void )
 /*******************************************************************************
  * void BSP_Printf
  *
- * Description: printf that uses UART1
+ * Description: printf replacement for sending data to a peripheral
  *
  * Inputs:      Variable
  *
@@ -71,18 +71,14 @@ void BSP_PrintfInit( void )
  * Revision:    Initial Creation 03/24/2014 - Mitchell S. Tilson
  *
  ******************************************************************************/
-static uint8_t buffer[256];
+static uint8_t buffer[100];
 void BSP_Printf( const char* format, ... )
 {
     va_list arg;
     uint32_t len = 0;
 
     va_start (arg, format);
-    len = vsnprintf(0,0,format,arg);
-    va_end (arg);
-    ++len;
-    va_start (arg, format);
-    len = vsnprintf(&buffer[0],len,format,arg);
+    len = vsnprintf(&buffer[0],sizeof(buffer),format,arg);
     va_end (arg);
 
     comms_xbee_msg_t msg;
