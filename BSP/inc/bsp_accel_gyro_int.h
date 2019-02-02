@@ -6,11 +6,14 @@
  *
  * Description: This file provides the interrupt service routine for the accel/gyro
  * chip.
+ *
+ * IN THE CURRENT HW DESIGN, INT1 INTERFERES WITH INT2.  I BELIEVE THE SIGNAL
+ * FROM THE MPU6050 IS TOO NOISY.  THIS FILE IS UNUSED BUT LEFT JUST IN CASE.
  ******************************************************************************/
 
 #pragma once
-#ifndef bsp_accel_gyro_int_h
-#define	bsp_accel_gyro_int_h
+#ifndef BSP_ACCEL_GYRO_INT_H
+#define	BSP_ACCEL_GYRO_INT_H
 
 #ifdef	__cplusplus
 extern "C" {

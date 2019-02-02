@@ -63,12 +63,9 @@
 #endif
 #include "type_defs.h"
 #include "bsp_utils.h"
-#include "bsp.h"
-#include "bsp_accel_gyro_int.h"
 
 #include <stdlib.h>
 #include <string.h>
-#include <p32xxxx.h>
 
 #ifndef MPU6050_INCLUDE_DMP_MOTIONAPPS20
     #define pgm_read_byte(addr) (*(const unsigned char *)(addr))
@@ -123,26 +120,30 @@ bool Accel_Gyro::Init( void )
     // Initialize the I2C 1
     I2C1.Init( I2C_Class::I2C_1, 400000.0 );
 
-    // Set up the MPU6050
     ag_reset();
     OS_ERR err;
+    /*
+     * This delay should always >= 100ms
+     */
     OSTimeDlyHMSM(0u, 0u, 0u, 200u,OS_OPT_TIME_HMSM_STRICT,&err);
     SetClockSource(MPU6050_CLOCK_PLL_XGYRO);
     SetFullScaleGyroRange(MPU6050_GYRO_FS_250);
     SetFullScaleAccelRange(MPU6050_ACCEL_FS_2);
     SetSleepEnabled(false); // thanks to Jack Elston for pointing this one out!
-    SetExternalFrameSync(0); // No external chips
-    SetDLPFMode(2); // 98Hz, 94Hz, 1khz
-    SetInterruptLatchClear(true); // clear for any register read
-    SetInterruptMode(true); // Active low interrupt
-    SetInterruptDrive(false); // Push-Pull
-    SetInterruptLatch(true); // Latch INT until cleared
-    SetRate(20); // 1kHz/(1+24) == 40Hz
-    bool ret = TestConnection();
-    // bsp_accel_gyro_int_en();
-    // SetIntDataReadyEnabled(true); // Assert the interrupt when data is ready
-    // Test the connection
-    return ret;
+    /*
+     * There are no external chips attached to the MPU6050
+     */
+    SetExternalFrameSync(0);
+    /*
+     * 98Hz, 94Hz, 1khz
+     */
+    SetDLPFMode(2);
+    /*
+     * Set the update rate to be 20ms
+     */
+    SetRate(20);
+
+    return TestConnection();
 }
 
 /*******************************************************************************

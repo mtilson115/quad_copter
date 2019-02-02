@@ -90,11 +90,6 @@ void AppAccelGyroClass::Init( void )
 void AppAccelGyroClass::Calibrate( void )
 {
 	memset(&offsets,0x00,sizeof(offsets));
-    offsets.ax = 300;
-    offsets.gx = -300;
-    offsets.gy = -100;
-    offsets.gz = 200;
-    // GetMotion6Data( &offsets );
 }
 
 /*******************************************************************************
@@ -159,23 +154,8 @@ void AppAccelGyroClass::PrintMotion6Data( void )
     data.gx -= offsets.gx;
     data.gy -= offsets.gy;
     data.gz -= offsets.gz;
-    // uint8_t status = AccelGyro.GetIntStatus();
-    // BSP_Printf("Status: 0x%X",status);
 
     BSP_Printf("%d,%d,%d,%d,%d,%d",data.ax,data.ay,data.az,data.gx,data.gy,data.gz);
-    /*
-    char buffer[100];
-    int cnt = snprintf(buffer,sizeof(buffer),"%d,%d,%d,%d,%d,%d",data.ax,data.ay,data.az,data.gx,data.gy,data.gz);
-    if( cnt > sizeof(buffer) )
-    {
-        while(1);
-    }
-    // Uart_write(UART_1,cnt,(uint8_t*)buffer);
-    comms_xbee_msg_t msg;
-    msg.data = (uint8_t*)buffer;
-    msg.len = cnt;
-    COMMS_xbee_send(msg);
-    */
 }
 
 /*******************************************************************************
