@@ -9,7 +9,7 @@ sock.bind((UDP_IP, UDP_PORT))
 
 try:
     while True:
-        data, addr = sock.recvfrom(1024) # buffer size is 1024 bytes
+        data, addr = sock.recvfrom(256) # buffer size is 1024 bytes
         print "Data: %s" % (data)
 except:
     print "Exiting..."

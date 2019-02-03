@@ -406,7 +406,7 @@ static void comms_xbee_parse_rx( comms_xbee_api_msg_t* api_msg )
 
     uint8_t cksum = comms_xbee_compute_cksum(api_msg);
     uint8_t xbee_cksum = 0;
-    uint16_t len = (uint16_t)api_msg.LSB_len | ((uint16_t)api_msg.MSB_len << 8);
+    uint16_t len = (uint16_t)api_msg->LSB_len | ((uint16_t)api_msg->MSB_len << 8);
 
     /*
      * The checksum is the last byte that was read in the frame_data
@@ -517,7 +517,7 @@ static void comms_xbee_send_api_msg(comms_xbee_api_msg_t* api_msg)
     BSP_xbee_write_read(&api_msg->cksum,&comms_xbee_rx_buff[header_size+len],(uint16_t)sizeof(api_msg->cksum));
 
     // Handle any valid data form the xbee that was received while sending the message
-    // comms_xbee_handle_rx_during_tx(header_size+len+sizeof(api_msg->cksum));
+    comms_xbee_handle_rx_during_tx(header_size+len+sizeof(api_msg->cksum));
 }
 
 static void comms_xbee_handle_rx_during_tx( uint16_t bytes_read )
@@ -533,7 +533,7 @@ static void comms_xbee_handle_rx_during_tx( uint16_t bytes_read )
     uint8_t empty = 0;
     uint16_t header_size = sizeof(api_msg.start_delim) + sizeof(api_msg.MSB_len) + sizeof(api_msg.LSB_len);
     uint16_t cksum_size = sizeof(uint8_t);
-    for( uint32_t byte_idx = 0; byte_idx < bytes_read; byte_idx++ )
+    for( int32_t byte_idx = 0; byte_idx < bytes_read; byte_idx++ )
     {
         if( comms_xbee_rx_buff[byte_idx] == XBEE_START_DELIM )
         {
@@ -562,7 +562,7 @@ static void comms_xbee_handle_rx_during_tx( uint16_t bytes_read )
             if( msg_len_read > header_size )
             {
                 memmove(&comms_xbee_rx_buff[0],&comms_xbee_rx_buff[byte_idx+1],msg_len_read-header_size);
-                if( (msg_len_read-header_size) < msg_len )
+                if( (msg_len_read-header_size) < (msg_len + cksum_size) )
                 {
                     // Read the message
                     BSP_xbee_write_read(&empty,&comms_xbee_rx_buff[msg_len_read-header_size],msg_len-msg_len_read-header_size+cksum_size);
@@ -576,11 +576,11 @@ static void comms_xbee_handle_rx_during_tx( uint16_t bytes_read )
 
             api_msg.frame_data_ptr = &comms_xbee_rx_buff[0];
             comms_xbee_parse_rx(&api_msg);
-            if( bytes_read > msg_len + cksum_size + header_size )
+            if( msg_len_read > msg_len + cksum_size + header_size )
             {
-                memmove(&comms_xbee_rx_buff[0],&comms_xbee_rx_buff[msg_len+header_size+1],msg_len_read-header_size);
-                bytes_read -= (msg_len+header_size);
-                byte_idx = 0;
+                memmove(&comms_xbee_rx_buff[0],&comms_xbee_rx_buff[msg_len+1],msg_len_read-header_size-msg_len-1);
+                bytes_read = msg_len_read-header_size-msg_len-1;
+                byte_idx = -1;  // account for the fact that the for loop is about to increment byte_idx
             }
             else
             {
