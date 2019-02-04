@@ -91,7 +91,7 @@ static void test_task(void  *p_arg)
         }
         */
         // AclGyro.PrintOffsets();
-        OSTimeDlyHMSM(0u, 0u, 0u, 100u,OS_OPT_TIME_HMSM_STRICT,&err);
+        OSTimeDlyHMSM(0u, 0u, 0u, 20u,OS_OPT_TIME_HMSM_STRICT,&err);
         PORTEINV = (1<<7);
         // BSP_Printf("Hello %d\n",idx++);
         // BSP_xbee_test();

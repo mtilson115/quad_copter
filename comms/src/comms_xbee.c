@@ -187,6 +187,13 @@ comms_xbee_ipv4_addr_t comms_xbee_addr_desktop = {
     .ip_3   = 67,
 };
 
+comms_xbee_ipv4_addr_t comms_xbee_addr_work_laptop = {
+    .ip_0   = 10,
+    .ip_1   = 0,
+    .ip_2   = 0,
+    .ip_3   = 78,
+};
+
 uint8_t comms_xbee_src_port[2] = {0x13,0x8D}; // 5005
 uint8_t comms_xbee_dest_port[2] = {0x13,0x8D}; // 5005
 
@@ -231,7 +238,7 @@ void COMMS_xbee_send(comms_xbee_msg_t msg)
         // Build the TX frame
         tx_frame->api_frame_id = XBEE_TX_REQ;
         tx_frame->frame_id = frame_id;
-        tx_frame->addr = comms_xbee_addr_desktop;
+        tx_frame->addr = comms_xbee_addr_work_laptop;
         memcpy(tx_frame->dest_port,comms_xbee_dest_port,sizeof(tx_frame->dest_port));
         memcpy(tx_frame->src_port,comms_xbee_src_port,sizeof(tx_frame->src_port));
         tx_frame->protocol = XBEE_IP;
