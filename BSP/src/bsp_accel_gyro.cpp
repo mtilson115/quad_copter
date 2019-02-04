@@ -135,15 +135,36 @@ bool Accel_Gyro::Init( void )
      */
     SetExternalFrameSync(0);
     /*
-     * 98Hz, 94Hz, 1khz
+     * 10Hz, 10Hz, 1khz
      */
-    SetDLPFMode(2);
+    SetDLPFMode(5);
     /*
      * Set the update rate to be 20ms
      */
     SetRate(20);
 
     return TestConnection();
+}
+
+/*******************************************************************************
+ * GetFullRangeDivisor
+ *
+ * Description:	Returns the full range divisor for converting the ADC values to
+ * Gs and degree/s
+ *
+ * Inputs:
+ *          float* accel - the accel divisor
+ *          float* gyro - the gyro divisor
+ *
+ * Revision: Initial Creation Arduino
+ *					 02/04/2019 - Mitchell Tilson - added my I2C code.
+ *
+ * Notes:
+ ******************************************************************************/
+void Accel_Gyro::GetFullRangeDivisor( float* accel, float* gyro )
+{
+    *accel = 32767.0/2.0;
+    *gyro = 32767.0/250.0;
 }
 
 /*******************************************************************************

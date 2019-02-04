@@ -225,39 +225,45 @@ void COMMS_xbee_send(comms_xbee_msg_t msg)
     static uint8_t frame_id = 0;
     if( (comms_xbee_status.xbee_state == XBEE_REMOTE_MGR_CONNECTED) && msg.len <= XBEE_MAX_TX )
     {
-        static comms_xbee_api_msg_t api_msg;
-        static comms_xbee_tx_frame_ipv4_t tx_frame;
+        comms_xbee_api_msg_t* api_msg = (comms_xbee_api_msg_t*)malloc(sizeof(comms_xbee_api_msg_t));
+        comms_xbee_tx_frame_ipv4_t* tx_frame = (comms_xbee_tx_frame_ipv4_t*)malloc(sizeof(comms_xbee_tx_frame_ipv4_t));
 
         // Build the TX frame
-        tx_frame.api_frame_id = XBEE_TX_REQ;
-        tx_frame.frame_id = frame_id;
-        tx_frame.addr = comms_xbee_addr_desktop;
-        memcpy(tx_frame.dest_port,comms_xbee_dest_port,sizeof(tx_frame.dest_port));
-        memcpy(tx_frame.src_port,comms_xbee_src_port,sizeof(tx_frame.src_port));
-        tx_frame.protocol = XBEE_IP;
-        tx_frame.opt = XBEE_TX_UDP_OPT;
-        memcpy(tx_frame.data,msg.data,msg.len);
-        uint16_t len = sizeof(tx_frame)-sizeof(tx_frame.data)+msg.len;
+        tx_frame->api_frame_id = XBEE_TX_REQ;
+        tx_frame->frame_id = frame_id;
+        tx_frame->addr = comms_xbee_addr_desktop;
+        memcpy(tx_frame->dest_port,comms_xbee_dest_port,sizeof(tx_frame->dest_port));
+        memcpy(tx_frame->src_port,comms_xbee_src_port,sizeof(tx_frame->src_port));
+        tx_frame->protocol = XBEE_IP;
+        tx_frame->opt = XBEE_TX_UDP_OPT;
+        memcpy(tx_frame->data,msg.data,msg.len);
+        uint16_t len = sizeof(comms_xbee_tx_frame_ipv4_t)-sizeof(tx_frame->data)+msg.len;
 
         // Build the API frame
-        api_msg.start_delim = XBEE_START_DELIM;
-        api_msg.MSB_len = (uint8_t)((len & 0xFF00) >> 8);
-        api_msg.LSB_len = (uint8_t)(len & 0xFF);
-        api_msg.frame_data_ptr = (uint8_t*)&tx_frame;
-        api_msg.cksum = comms_xbee_compute_cksum(&api_msg);
+        api_msg->start_delim = XBEE_START_DELIM;
+        api_msg->MSB_len = (uint8_t)((len & 0xFF00) >> 8);
+        api_msg->LSB_len = (uint8_t)(len & 0xFF);
+        api_msg->frame_data_ptr = (uint8_t*)tx_frame;
+        api_msg->cksum = comms_xbee_compute_cksum(api_msg);
 
         OS_ERR err;
         // Queue the message
-        OSTaskQPost(&comms_xbee_TCB,(void*)&api_msg,sizeof(api_msg),OS_OPT_POST_NO_SCHED,&err);
+        OSTaskQPost(&comms_xbee_TCB,(void*)api_msg,sizeof(comms_xbee_api_msg_t),OS_OPT_POST_NO_SCHED,&err);
         if( err == OS_ERR_Q_MAX || err == OS_ERR_MSG_POOL_EMPTY )
         {
+            free(api_msg->frame_data_ptr);
+            free(api_msg);
             while(1);
+            // break;
         }
         // Trigger the semaphore
         OSTaskSemPost(&comms_xbee_TCB,OS_OPT_POST_NONE,&err);
         if( err == OS_ERR_SEM_OVF )
         {
+            free(api_msg->frame_data_ptr);
+            free(api_msg);
             while(1);
+            // break;
         }
         frame_id++;
     }
@@ -354,6 +360,11 @@ static void comms_xbee_task(void *p_arg)
         {
             comms_xbee_api_msg_t* api_msg = (comms_xbee_api_msg_t*)msg;
             comms_xbee_send_api_msg(api_msg);
+            /*
+             * The frame data pointer has to always be freed first!
+             */
+            free(api_msg->frame_data_ptr);
+            free(api_msg);
         }
     }
 }

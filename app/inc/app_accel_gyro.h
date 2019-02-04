@@ -3,11 +3,11 @@
  * Author:  Mitchell S. Tilson
  * Created: 03/26/2014
  *
- * Description: This file provides the application interface to the gyro accelerometer 
+ * Description: This file provides the application interface to the gyro accelerometer
  *							board.
- * 		
+ *
  ******************************************************************************/
- 
+
 #pragma once
 #ifndef APP_ACCELL_GYRO_H
 #define	APP_ACCELL_GYRO_H
@@ -16,7 +16,7 @@
  * Includes
  ******************************************************************************/
 #include "type_defs.h"
- 
+
 /*******************************************************************************
  * Class definition
  ******************************************************************************/
@@ -79,6 +79,14 @@ private:
  ******************************************************************************/
 private:
     motion6_data_type offsets;
+
+    static const uint32_t CAL_SUM_CNT;
+
+    static const uint16_t ONE_G;
+
+    float accel_full_range_divisor; // In G (gravity)
+
+    float gyro_full_range_divisor;  // In degree/sec
 };
 
 extern AppAccelGyroClass AclGyro;

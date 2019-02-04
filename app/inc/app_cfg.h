@@ -59,5 +59,14 @@
 
 #define  APP_CFG_TASK_START_STK_SIZE_LIMIT       (APP_CFG_TASK_START_STK_SIZE * (100u - APP_CFG_TASK_START_STK_SIZE_PCT_FULL))   / 100u
 
+/*
+*********************************************************************************************************
+*                                            USER CONSTANTS
+*********************************************************************************************************
+*/
+
+#define  APP_CFG_COMMS_USE_UART (0)
+#define  APP_CFG_COMMS_USE_SPI  (1)
+
 #endif
 

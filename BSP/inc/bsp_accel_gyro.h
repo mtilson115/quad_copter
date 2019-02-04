@@ -414,6 +414,7 @@ public:
 
  void SetI2CAddress	( uint8_t address );
  bool Init( void );
+ void GetFullRangeDivisor( float* accel, float* gyro );
  bool TestConnection( void );
 
  // AUX_VDDIO register

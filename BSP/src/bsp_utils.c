@@ -10,12 +10,16 @@
  * Includes
  ******************************************************************************/
 #include "type_defs.h"
-#include "comms_xbee.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <os.h>
-#include "driver_uart.h"
+#include "app_cfg.h"
+#if APP_CFG_COMMS_USE_UART
+    #include "driver_uart.h"
+#elif APP_CFG_COMMS_USE_SPI
+    #include "comms_xbee.h"
+#endif
 
 
 /*******************************************************************************
@@ -30,7 +34,10 @@
  * Local Data
  ******************************************************************************/
 static uint8_t printf_buff[256];
-UART_ID id_;
+#if APP_CFG_COMMS_USE_UART
+    UART_ID id_;
+#endif
+
 /*******************************************************************************
  * Local Functions
  ******************************************************************************/
@@ -53,16 +60,17 @@ UART_ID id_;
  ******************************************************************************/
 void BSP_PrintfInit( void )
 {
+#if APP_CFG_COMMS_USE_SPI
     OS_ERR err;
     while( !COMMS_xbee_ready() )
     {
         // Delay 100ms (this part isn't really time sensitive)
         OSTimeDlyHMSM(0u, 0u, 0u, 100u,OS_OPT_TIME_HMSM_STRICT,&err);
     }
-    /*
+#elif APP_CFG_COMMS_USE_UART
     id_ = Uart_init(UART_1, 115200, 8, PARITY_NONE, 1);
     Uart_enable(id_);
-    */
+#endif
 }
 
 /*******************************************************************************
@@ -89,9 +97,12 @@ void BSP_Printf( const char* format, ... )
         while(1);
     }
     va_end (arg);
+#if APP_CFG_COMMS_USE_SPI
     comms_xbee_msg_t msg;
     msg.data = printf_buff;
     msg.len = len;
     COMMS_xbee_send(msg);
-    // Uart_write(id_,len,printf_buff);
+#elif APP_CFG_COMMS_USE_UART
+    Uart_write(id_,len,printf_buff);
+#endif
 }
