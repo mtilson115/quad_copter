@@ -8,7 +8,7 @@ class udp_listener:
 
     def __init__(self):
         self.UDP_PORT = 5005
-        self.UDP_IP = "10.0.0.67"
+        self.UDP_IP = "10.0.0.78"
         self.sock = socket.socket(socket.AF_INET, # Internet
                              socket.SOCK_DGRAM) # UDP
         self.sock.bind((self.UDP_IP, self.UDP_PORT))
