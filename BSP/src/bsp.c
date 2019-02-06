@@ -15,6 +15,8 @@
 #include "system.h"
 #include "timer.h"
 #include <cp0defs.h>
+#include "app_test.h"
+#include "comms_xbee.h"
 
 /*
 *********************************************************************************************************
@@ -251,6 +253,8 @@ void  BSP_Except_Handler (void)
     except_cause = (except_cause & 0x7C) >> 2;
     uint32_t bad_var = _CP0_GET_BADVADDR();
     uint32_t excep_addr =_CP0_GET_EPC();
+    OS_TCB* test_tcb = app_test_get_tcb();
+    OS_TCB* comms_tcb = COMMS_xbee_get_tcb();
     switch( except_cause )
     {
         case 0x04: // addr error (load or fetch)

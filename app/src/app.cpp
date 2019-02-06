@@ -165,7 +165,9 @@ static  void  App_TaskStart (void *p_arg)
 static void App_TaskCreate(void)
 {
     start_test();
+#if APP_CFG_COMMS_USE_SPI
     COMMS_xbee_init();
+#endif
 }
 
 

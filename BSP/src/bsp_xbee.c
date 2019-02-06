@@ -62,7 +62,7 @@ void BSP_xbee_init( void )
 
     // Initialize the SPI
     spi_init_t spi_settings = {
-        .baud = 15,              // ~2.5MHz see SPI_init code
+        .baud = 8,              // ~5MHz see SPI_init code
         .interrupt_prio = 4,
         .interrupt_sub_prio = 1,
         .data_width = SPI_8BIT,
@@ -230,13 +230,13 @@ static void bsp_xbee_spi_en_seq( void )
     BSP_Dly(2);
 
     /*
-     * Place the xbee in reset for 100ms while also holding
+     * Place the xbee in reset for 200ms while also holding
      * DOUT low
      */
     PORTBbits.RB3 = 0;
     PORTFbits.RF2 = 0;
     OS_ERR err;
-    OSTimeDlyHMSM(0u, 0u, 0u, 100u,OS_OPT_TIME_HMSM_STRICT,&err);
+    OSTimeDlyHMSM(0u, 0u, 0u, 200u,OS_OPT_TIME_HMSM_STRICT,&err);
 
     /*
      * Release reset

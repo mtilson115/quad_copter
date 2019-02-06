@@ -1,4 +1,3 @@
-#include <os.h>
 #include <app_cfg.h>
 #include <p32xxxx.h>
 #include "app_accel_gyro.h"
@@ -36,6 +35,7 @@ void start_test( void )
     // Make the RE0 pin an output
     TRISEbits.TRISE7 = 0;  // output
     ODCEbits.ODCE7 = 0; // CMOS outout
+    memset(test_stack,0x00,sizeof(test_stack));
 
     OS_ERR err;
     OSTaskCreate((OS_TCB      *)&test_TCB,      /* Create the start task */
@@ -67,7 +67,7 @@ static void test_task(void  *p_arg)
     // Allow the printf system to init (xbee has to associate)
     BSP_PrintfInit();
 
-    OSTimeDlyHMSM(0u, 0u, 2u, 0u,OS_OPT_TIME_HMSM_STRICT,&err);
+    // OSTimeDlyHMSM(0u, 0u, 4u, 0u,OS_OPT_TIME_HMSM_STRICT,&err);
 
     // Initialize the AccelGyro
     AclGyro.Init();
@@ -93,7 +93,17 @@ static void test_task(void  *p_arg)
         // AclGyro.PrintOffsets();
         OSTimeDlyHMSM(0u, 0u, 0u, 20u,OS_OPT_TIME_HMSM_STRICT,&err);
         PORTEINV = (1<<7);
-        // BSP_Printf("Hello %d\n",idx++);
+        // BSP_Printf("Hello %d",idx++);
         // BSP_xbee_test();
     }
 }
+#ifdef	__cplusplus
+extern "C" {
+#endif
+OS_TCB* app_test_get_tcb( void )
+{
+    return &test_TCB;
+}
+#ifdef	__cplusplus
+}
+#endif

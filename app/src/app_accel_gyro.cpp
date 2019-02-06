@@ -20,7 +20,7 @@
 /*******************************************************************************
  * Private data
  ******************************************************************************/
-const uint32_t AppAccelGyroClass::CAL_SUM_CNT = 1000;
+const uint32_t AppAccelGyroClass::CAL_SUM_CNT = 400;
 const uint16_t AppAccelGyroClass::ONE_G = 16384;
 
 /*******************************************************************************
@@ -91,12 +91,32 @@ void AppAccelGyroClass::Init( void )
  ******************************************************************************/
 void AppAccelGyroClass::Calibrate( void )
 {
-    offsets.ax = -135;
-    offsets.ay = -412;
-    offsets.az = -538;
-    offsets.gx = -357;
-    offsets.gy = -117;
-    offsets.gz = 199;
+    OS_ERR err;
+	memset(&offsets,0x00,sizeof(offsets));
+    int32_t ax_s = 0;
+    int32_t ay_s = 0;
+    int32_t az_s = 0;
+    int32_t gx_s = 0;
+    int32_t gy_s = 0;
+    int32_t gz_s = 0;
+    motion6_data_type data;
+    for( uint32_t cal_idx = 0; cal_idx < CAL_SUM_CNT; cal_idx++ )
+    {
+        GetMotion6Data( &data );
+        ax_s += data.ax;
+        ay_s += data.ay;
+        az_s += data.az;
+        gx_s += data.gx;
+        gy_s += data.gy;
+        gz_s += data.gz;
+        OSTimeDlyHMSM(0u, 0u, 0u, 20u,OS_OPT_TIME_HMSM_STRICT,&err);
+    }
+    offsets.ax = int16_t(((float)ax_s)/((float)CAL_SUM_CNT));
+    offsets.ay = int16_t(((float)ay_s)/((float)CAL_SUM_CNT));
+    offsets.az = int16_t(((float)az_s)/((float)CAL_SUM_CNT)) - ONE_G;
+    offsets.gx = int16_t(((float)gx_s)/((float)CAL_SUM_CNT));
+    offsets.gy = int16_t(((float)gy_s)/((float)CAL_SUM_CNT));
+    offsets.gz = int16_t(((float)gz_s)/((float)CAL_SUM_CNT));
 }
 
 /*******************************************************************************
@@ -161,12 +181,8 @@ void AppAccelGyroClass::PrintMotion6Data( void )
     data.gy -= offsets.gy;
     data.gz -= offsets.gz;
 
-    BSP_Printf("%.3f,%.3f,%.3f,%.3f,%.3f,%.3f",data.ax/accel_full_range_divisor,
-            data.ay/accel_full_range_divisor,
-            data.az/accel_full_range_divisor,
-            data.gx/gyro_full_range_divisor,
-            data.gy/gyro_full_range_divisor,
-            data.gz/gyro_full_range_divisor);
+    BSP_Printf("%d,%d,%d,%d,%d,%d",data.ax,data.ay,data.az,data.gx,data.gy,data.gz);
+
 }
 
 /*******************************************************************************

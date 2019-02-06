@@ -12,7 +12,6 @@
  ******************************************************************************/
 #include "comms_xbee.h"
 #include "bsp_xbee.h"
-#include <os.h>
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
@@ -25,7 +24,7 @@
 #define XBEE_CKSM_SZ (1)
 // This value should include any TX headers because the
 // RX buffer is written to any time a TX is completed
-#define XBEE_MAX_TX (100)
+#define XBEE_MAX_TX (300)
 #define XBEE_MAX_RX (XBEE_MAX_TX + XBEE_MAX_HDR + XBEE_CKSM_SZ)
 
 /*******************************************************************************
@@ -230,7 +229,7 @@ static void comms_xbee_parse_rx( comms_xbee_api_msg_t* api_msg );
 void COMMS_xbee_send(comms_xbee_msg_t msg)
 {
     static uint8_t frame_id = 0;
-    if( (comms_xbee_status.xbee_state == XBEE_REMOTE_MGR_CONNECTED) && msg.len <= XBEE_MAX_TX )
+    if( (comms_xbee_status.xbee_state == XBEE_JOINED) && msg.len <= XBEE_MAX_TX )
     {
         comms_xbee_api_msg_t* api_msg = (comms_xbee_api_msg_t*)malloc(sizeof(comms_xbee_api_msg_t));
         comms_xbee_tx_frame_ipv4_t* tx_frame = (comms_xbee_tx_frame_ipv4_t*)malloc(sizeof(comms_xbee_tx_frame_ipv4_t));
@@ -238,7 +237,7 @@ void COMMS_xbee_send(comms_xbee_msg_t msg)
         // Build the TX frame
         tx_frame->api_frame_id = XBEE_TX_REQ;
         tx_frame->frame_id = frame_id;
-        tx_frame->addr = comms_xbee_addr_work_laptop;
+        tx_frame->addr = comms_xbee_addr_desktop;
         memcpy(tx_frame->dest_port,comms_xbee_dest_port,sizeof(tx_frame->dest_port));
         memcpy(tx_frame->src_port,comms_xbee_src_port,sizeof(tx_frame->src_port));
         tx_frame->protocol = XBEE_IP;
@@ -292,6 +291,8 @@ void COMMS_xbee_init(void)
 {
     OS_ERR err;
 
+    memset(comms_xbee_stack,0x00,sizeof(comms_xbee_stack));
+
     // Create the thread
     OSTaskCreate((OS_TCB      *)&comms_xbee_TCB,
                  (CPU_CHAR    *)"Comms XBEE Task",
@@ -301,7 +302,7 @@ void COMMS_xbee_init(void)
                  (CPU_STK     *)&comms_xbee_stack[0],
                  (CPU_STK_SIZE )COMMS_XBEE_STK_SIZE/10,
                  (CPU_STK_SIZE )COMMS_XBEE_STK_SIZE,
-                 (OS_MSG_QTY   )10u,
+                 (OS_MSG_QTY   )20u,
                  (OS_TICK      )0u,
                  (void        *)0,
                  (OS_OPT       )(OS_OPT_TASK_STK_CHK | OS_OPT_TASK_STK_CLR),
@@ -315,6 +316,11 @@ void COMMS_xbee_init(void)
     BSP_xbee_init();
 }
 
+OS_TCB* COMMS_xbee_get_tcb( void )
+{
+    return &comms_xbee_TCB;
+}
+
 /*******************************************************************************
  * COMMS_xbee_ready
  *
@@ -322,14 +328,14 @@ void COMMS_xbee_init(void)
  *
  * Inputs:      None
  *
- * Returns:     uint8_t - comms_xbee_status.xbee_state == XBEE_REMOTE_MGR_CONNECTED.
+ * Returns:     uint8_t - comms_xbee_status.xbee_state == XBEE_JOINED.
  *
  * Revision:    Initial Creation 01/20/2019 - Mitchell S. Tilson
  *
  ******************************************************************************/
 uint8_t COMMS_xbee_ready( void )
 {
-    return (uint8_t)(comms_xbee_status.xbee_state == XBEE_REMOTE_MGR_CONNECTED);
+    return (uint8_t)(comms_xbee_status.xbee_state == XBEE_JOINED);
 }
 
 /*******************************************************************************
@@ -453,7 +459,7 @@ static void comms_xbee_handle_status(comms_xbee_api_msg_t* api_msg)
     comms_xbee_rx_status_t* status;
     status = (comms_xbee_rx_status_t*)api_msg->frame_data_ptr;
     comms_xbee_status.xbee_state = status->status;
-    if( comms_xbee_status.xbee_state == XBEE_REMOTE_MGR_CONNECTED )
+    if( comms_xbee_status.xbee_state == XBEE_JOINED)
     {
         // Read the configuration of the module
         comms_xbee_at_cmd_rd(XBEE_PORT);
@@ -535,7 +541,7 @@ static void comms_xbee_send_api_msg(comms_xbee_api_msg_t* api_msg)
     BSP_xbee_write_read(&api_msg->cksum,&comms_xbee_rx_buff[header_size+len],(uint16_t)sizeof(api_msg->cksum));
 
     // Handle any valid data form the xbee that was received while sending the message
-    comms_xbee_handle_rx_during_tx(header_size+len+sizeof(api_msg->cksum));
+    // comms_xbee_handle_rx_during_tx(header_size+len+sizeof(api_msg->cksum));
 }
 
 static void comms_xbee_handle_rx_during_tx( uint16_t bytes_read )

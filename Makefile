@@ -39,7 +39,7 @@ CFLAGS=-g -std=c99 -mprocessor=$(DEVICE) -nostartfiles -legacy-libc
 CPPFLAGS=-g -mprocessor=$(DEVICE) -nostartfiles -legacy-libc
 
 # LD flags --defsym=_min_heap_size=1024
-LDFLAGS=-mprocessor=$(DEVICE) -nostartfiles -Wl,--defsym=_min_heap_size=0x800 -Wl,-Map=$(BIN)/$(PROJECT).map
+LDFLAGS=-mprocessor=$(DEVICE) -nostartfiles -Wl,--defsym=_min_heap_size=0x2000 -Wl,-Map=$(BIN)/$(PROJECT).map
 
 # Directories of the project
 DIRS= BSP CPU app drivers uC-CPU uC-LIB uCOS-III algs comms
