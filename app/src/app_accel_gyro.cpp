@@ -15,13 +15,16 @@
 #include "bsp_accel_gyro.h"
 #include "driver_i2c.h"
 #include "bsp_utils.h"
+#include "comms_xbee.h"
 #include <string.h>
+#include <math.h>
 
 /*******************************************************************************
  * Private data
  ******************************************************************************/
 const uint32_t AppAccelGyroClass::CAL_SUM_CNT = 400;
 const uint16_t AppAccelGyroClass::ONE_G = 16384;
+#define M_PI (3.14159)
 
 /*******************************************************************************
  * Public Object declaration
@@ -181,8 +184,24 @@ void AppAccelGyroClass::PrintMotion6Data( void )
     data.gy -= offsets.gy;
     data.gz -= offsets.gz;
 
-    BSP_Printf("%d,%d,%d,%d,%d,%d",data.ax,data.ay,data.az,data.gx,data.gy,data.gz);
+    // Calculate the pitch and roll
+    float accel_pitch = atan2(data.ax,data.az);
+    float accel_roll = atan2(data.ay,data.az);
 
+    // Convert to degrees
+    accel_pitch = accel_pitch*180.0/M_PI;
+    accel_roll = accel_roll*180.0/M_PI;
+
+    // Allocate buffer and copy in the data
+    uint8_t data_buff[2*sizeof(float)] = {0};
+    memcpy(data_buff,&accel_pitch,sizeof(accel_pitch));
+    memcpy(&data_buff[sizeof(accel_pitch)],&accel_roll,sizeof(accel_roll));
+
+    // Send the message
+    comms_xbee_msg_t msg;
+    msg.data = data_buff;
+    msg.len = sizeof(data_buff);
+    COMMS_xbee_send(msg);
 }
 
 /*******************************************************************************

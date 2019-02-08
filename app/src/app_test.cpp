@@ -71,7 +71,7 @@ static void test_task(void  *p_arg)
 
     // Initialize the AccelGyro
     AclGyro.Init();
-    AclGyro.PrintOffsets();
+    // AclGyro.PrintOffsets();
 
     uint32_t idx = 0;
     uint32_t ts = 0;
@@ -91,9 +91,10 @@ static void test_task(void  *p_arg)
         }
         */
         // AclGyro.PrintOffsets();
-        OSTimeDlyHMSM(0u, 0u, 0u, 20u,OS_OPT_TIME_HMSM_STRICT,&err);
+        OSTimeDlyHMSM(0u, 0u, 0u, 50u,OS_OPT_TIME_HMSM_STRICT,&err);
         PORTEINV = (1<<7);
-        // BSP_Printf("Hello %d",idx++);
+        // idx++;
+        // BSP_Printf("Hello %f,%f,%f",(float)idx,(float)idx,(float)idx);
         // BSP_xbee_test();
     }
 }
