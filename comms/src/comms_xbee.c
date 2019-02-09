@@ -149,6 +149,11 @@ typedef struct {
     // TODO: Add power level
 } comms_xbee_status_t;
 
+typedef struct __attribute__((packed)) {
+    comms_xbee_api_msg_t        msg;
+    comms_xbee_tx_frame_ipv4_t  frame;
+} tx_frame_data_t;
+
 /*******************************************************************************
  * Local Data
  ******************************************************************************/
@@ -168,6 +173,12 @@ static CPU_STK comms_xbee_stack[COMMS_XBEE_STK_SIZE];
 
 // Rx buffer
 static uint8_t comms_xbee_rx_buff[XBEE_MAX_RX];
+
+// Msg queue memory
+OS_MEM comms_xbee_tx_mem_ctrl_blck;
+#define TX_MEM_BLK_SIZE (sizeof(comms_xbee_tx_frame_ipv4_t)+sizeof(comms_xbee_api_msg_t))
+#define TX_Q_DEPTH (20)
+static uint8_t comms_tx_xbee_mem[TX_MEM_BLK_SIZE*TX_Q_DEPTH];
 
 /*******************************************************************************
  * IPV4 Addrs
@@ -229,10 +240,16 @@ static void comms_xbee_parse_rx( comms_xbee_api_msg_t* api_msg );
 void COMMS_xbee_send(comms_xbee_msg_t msg)
 {
     static uint8_t frame_id = 0;
+    OS_ERR err;
     if( (comms_xbee_status.xbee_state == XBEE_JOINED) && msg.len <= XBEE_MAX_TX )
     {
-        comms_xbee_api_msg_t* api_msg = (comms_xbee_api_msg_t*)malloc(sizeof(comms_xbee_api_msg_t));
-        comms_xbee_tx_frame_ipv4_t* tx_frame = (comms_xbee_tx_frame_ipv4_t*)malloc(sizeof(comms_xbee_tx_frame_ipv4_t));
+        tx_frame_data_t* tx_frame_data = (tx_frame_data_t*)OSMemGet(&comms_xbee_tx_mem_ctrl_blk,&err);
+        if( err != OS_ERR_NONE )
+        {
+            while(1);
+        }
+        comms_xbee_api_msg_t* api_msg = &tx_frame_data->api_msg;
+        comms_xbee_tx_frame_ipv4_t* tx_frame = &tx_frame_data->frame;
 
         // Build the TX frame
         tx_frame->api_frame_id = XBEE_TX_REQ;
@@ -252,13 +269,11 @@ void COMMS_xbee_send(comms_xbee_msg_t msg)
         api_msg->frame_data_ptr = (uint8_t*)tx_frame;
         api_msg->cksum = comms_xbee_compute_cksum(api_msg);
 
-        OS_ERR err;
         // Queue the message
         OSTaskQPost(&comms_xbee_TCB,(void*)api_msg,sizeof(comms_xbee_api_msg_t),OS_OPT_POST_NO_SCHED,&err);
         if( err == OS_ERR_Q_MAX || err == OS_ERR_MSG_POOL_EMPTY )
         {
-            free(api_msg->frame_data_ptr);
-            free(api_msg);
+            OSMemPut(&comms_xbee_tx_mem_ctrl_blk,api_msg,&err);
             while(1);
             // break;
         }
@@ -266,8 +281,7 @@ void COMMS_xbee_send(comms_xbee_msg_t msg)
         OSTaskSemPost(&comms_xbee_TCB,OS_OPT_POST_NONE,&err);
         if( err == OS_ERR_SEM_OVF )
         {
-            free(api_msg->frame_data_ptr);
-            free(api_msg);
+            OSMemPut(&comms_xbee_tx_mem_ctrl_blk,api_msg,&err);
             while(1);
             // break;
         }
@@ -292,6 +306,16 @@ void COMMS_xbee_init(void)
     OS_ERR err;
 
     memset(comms_xbee_stack,0x00,sizeof(comms_xbee_stack));
+    memset(comms_tx_xbee_mem,0x00,sizeof(comms_tx_xbee_mem));
+
+    // register a memory block for the communications
+    OSMemCreate((OS_MEM     *)&comms_xbee_tx_mem_ctrl_blck,
+                (CPU_CHAR   *)"Comms XBEE Mem",
+                (void       *)comms_tx_xbee_mem,
+                (OS_MEM_QTY  )TX_Q_DEPTH,
+                (OS_MEM_SIZE )TX_MEM_BLK_SIZE,
+                (OS_ERR     *)&err);
+    assert(err==OS_ERR_NONE);
 
     // Create the thread
     OSTaskCreate((OS_TCB      *)&comms_xbee_TCB,
@@ -302,7 +326,7 @@ void COMMS_xbee_init(void)
                  (CPU_STK     *)&comms_xbee_stack[0],
                  (CPU_STK_SIZE )COMMS_XBEE_STK_SIZE/10,
                  (CPU_STK_SIZE )COMMS_XBEE_STK_SIZE,
-                 (OS_MSG_QTY   )20u,
+                 (OS_MSG_QTY   )TX_Q_DEPTH,
                  (OS_TICK      )0u,
                  (void        *)0,
                  (OS_OPT       )(OS_OPT_TASK_STK_CHK | OS_OPT_TASK_STK_CLR),
@@ -373,11 +397,7 @@ static void comms_xbee_task(void *p_arg)
         {
             comms_xbee_api_msg_t* api_msg = (comms_xbee_api_msg_t*)msg;
             comms_xbee_send_api_msg(api_msg);
-            /*
-             * The frame data pointer has to always be freed first!
-             */
-            free(api_msg->frame_data_ptr);
-            free(api_msg);
+            OSMemPut(&comms_xbee_tx_mem_ctrl_blk,api_msg,&err);
         }
     }
 }
