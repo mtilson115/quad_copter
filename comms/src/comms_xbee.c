@@ -175,7 +175,7 @@ static CPU_STK comms_xbee_stack[COMMS_XBEE_STK_SIZE];
 static uint8_t comms_xbee_rx_buff[XBEE_MAX_RX];
 
 // Msg queue memory
-OS_MEM comms_xbee_tx_mem_ctrl_blck;
+OS_MEM comms_xbee_tx_mem_ctrl_blk;
 #define TX_MEM_BLK_SIZE (sizeof(comms_xbee_tx_frame_ipv4_t)+sizeof(comms_xbee_api_msg_t))
 #define TX_Q_DEPTH (20)
 static uint8_t comms_tx_xbee_mem[TX_MEM_BLK_SIZE*TX_Q_DEPTH];
@@ -248,7 +248,7 @@ void COMMS_xbee_send(comms_xbee_msg_t msg)
         {
             while(1);
         }
-        comms_xbee_api_msg_t* api_msg = &tx_frame_data->api_msg;
+        comms_xbee_api_msg_t* api_msg = &tx_frame_data->msg;
         comms_xbee_tx_frame_ipv4_t* tx_frame = &tx_frame_data->frame;
 
         // Build the TX frame
@@ -309,7 +309,7 @@ void COMMS_xbee_init(void)
     memset(comms_tx_xbee_mem,0x00,sizeof(comms_tx_xbee_mem));
 
     // register a memory block for the communications
-    OSMemCreate((OS_MEM     *)&comms_xbee_tx_mem_ctrl_blck,
+    OSMemCreate((OS_MEM     *)&comms_xbee_tx_mem_ctrl_blk,
                 (CPU_CHAR   *)"Comms XBEE Mem",
                 (void       *)comms_tx_xbee_mem,
                 (OS_MEM_QTY  )TX_Q_DEPTH,
@@ -334,7 +334,7 @@ void COMMS_xbee_init(void)
     assert(err==OS_ERR_NONE);
 
     // Register the TCB with the xbee bsp code
-     BSP_xbee_register_tcb(&comms_xbee_TCB);
+    BSP_xbee_register_tcb(&comms_xbee_TCB);
 
     // Initialize the SPI, set up interrupts, and put the xbee in SPI mode
     BSP_xbee_init();
