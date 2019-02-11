@@ -14,6 +14,7 @@
 #include "driver_spi.h"
 #include "perif_sfr_map.h"
 #include <p32xxxx.h>
+#include <os.h>
 
 /*******************************************************************************
  * Local Defines
@@ -129,9 +130,13 @@ void SPI_init( spi_num_e spi, spi_init_t spi_settings )
     curr_spi_cfg_p->spi_int_prio_func( spi_settings.interrupt_prio, spi_settings.interrupt_sub_prio );
 
     // Enable interrupts
-    if( spi_settings.use_interrupts )
+    if( spi_settings.use_interrupts == TRUE )
     {
         curr_spi_cfg_p->spi_int_en_func( TRUE );
+    }
+    else
+    {
+        curr_spi_cfg_p->spi_int_en_func( FALSE );
     }
 
     // Write the baud rate register
@@ -165,10 +170,10 @@ void SPI_init( spi_num_e spi, spi_init_t spi_settings )
 
     // Set up the intterrupts for enhanced buffering
     // Set a TX interrupt when the last data is shifted out
-    curr_spi_cfg_p->SPIxCON->STXISEL = 0;
+    // curr_spi_cfg_p->SPIxCON->STXISEL = 0;
 
     // Interrupt when the buffer is full
-    curr_spi_cfg_p->SPIxCON->SRXISEL = 3;
+    // curr_spi_cfg_p->SPIxCON->SRXISEL = 3;
 
     // Set the intialized flag
     curr_spi_cfg_p->initialized = TRUE;
@@ -238,10 +243,13 @@ spi_ret_e SPI_write_read( spi_num_e spi, uint8_ua_t* wdata, uint8_ua_t* rdata, u
 
     for( i = 0; i < data_len; i++ )
     {
+        CPU_SR_ALLOC();
+        CPU_CRITICAL_ENTER();
         while( curr_spi_cfg_p->SPIxSTAT->SPIBUSY );
         *curr_spi_cfg_p->SPIxBUFF = wdata[i];        // Write the data
         while( curr_spi_cfg_p->SPIxSTAT->SPIBUSY );
         rdata[i] = *curr_spi_cfg_p->SPIxBUFF;        // Read the data
+        CPU_CRITICAL_EXIT();
     }
     return SPI_SUCCESS;
 }

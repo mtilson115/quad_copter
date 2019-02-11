@@ -12,7 +12,7 @@
 #include "bsp_accel_gyro_int.h"
 
 static  OS_TCB    test_TCB;
-static  CPU_STK   test_stack[APP_BUTTON_READER_STK_SIZE];
+CPU_STK   test_stack[APP_BUTTON_READER_STK_SIZE];
 static  void  test_task   (void  *p_arg);
 #define LOW_DUTY 4.0
 #define MAX_DUTY 9.0
@@ -35,7 +35,6 @@ void start_test( void )
     // Make the RE0 pin an output
     TRISEbits.TRISE7 = 0;  // output
     ODCEbits.ODCE7 = 0; // CMOS outout
-    memset(test_stack,0x00,sizeof(test_stack));
 
     OS_ERR err;
     OSTaskCreate((OS_TCB      *)&test_TCB,      /* Create the start task */
@@ -77,7 +76,7 @@ static void test_task(void  *p_arg)
     uint32_t ts = 0;
     while(DEF_ON)
     {
-        // OSTaskSemPend(0,OS_OPT_PEND_BLOCKING,&ts,&err);
+        OSTaskSemPend(0,OS_OPT_PEND_BLOCKING,&ts,&err);
         AclGyro.PrintMotion6Data();
         /*
         if( duty_cycle <= 7.0 )
@@ -91,10 +90,10 @@ static void test_task(void  *p_arg)
         }
         */
         // AclGyro.PrintOffsets();
-        OSTimeDlyHMSM(0u, 0u, 0u, 50u,OS_OPT_TIME_HMSM_STRICT,&err);
+        // OSTimeDlyHMSM(0u, 0u, 0u, 20u,OS_OPT_TIME_HMSM_STRICT,&err);
         PORTEINV = (1<<7);
         // idx++;
-        // BSP_Printf("Hello %f,%f,%f",(float)idx,(float)idx,(float)idx);
+        // BSP_Printf("Hello %d",idx);
         // BSP_xbee_test();
     }
 }
@@ -104,6 +103,10 @@ extern "C" {
 OS_TCB* app_test_get_tcb( void )
 {
     return &test_TCB;
+}
+void app_test_get_stack( CPU_STK* stk )
+{
+    stk = test_stack;
 }
 #ifdef	__cplusplus
 }

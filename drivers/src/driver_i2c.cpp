@@ -16,6 +16,7 @@
 #include "type_defs.h"
 #include "bsp_utils.h"
 #include <p32xxxx.h>
+#include <os.h>
 
 /*******************************************************************************
  * Local Type Defs
@@ -736,6 +737,8 @@ void I2C_Class::disable( void )
  ******************************************************************************/
 int I2C_Class::communicate( I2C_MSG* msg )
 {
+    // CPU_SR_ALLOC();
+    // CPU_CRITICAL_ENTER();
     uint32_t byte_count = 0;
     if( FALSE == initialized_ ) {
     	return 0;
@@ -808,6 +811,7 @@ int I2C_Class::communicate( I2C_MSG* msg )
 
     // Disable the I2C
     // disable();
+    // CPU_CRITICAL_EXIT();
     return byte_count;
 }
 
@@ -1042,6 +1046,7 @@ BOOL I2C_Class::send_byte( uint8_t byte )
 
     // Return if nak or no ack
     if( I2C_STAT_ACKSTAT(1) == (regs_->stat.reg & I2C_STAT_ACKSTAT(1)) ) {
+        while(1);
         return FALSE;
     } else {
         return TRUE;
@@ -1101,6 +1106,7 @@ BOOL I2C_Class::read_byte( uint8_t* byte )
     // If we timed out return false
     if( 0 == time_out ) {
         *byte = 0x00;
+        while(1);
         regs_->con.set = I2C_CON_ACKDT(1);
         regs_->con.set = I2C_CON_ACKEN(1);
         return FALSE;

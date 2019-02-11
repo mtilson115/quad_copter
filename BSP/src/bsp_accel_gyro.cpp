@@ -63,6 +63,7 @@
 #endif
 #include "type_defs.h"
 #include "bsp_utils.h"
+#include "bsp_accel_gyro_int.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -141,9 +142,14 @@ bool Accel_Gyro::Init( void )
     /*
      * Set the update rate to be 20ms
      */
-    SetRate(20);
-
+    SetRate(19);
     return TestConnection();
+}
+
+void Accel_Gyro::IntEn( void )
+{
+    bsp_accel_gyro_int_en();
+    SetIntDataReadyEnabled(true); // Assert the interrupt when data is ready
 }
 
 /*******************************************************************************

@@ -38,13 +38,22 @@ static uint32_t tcb_cnt = 0;
  ******************************************************************************/
 void bsp_accel_gyro_int( void )
 {
-    PORTEINV = (1<<6);
+    /*
+    CPU_SR_ALLOC();
+    CPU_CRITICAL_ENTER();
+    OSIntEnter();
+    // PORTEINV = (1<<6);
+    */
     OS_ERR err;
     for( uint32_t tcb_idx = 0; tcb_idx < tcb_cnt; tcb_idx++ )
     {
-        OSTaskSemPost(tcb_list[tcb_idx],OS_OPT_POST_NO_SCHED,&err);
+        OSTaskSemPost(tcb_list[tcb_idx],OS_OPT_POST_NONE,&err);
     }
     IFS0bits.INT1IF = 0;
+    /*
+    CPU_CRITICAL_EXIT();
+    OSIntExit();
+    */
 }
 
 /*******************************************************************************
@@ -69,14 +78,14 @@ void bsp_accel_gyro_int_en( void )
     // INT1 enable bit (disable the interrupt)
     IEC0bits.INT1IE = 0;
 
-    // Set the interrupt polarity for falling edge
-    INTCONbits.INT1EP = 0;
+    // Set the interrupt polarity for rising edge
+    INTCONbits.INT1EP = 1;
 
     // Clear the interrupt status flag
     IFS0bits.INT1IF = 0;
 
     // Interrupt priority
-    IPC1bits.INT1IP = 5;
+    IPC1bits.INT1IP = 6;
 
     // Interrupt sub-priority
     IPC1bits.INT1IS = 1;
@@ -85,8 +94,8 @@ void bsp_accel_gyro_int_en( void )
     IEC0bits.INT1IE = 1;
 
     // Debug pin stuff
-    TRISEbits.TRISE6 = 0;
-    ODCEbits.ODCE6 = 0;
+    // TRISEbits.TRISE6 = 0;
+    // ODCEbits.ODCE6 = 0;
 }
 
 /*******************************************************************************

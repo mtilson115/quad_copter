@@ -24,7 +24,7 @@
 #define XBEE_CKSM_SZ (1)
 // This value should include any TX headers because the
 // RX buffer is written to any time a TX is completed
-#define XBEE_MAX_TX (300)
+#define XBEE_MAX_TX (128)
 #define XBEE_MAX_RX (XBEE_MAX_TX + XBEE_MAX_HDR + XBEE_CKSM_SZ)
 
 /*******************************************************************************
@@ -169,7 +169,7 @@ static comms_xbee_status_t comms_xbee_status = {
 
 // Task Data
 static OS_TCB comms_xbee_TCB;
-static CPU_STK comms_xbee_stack[COMMS_XBEE_STK_SIZE];
+CPU_STK comms_xbee_stack[COMMS_XBEE_STK_SIZE];
 
 // Rx buffer
 static uint8_t comms_xbee_rx_buff[XBEE_MAX_RX];
@@ -178,7 +178,7 @@ static uint8_t comms_xbee_rx_buff[XBEE_MAX_RX];
 OS_MEM comms_xbee_tx_mem_ctrl_blk;
 #define TX_MEM_BLK_SIZE (sizeof(comms_xbee_tx_frame_ipv4_t)+sizeof(comms_xbee_api_msg_t))
 #define TX_Q_DEPTH (20)
-static uint8_t comms_tx_xbee_mem[TX_MEM_BLK_SIZE*TX_Q_DEPTH];
+static uint8_t comms_tx_xbee_mem[TX_MEM_BLK_SIZE*TX_Q_DEPTH*2];
 
 /*******************************************************************************
  * IPV4 Addrs
@@ -201,7 +201,7 @@ comms_xbee_ipv4_addr_t comms_xbee_addr_work_laptop = {
     .ip_0   = 10,
     .ip_1   = 0,
     .ip_2   = 0,
-    .ip_3   = 78,
+    .ip_3   = 177,
 };
 
 uint8_t comms_xbee_src_port[2] = {0x13,0x8D}; // 5005
@@ -254,7 +254,7 @@ void COMMS_xbee_send(comms_xbee_msg_t msg)
         // Build the TX frame
         tx_frame->api_frame_id = XBEE_TX_REQ;
         tx_frame->frame_id = frame_id;
-        tx_frame->addr = comms_xbee_addr_desktop;
+        tx_frame->addr = comms_xbee_addr_work_laptop;
         memcpy(tx_frame->dest_port,comms_xbee_dest_port,sizeof(tx_frame->dest_port));
         memcpy(tx_frame->src_port,comms_xbee_src_port,sizeof(tx_frame->src_port));
         tx_frame->protocol = XBEE_IP;
@@ -305,7 +305,6 @@ void COMMS_xbee_init(void)
 {
     OS_ERR err;
 
-    memset(comms_xbee_stack,0x00,sizeof(comms_xbee_stack));
     memset(comms_tx_xbee_mem,0x00,sizeof(comms_tx_xbee_mem));
 
     // register a memory block for the communications
@@ -388,12 +387,12 @@ static void comms_xbee_task(void *p_arg)
         /*
          * There were no messages.  Read from the xbee.
          */
-        if( !msg )
+        if( !msg || err == OS_ERR_PEND_WOULD_BLOCK )
         {
             comms_xbee_handle_int_msg();
         }
 
-        if( msg )
+        if( err == OS_ERR_NONE && msg )
         {
             comms_xbee_api_msg_t* api_msg = (comms_xbee_api_msg_t*)msg;
             comms_xbee_send_api_msg(api_msg);

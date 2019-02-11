@@ -75,6 +75,8 @@ void AppAccelGyroClass::Init( void )
     AccelGyro.GetFullRangeDivisor(&accel_full_range_divisor,&gyro_full_range_divisor);
 
     Calibrate();
+
+    AccelGyro.IntEn();
 }
 
 /*******************************************************************************

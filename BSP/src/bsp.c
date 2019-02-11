@@ -255,6 +255,8 @@ void  BSP_Except_Handler (void)
     uint32_t excep_addr =_CP0_GET_EPC();
     OS_TCB* test_tcb = app_test_get_tcb();
     OS_TCB* comms_tcb = COMMS_xbee_get_tcb();
+    CPU_STK* test_stk;
+    app_test_get_stack( test_stk );
     switch( except_cause )
     {
         case 0x04: // addr error (load or fetch)
@@ -288,26 +290,6 @@ void  BSP_Except_Handler (void)
 void  BSP_DefaultHandler (void)
 {
 }
-
-/*
-*********************************************************************************************************
-*                                    BSP_RegisterInterruptHandler()
-*
-* Description: This function registers a call back for an interrupt.
-*
-*
-* Arguments  :  BSP_interrupt_cb - The call back function
-*               BSP_interrupt_reason - The reason the interrupt should be called for
-*
-* Returns    : None
-*********************************************************************************************************
-*/
-/*
-void BSP_RegisterInterruptHandler( BSP_interrupt_cb cb, BSP_interrupt_reason reason )
-{
-
-}
-*/
 
 /*
 *********************************************************************************************************

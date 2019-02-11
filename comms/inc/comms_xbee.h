@@ -26,7 +26,7 @@ void COMMS_xbee_send(comms_xbee_msg_t msg);
 void COMMS_xbee_init(void);
 OS_TCB* COMMS_xbee_get_tcb( void );
 uint8_t COMMS_xbee_ready( void );
-
+extern CPU_STK comms_xbee_stack[1024];
 #ifdef	__cplusplus
 }
 #endif
