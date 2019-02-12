@@ -302,8 +302,8 @@ _ramfunc_done:
         ##################################################################
         la      t1,_vector_spacing
         li      t2,0                    # Clear t2 and
-        ins     t2,t1,5,5               # shift value to VS field
-        mtc0    t2,_CP0_INTCTL
+        ins     t2,t1,5,5               # insert value to VS field
+        mtc0    t2,_CP0_INTCTL          # Load the value into CPO INTCTL (coprocessor 0)
 
         ##################################################################
         # Initialize CAUSE registers
