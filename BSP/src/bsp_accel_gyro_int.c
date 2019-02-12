@@ -38,22 +38,12 @@ static uint32_t tcb_cnt = 0;
  ******************************************************************************/
 void bsp_accel_gyro_int( void )
 {
-    /*
-    CPU_SR_ALLOC();
-    CPU_CRITICAL_ENTER();
-    OSIntEnter();
-    // PORTEINV = (1<<6);
-    */
     OS_ERR err;
     for( uint32_t tcb_idx = 0; tcb_idx < tcb_cnt; tcb_idx++ )
     {
-        OSTaskSemPost(tcb_list[tcb_idx],OS_OPT_POST_NONE,&err);
+        OSTaskSemPost(tcb_list[tcb_idx],OS_OPT_POST_NO_SCHED,&err);
     }
     IFS0bits.INT1IF = 0;
-    /*
-    CPU_CRITICAL_EXIT();
-    OSIntExit();
-    */
 }
 
 /*******************************************************************************
@@ -85,17 +75,14 @@ void bsp_accel_gyro_int_en( void )
     IFS0bits.INT1IF = 0;
 
     // Interrupt priority
-    IPC1bits.INT1IP = 5;
+    IPC1bits.INT1IP = 4;
 
     // Interrupt sub-priority
-    IPC1bits.INT1IS = 1;
+    IPC1bits.INT1IS = 2;
 
     // INT1 enable bit
     IEC0bits.INT1IE = 1;
 
-    // Debug pin stuff
-    // TRISEbits.TRISE6 = 0;
-    // ODCEbits.ODCE6 = 0;
 }
 
 /*******************************************************************************

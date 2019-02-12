@@ -90,21 +90,12 @@ void BSP_xbee_init( void )
  ******************************************************************************/
 void BSP_xbee_int_handler( void )
 {
-    /*
-    CPU_SR_ALLOC();
-    CPU_CRITICAL_ENTER();
-    OSIntEnter();
-    */
     OS_ERR err;
     for( uint32_t tcb_idx = 0; tcb_idx < bsp_xbee_tcb_list_cnt; tcb_idx++ )
     {
         OSTaskSemPost(bsp_xbee_tcb_list[tcb_idx],OS_OPT_POST_NO_SCHED,&err);
     }
     IFS0bits.INT2IF = 0; // Clear the interrupt status flag
-    /*
-    CPU_CRITICAL_EXIT();
-    OSIntExit();
-    */
 }
 
 /*******************************************************************************

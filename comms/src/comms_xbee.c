@@ -254,7 +254,7 @@ void COMMS_xbee_send(comms_xbee_msg_t msg)
         // Build the TX frame
         tx_frame->api_frame_id = XBEE_TX_REQ;
         tx_frame->frame_id = frame_id;
-        tx_frame->addr = comms_xbee_addr_work_laptop;
+        tx_frame->addr = comms_xbee_addr_desktop;
         memcpy(tx_frame->dest_port,comms_xbee_dest_port,sizeof(tx_frame->dest_port));
         memcpy(tx_frame->src_port,comms_xbee_src_port,sizeof(tx_frame->src_port));
         tx_frame->protocol = XBEE_IP;

@@ -291,18 +291,6 @@ void  BSP_Except_Handler (void)
 
 void  BSP_DefaultHandler (void)
 {
-    uint32_t IFS0mask = (mINT1GetBit() | mINT2GetBit());
-    while( IFS0 & IFS0mask )
-    {
-        if( IFS0bits.INT2IF )
-        {
-            BSP_xbee_int_handler();
-        }
-        if( IFS0bits.INT1IF )
-        {
-            bsp_accel_gyro_int();
-        }
-    }
 }
 
 /*
