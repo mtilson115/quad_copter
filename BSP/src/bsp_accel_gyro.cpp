@@ -146,6 +146,21 @@ bool Accel_Gyro::Init( void )
     return TestConnection();
 }
 
+/*******************************************************************************
+ * IntEn
+ *
+ * Description:	Enables interrupts for the MPU6050 (AccelGyro chip)
+ *
+ * Inputs: none
+ *
+ * Revision: Initial Creation Mitchell Tilson
+ *					 02/11/2019 - Mitchell Tilson
+ *
+ * Notes: This is provided as a separate function so that the App layer can
+ * decide if it wants to use interrupts or not. Note that the interrupt is
+ * self clearing in this design.
+ *
+ ******************************************************************************/
 void Accel_Gyro::IntEn( void )
 {
     bsp_accel_gyro_int_en();
@@ -162,8 +177,7 @@ void Accel_Gyro::IntEn( void )
  *          float* accel - the accel divisor
  *          float* gyro - the gyro divisor
  *
- * Revision: Initial Creation Arduino
- *					 02/04/2019 - Mitchell Tilson - added my I2C code.
+ * Revision: 02/04/2019 - Mitchell Tilson
  *
  * Notes:
  ******************************************************************************/

@@ -178,7 +178,7 @@ static uint8_t comms_xbee_rx_buff[XBEE_MAX_RX];
 OS_MEM comms_xbee_tx_mem_ctrl_blk;
 #define TX_MEM_BLK_SIZE (sizeof(comms_xbee_tx_frame_ipv4_t)+sizeof(comms_xbee_api_msg_t))
 #define TX_Q_DEPTH (20)
-static uint8_t comms_tx_xbee_mem[TX_MEM_BLK_SIZE*TX_Q_DEPTH*2];
+static uint8_t comms_tx_xbee_mem[TX_MEM_BLK_SIZE*TX_Q_DEPTH];
 
 /*******************************************************************************
  * IPV4 Addrs
@@ -339,6 +339,19 @@ void COMMS_xbee_init(void)
     BSP_xbee_init();
 }
 
+/*******************************************************************************
+ * COMMS_xbee_get_tcb
+ *
+ * Description: Returns a pointer to the task control block.  This is used in the
+ *              exception handler.
+ *
+ * Inputs:      None
+ *
+ * Returns:     None
+ *
+ * Revision:    Initial Creation 01/20/2019 - Mitchell S. Tilson
+ *
+ ******************************************************************************/
 OS_TCB* COMMS_xbee_get_tcb( void )
 {
     return &comms_xbee_TCB;
@@ -366,8 +379,6 @@ uint8_t COMMS_xbee_ready( void )
  ******************************************************************************/
 static void comms_xbee_task(void *p_arg)
 {
-    // TRISEbits.TRISE6 = 0;  // output
-    // ODCEbits.ODCE6 = 0; // CMOS outout
     OS_ERR err;
     while(DEF_ON)
     {
@@ -560,7 +571,7 @@ static void comms_xbee_send_api_msg(comms_xbee_api_msg_t* api_msg)
     BSP_xbee_write_read(&api_msg->cksum,&comms_xbee_rx_buff[header_size+len],(uint16_t)sizeof(api_msg->cksum));
 
     // Handle any valid data form the xbee that was received while sending the message
-    // comms_xbee_handle_rx_during_tx(header_size+len+sizeof(api_msg->cksum));
+    comms_xbee_handle_rx_during_tx(header_size+len+sizeof(api_msg->cksum));
 }
 
 static void comms_xbee_handle_rx_during_tx( uint16_t bytes_read )
