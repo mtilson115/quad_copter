@@ -72,10 +72,12 @@ void AppAccelGyroClass::Init( void )
 		return;
 	}
 
+    /*
+     * Get the full range divisor for calculations, calibrate the zero values, and enable
+     * interrupts.
+     */
     AccelGyro.GetFullRangeDivisor(&accel_full_range_divisor,&gyro_full_range_divisor);
-
     Calibrate();
-
     AccelGyro.IntEn();
 }
 
@@ -158,6 +160,12 @@ void AppAccelGyroClass::PrintOffsets( void )
 void AppAccelGyroClass::GetMotion6Data( motion6_data_type* data )
 {
 	AccelGyro.GetMotion6( &data->ax, &data->ay, &data->az, &data->gx, &data->gy, &data->gz );
+    data->ax -= offsets.ax;
+    data->ay -= offsets.ay;
+    data->az -= offsets.az;
+    data->gx -= offsets.gx;
+    data->gy -= offsets.gy;
+    data->gz -= offsets.gz;
 }
 
 /*******************************************************************************
@@ -179,12 +187,6 @@ void AppAccelGyroClass::PrintMotion6Data( void )
 	memset(&data,0x00,sizeof(data));
 
     GetMotion6Data( &data );
-    data.ax -= offsets.ax;
-    data.ay -= offsets.ay;
-    data.az -= offsets.az;
-    data.gx -= offsets.gx;
-    data.gy -= offsets.gy;
-    data.gz -= offsets.gz;
 
     // Calculate the pitch and roll
     float accel_pitch = atan2(data.ax,data.az);

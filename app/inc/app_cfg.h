@@ -35,6 +35,7 @@
 #define APP_CFG_TASK_START_PRIO     1u
 #define APP_BUTTON_READER_PRIO      5u
 #define COMMS_XBEE_PRIO             5u
+#define ALG_STABILIZER_PRIO         5u
 
 
 /*
@@ -44,8 +45,9 @@
 */
 
 #define APP_CFG_TASK_START_STK_SIZE     512u
-#define APP_BUTTON_READER_STK_SIZE      1024u
-#define COMMS_XBEE_STK_SIZE             1024u
+#define APP_BUTTON_READER_STK_SIZE      512u
+#define COMMS_XBEE_STK_SIZE             512u
+#define ALG_STABILIZER_STK_SIZE         512u
 
 
 

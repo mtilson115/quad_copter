@@ -16,6 +16,7 @@ extern "C" {
 
 #include <stdint.h>
 #include <os.h>
+#include "app_cfg.h"
 
 typedef struct __attribute__((packed)) {
     uint16_t    len;
@@ -24,9 +25,14 @@ typedef struct __attribute__((packed)) {
 
 void COMMS_xbee_send(comms_xbee_msg_t msg);
 void COMMS_xbee_init(void);
-OS_TCB* COMMS_xbee_get_tcb( void );
 uint8_t COMMS_xbee_ready( void );
-extern CPU_STK comms_xbee_stack[1024];
+
+/*
+ * Debug data
+ */
+OS_TCB* COMMS_xbee_get_tcb( void );
+extern CPU_STK comms_xbee_stack[COMMS_XBEE_STK_SIZE];
+
 #ifdef	__cplusplus
 }
 #endif

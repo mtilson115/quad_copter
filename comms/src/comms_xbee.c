@@ -168,7 +168,7 @@ static comms_xbee_status_t comms_xbee_status = {
 };
 
 // Task Data
-static OS_TCB comms_xbee_TCB;
+OS_TCB comms_xbee_TCB;
 CPU_STK comms_xbee_stack[COMMS_XBEE_STK_SIZE];
 
 // Rx buffer

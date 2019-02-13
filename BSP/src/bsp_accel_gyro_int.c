@@ -6,8 +6,6 @@
  * Description: This file provides the interrupt service routine for the accel/gyro
  * chip.
  *
- * IN THE CURRENT HW DESIGN, INT1 INTERFERES WITH INT2.  I BELIEVE THE SIGNAL
- * FROM THE MPU6050 IS TOO NOISY.  THIS FILE IS UNUSED BUT LEFT JUST IN CASE.
  ******************************************************************************/
 
 /*******************************************************************************
