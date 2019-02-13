@@ -13,12 +13,16 @@
  ******************************************************************************/
 #include "alg_stabilizer.h"
 #include "app_accel_gyro.h"
+#include "comms_xbee.h"
 #include <math.h>
+#include <string.h>
 
 /*******************************************************************************
  * Constants
  ******************************************************************************/
 #define ALG_STB_TX_Q_DEPTH (0)
+#define LOW_PWM_DUTY_CYCLE (4.0)
+#define MAX_PWM_DUTY_CYCLE (9.0)
 
 /*******************************************************************************
  * Local Data
@@ -72,6 +76,19 @@ void alg_stabilizer_init( void )
 
     // Register the TCB with the accel bsp code
     bsp_accel_gyro_int_register(&alg_stabilizer_TCB);
+
+    // Initialize the AccelGyro
+    AclGyro.Init();
+
+    // Initialize the pwm driver
+    pwm_init_t init_settings = {
+        25000,      // (80e6/64)/25000 = 50Hz (80e6 == clock source, 64 == pre-scale, 25000 == num ticks before roll over)
+        LOW_PWM_DUTY_CYCLE,
+    };
+    PWM_init( PWM0, init_settings );
+
+    // Start the PWM
+    PWM_start( PWM0 );
 }
 
 /*******************************************************************************
@@ -88,8 +105,6 @@ void alg_stabilizer_init( void )
  ******************************************************************************/
 static void alg_stabilizer_task( void *p_arg )
 {
-    // Initialize the AccelGyro
-    AclGyro.Init();
     OS_ERR err;
     uint32_t ts = 0;
     while (DEF_ON)
@@ -110,5 +125,32 @@ static void alg_stabilizer_task( void *p_arg )
         accel_roll = accel_roll*180.0/M_PI;
 
         // Compute PWM outputs
+        /*
+         * This is test code for now.  The real implementation will most likely use a PID
+         */
+        float angle_percent = .5;
+        float pwm_duty_cycle = LOW_PWM_DUTY_CYCLE;
+        if( accel_pitch > 0 )
+        {
+            angle_percent = (accel_pitch/90.0);
+            pwm_duty_cycle = (MAX_PWM_DUTY_CYCLE - LOW_PWM_DUTY_CYCLE)*angle_percent+LOW_PWM_DUTY_CYCLE;
+        }
+        else if( accel_pitch == 0 )
+        {
+            pwm_duty_cycle = MAX_PWM_DUTY_CYCLE;
+            PWM_chg_duty( PWM0, pwm_duty_cycle );
+        }
+
+        // Allocate buffer and copy in the data
+        uint8_t data_buff[3*sizeof(float)] = {0};
+        memcpy(data_buff,&accel_pitch,sizeof(float));
+        memcpy(&data_buff[sizeof(float)],&accel_roll,sizeof(float));
+        memcpy(&data_buff[2*sizeof(float)],&pwm_duty_cycle,sizeof(float));
+
+        // Send the message
+        comms_xbee_msg_t msg;
+        msg.data = data_buff;
+        msg.len = sizeof(data_buff);
+        COMMS_xbee_send(msg);
     }
 }

@@ -16,6 +16,7 @@
 #include "includes.h"
 #include "app_test.h"
 #include "comms_xbee.h"
+#include "alg_stabilizer.h"
 #include <p32xxxx.h>
 
 /*
@@ -168,6 +169,7 @@ static void App_TaskCreate(void)
 #if APP_CFG_COMMS_USE_SPI
     COMMS_xbee_init();
 #endif
+    alg_stabilizer_init();
 }
 
 

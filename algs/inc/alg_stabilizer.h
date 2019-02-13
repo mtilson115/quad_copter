@@ -23,8 +23,8 @@ void alg_stabilizer_init(void);
 /*
  * Debug data
  */
-OS_TCB* alg_stabilizer_get_tcb(void);
-extern CPU_STK alg_stabilizer_stack[ALG_STABILIZER_STK_SIZE];
+// OS_TCB* alg_stabilizer_get_tcb(void);
+// extern CPU_STK alg_stabilizer_stack[ALG_STABILIZER_STK_SIZE];
 
 #ifdef	__cplusplus
 }

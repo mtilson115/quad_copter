@@ -69,15 +69,15 @@ static void test_task(void  *p_arg)
     // OSTimeDlyHMSM(0u, 0u, 4u, 0u,OS_OPT_TIME_HMSM_STRICT,&err);
 
     // Initialize the AccelGyro
-    AclGyro.Init();
+    // AclGyro.Init();
     // AclGyro.PrintOffsets();
 
     uint32_t idx = 0;
     uint32_t ts = 0;
     while(DEF_ON)
     {
-        OSTaskSemPend(0,OS_OPT_PEND_BLOCKING,&ts,&err);
-        AclGyro.PrintMotion6Data();
+        // OSTaskSemPend(0,OS_OPT_PEND_BLOCKING,&ts,&err);
+        // AclGyro.PrintMotion6Data();
         /*
         if( duty_cycle <= 7.0 )
         {
@@ -90,7 +90,7 @@ static void test_task(void  *p_arg)
         }
         */
         // AclGyro.PrintOffsets();
-        // OSTimeDlyHMSM(0u, 0u, 0u, 20u,OS_OPT_TIME_HMSM_STRICT,&err);
+        OSTimeDlyHMSM(0u, 0u, 0u, 20u,OS_OPT_TIME_HMSM_STRICT,&err);
         PORTEINV = (1<<7);
         // idx++;
         // BSP_Printf("Hello %d",idx);
