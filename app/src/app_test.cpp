@@ -64,7 +64,7 @@ static void test_task(void  *p_arg)
     OS_ERR err;
 
     // Allow the printf system to init (xbee has to associate)
-    BSP_PrintfInit();
+    // BSP_PrintfInit();
 
     // OSTimeDlyHMSM(0u, 0u, 4u, 0u,OS_OPT_TIME_HMSM_STRICT,&err);
 

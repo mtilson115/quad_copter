@@ -142,7 +142,7 @@ bool Accel_Gyro::Init( void )
     /*
      * Set the update rate to be 20ms
      */
-    SetRate(19);
+    SetRate(49);
     return TestConnection();
 }
 

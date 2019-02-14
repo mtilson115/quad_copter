@@ -16,6 +16,7 @@
 #include "comms_xbee.h"
 #include "driver_pwm.h"
 #include "bsp_accel_gyro_int.h"
+#include "bsp_utils.h"
 #include <math.h>
 #include <string.h>
 #include <assert.h>
@@ -81,18 +82,7 @@ void alg_stabilizer_init( void )
     // Register the TCB with the accel bsp code
     bsp_accel_gyro_int_register(&alg_stabilizer_TCB);
 
-    // Initialize the AccelGyro
-    AclGyro.Init();
 
-    // Initialize the pwm driver
-    pwm_init_t init_settings = {
-        25000,      // (80e6/64)/25000 = 50Hz (80e6 == clock source, 64 == pre-scale, 25000 == num ticks before roll over)
-        LOW_PWM_DUTY_CYCLE,
-    };
-    PWM_init( PWM0, init_settings );
-
-    // Start the PWM
-    PWM_start( PWM0 );
 }
 
 /*******************************************************************************
@@ -110,6 +100,25 @@ void alg_stabilizer_init( void )
 static void alg_stabilizer_task( void *p_arg )
 {
     OS_ERR err;
+
+    // Initialize the pwm driver
+    pwm_init_t init_settings = {
+        6250,      // (80e6/256)/6250 = 50Hz (80e6 == clock source, 256 == pre-scale, 6250 == num ticks before roll over)
+        LOW_PWM_DUTY_CYCLE,
+    };
+    PWM_init( PWM0, init_settings );
+
+    // Start the PWM
+    PWM_start( PWM0 );
+    PWM_chg_duty( PWM0, LOW_PWM_DUTY_CYCLE);
+    OSTimeDlyHMSM(0u, 0u, 10u, 0u,OS_OPT_TIME_HMSM_STRICT,&err);
+
+    // Wait on comms
+    BSP_PrintfInit();
+
+    // Initialize the AccelGyro
+    AclGyro.Init();
+
     uint32_t ts = 0;
     while (DEF_ON)
     {
@@ -138,10 +147,11 @@ static void alg_stabilizer_task( void *p_arg )
         {
             angle_percent = (accel_pitch/90.0);
             pwm_duty_cycle = (MAX_PWM_DUTY_CYCLE - LOW_PWM_DUTY_CYCLE)*angle_percent+LOW_PWM_DUTY_CYCLE;
+            PWM_chg_duty( PWM0, pwm_duty_cycle );
         }
         else if( accel_pitch == 0 )
         {
-            pwm_duty_cycle = MAX_PWM_DUTY_CYCLE;
+            pwm_duty_cycle = LOW_PWM_DUTY_CYCLE;
             PWM_chg_duty( PWM0, pwm_duty_cycle );
         }
 
