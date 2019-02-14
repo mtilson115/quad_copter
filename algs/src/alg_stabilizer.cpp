@@ -14,8 +14,11 @@
 #include "alg_stabilizer.h"
 #include "app_accel_gyro.h"
 #include "comms_xbee.h"
+#include "driver_pwm.h"
+#include "bsp_accel_gyro_int.h"
 #include <math.h>
 #include <string.h>
+#include <assert.h>
 
 /*******************************************************************************
  * Constants
@@ -23,6 +26,7 @@
 #define ALG_STB_TX_Q_DEPTH (0)
 #define LOW_PWM_DUTY_CYCLE (4.0)
 #define MAX_PWM_DUTY_CYCLE (9.0)
+#define M_PI (3.14159)
 
 /*******************************************************************************
  * Local Data

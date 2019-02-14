@@ -12,10 +12,6 @@
 #ifndef ALG_STABILIZER_H
 #define	ALG_STABILIZER_H
 
-#ifdef	__cplusplus
-extern "C" {
-#endif
-
 #include <os.h>
 
 void alg_stabilizer_init(void);
@@ -25,9 +21,5 @@ void alg_stabilizer_init(void);
  */
 // OS_TCB* alg_stabilizer_get_tcb(void);
 // extern CPU_STK alg_stabilizer_stack[ALG_STABILIZER_STK_SIZE];
-
-#ifdef	__cplusplus
-}
-#endif
 
 #endif
