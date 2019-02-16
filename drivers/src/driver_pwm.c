@@ -34,11 +34,21 @@ typedef struct {
 /*******************************************************************************
  * Local Data
  ******************************************************************************/
-pwm_config_t PWM0_cfg = {
+pwm_config_t PWM1_cfg = {
     &OC1CONbits,
     &PR2,
     &OC1RS,
     &OC1R,
+    &TMR2,
+    &T2CONbits,
+    FALSE,
+};
+
+pwm_config_t PWM2_cfg = {
+    (__OC1CONbits_t*)&OC2CONbits,
+    &PR2,
+    &OC2RS,
+    &OC2R,
     &TMR2,
     &T2CONbits,
     FALSE,
