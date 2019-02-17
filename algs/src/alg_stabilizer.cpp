@@ -81,8 +81,6 @@ void alg_stabilizer_init( void )
 
     // Register the TCB with the accel bsp code
     bsp_accel_gyro_int_register(&alg_stabilizer_TCB);
-
-
 }
 
 /*******************************************************************************
@@ -101,16 +99,31 @@ static void alg_stabilizer_task( void *p_arg )
 {
     OS_ERR err;
 
-    // Initialize the pwm driver
+    // Initial settings for PWM
     pwm_init_t init_settings = {
-        6250,      // (80e6/256)/6250 = 50Hz (80e6 == clock source, 256 == pre-scale, 6250 == num ticks before roll over)
-        LOW_PWM_DUTY_CYCLE,
+        .period = 6250,             // (80e6/256)/6250 = 50Hz (80e6 == clock source, 256 == pre-scale, 6250 == num ticks before roll over)
+        .duty = LOW_PWM_DUTY_CYCLE,
     };
-    PWM_init( PWM0, init_settings );
 
-    // Start the PWM
-    PWM_start( PWM0 );
-    PWM_chg_duty( PWM0, LOW_PWM_DUTY_CYCLE);
+    // Initialize the timer
+    PWM_init_tmr( init_settings.period );
+
+    // Initialize all PWMs
+    PWM_init( PWM1, init_settings );
+    PWM_init( PWM2, init_settings );
+    PWM_init( PWM3, init_settings );
+    PWM_init( PWM4, init_settings );
+
+    // Turn on the timer
+    PWM_tmr_en( TRUE );
+
+    // Start the PWMs
+    PWM_start( PWM1 );
+    PWM_start( PWM2 );
+    PWM_start( PWM3 );
+    PWM_start( PWM4 );
+
+    // Necessary?
     OSTimeDlyHMSM(0u, 0u, 10u, 0u,OS_OPT_TIME_HMSM_STRICT,&err);
 
     // Wait on comms
@@ -147,12 +160,18 @@ static void alg_stabilizer_task( void *p_arg )
         {
             angle_percent = (accel_pitch/90.0);
             pwm_duty_cycle = (MAX_PWM_DUTY_CYCLE - LOW_PWM_DUTY_CYCLE)*angle_percent+LOW_PWM_DUTY_CYCLE;
-            PWM_chg_duty( PWM0, pwm_duty_cycle );
+            PWM_chg_duty( PWM1, pwm_duty_cycle );
+            PWM_chg_duty( PWM2, pwm_duty_cycle );
+            PWM_chg_duty( PWM3, pwm_duty_cycle );
+            PWM_chg_duty( PWM4, pwm_duty_cycle );
         }
         else if( accel_pitch == 0 )
         {
             pwm_duty_cycle = LOW_PWM_DUTY_CYCLE;
-            PWM_chg_duty( PWM0, pwm_duty_cycle );
+            PWM_chg_duty( PWM1, pwm_duty_cycle );
+            PWM_chg_duty( PWM2, pwm_duty_cycle );
+            PWM_chg_duty( PWM3, pwm_duty_cycle );
+            PWM_chg_duty( PWM4, pwm_duty_cycle );
         }
 
         // Allocate buffer and copy in the data
