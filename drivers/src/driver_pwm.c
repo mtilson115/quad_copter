@@ -290,7 +290,7 @@ void PWM_chg_duty( pwm_num_e pwm, float duty_cycle )
     }
 
     float percentage = (float)duty_cycle/100.0;
-    float clk_val = (float)(*curr_pwm_cfg_p->PRy)*percentage;
+    float clk_val = (float)(PR2)*percentage;
     *curr_pwm_cfg_p->OCxRS = (uint32_t)(clk_val + 0.5);
 }
 
