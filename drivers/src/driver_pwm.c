@@ -174,6 +174,70 @@ void PWM_init( pwm_num_e pwm, pwm_init_t init_settings )
 }
 
 /*******************************************************************************
+ * PWM_oc3_work_around_init
+ *
+ * Description: I blew out OC3 while plugging in a ESC.  This enables the timers for it
+ *              so that another pin can be used.
+ *
+ * Inputs:      none
+ *
+ * Returns:     none
+ *
+ * Revision:    Initial Creation 02/17/2016 - Mitchell S. Tilson
+ *
+ * Notes:
+ *
+ ******************************************************************************/
+void PWM_oc3_work_around_init( void )
+{
+
+    /*
+     * Set up RE6
+     */
+    TRISEbits.TRISE6 = 0;   // output
+    ODCEbits.ODCE6 = 0;     // CMOS outout
+    PORTECLR = (1<<6);      // set the pin low
+
+    /*
+     * Enale TMR2 interrupts
+     */
+    IFS0bits.T2IF = 0;
+    IEC0bits.T2IE = 1;
+    IPC2bits.T2IP = 6;
+    IPC2bits.T2IS = 2;
+
+    /*
+     * Enable OC3 interrupts
+     */
+    IFS0bits.OC3IF = 0;
+    IEC0bits.OC3IE = 1;
+    IPC3bits.OC3IP = 6;
+    IPC3bits.OC3IS = 2;
+}
+
+/*******************************************************************************
+ * PWM_oc3_work_around_in
+ *
+ * Description: Handles both Timer2 and Output compare 3 interrupts by inverting
+ *              RE6.  This is a work around for OC3 being broken.
+ *
+ * Inputs:      none
+ *
+ * Returns:     none
+ *
+ * Revision:    Initial Creation 02/17/2016 - Mitchell S. Tilson
+ *
+ * Notes:       By definition, these two interrupts can't happen at the same time.
+ *
+ ******************************************************************************/
+void PWM_oc3_work_around_int( void )
+{
+    PORTEINV = (1<<6);
+    IFS0bits.T2IF = 0;
+    IFS0bits.OC3IF = 0;
+}
+
+/*******************************************************************************
  * PWM_tmr_en
  *
  * Description: Enables or disables Timer 2
