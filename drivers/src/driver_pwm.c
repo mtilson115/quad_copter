@@ -11,6 +11,7 @@
  ******************************************************************************/
 #include "driver_pwm.h"
 #include "perif_sfr_map.h"
+#include <os.h>
 #include <p32xxxx.h>
 
 /*******************************************************************************
@@ -176,8 +177,8 @@ void PWM_init( pwm_num_e pwm, pwm_init_t init_settings )
 /*******************************************************************************
  * PWM_oc3_work_around_init
  *
- * Description: I blew out OC3 while plugging in a ESC.  This enables the timers for it
- *              so that another pin can be used.
+ * Description: I blew out OC3 while plugging in an ESC.  This enables the interrupts
+ *              for it so that another pin can be used.
  *
  * Inputs:      none
  *
@@ -202,21 +203,23 @@ void PWM_oc3_work_around_init( void )
      * Enale TMR2 interrupts
      */
     IFS0bits.T2IF = 0;
-    IEC0bits.T2IE = 1;
     IPC2bits.T2IP = 6;
     IPC2bits.T2IS = 2;
+    IEC0bits.T2IE = 1;
 
     /*
      * Enable OC3 interrupts
      */
+    /*
     IFS0bits.OC3IF = 0;
-    IEC0bits.OC3IE = 1;
     IPC3bits.OC3IP = 6;
     IPC3bits.OC3IS = 2;
+    IEC0bits.OC3IE = 1;
+    */
 }
 
 /*******************************************************************************
- * PWM_oc3_work_around_in
+ * PWM_oc3_work_around_int
  *
  * Description: Handles both Timer2 and Output compare 3 interrupts by inverting
  *              RE6.  This is a work around for OC3 being broken.
@@ -229,12 +232,15 @@ void PWM_oc3_work_around_init( void )
  *
  * Notes:       By definition, these two interrupts can't happen at the same time.
  *
+ *              This function should use the microchip ISR creation and comment out
+ *              the vector_X code in bsp_a.S as it doesn't involve the OS.
+ *
  ******************************************************************************/
 void PWM_oc3_work_around_int( void )
 {
     PORTEINV = (1<<6);
     IFS0bits.T2IF = 0;
-    IFS0bits.OC3IF = 0;
+    // IFS0bits.OC3IF = 0;
 }
 
 /*******************************************************************************

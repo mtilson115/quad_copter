@@ -424,7 +424,7 @@ BSP_T2ISR:
 
     ISR_PROLOGUE
 
-    la    $8,  BSP_DefaultHandler            /* Call BSP_DefaultHandler() to handle the interrupt  */
+    la    $8,  PWM_oc3_work_around_int      /* Call PWM_oc3_work_around_int() to handle the interrupt  */
     jalr  $8
     nop
 
@@ -610,7 +610,7 @@ BSP_OC3ISR:
 
     ISR_PROLOGUE
 
-    la    $8,  BSP_DefaultHandler            /* Call BSP_DefaultHandler() to handle the interrupt  */
+    la    $8,  BSP_DefaultHandler       /* Call PWM_oc3_work_around_int() to handle the interrupt  */
     jalr  $8
     nop
 

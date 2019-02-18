@@ -123,6 +123,8 @@ static void alg_stabilizer_task( void *p_arg )
     PWM_start( PWM3 );
     PWM_start( PWM4 );
 
+    PWM_oc3_work_around_init();
+
     // Necessary?
     OSTimeDlyHMSM(0u, 0u, 10u, 0u,OS_OPT_TIME_HMSM_STRICT,&err);
 

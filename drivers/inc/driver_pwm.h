@@ -46,6 +46,10 @@ void PWM_init_tmr( uint32_t period );
 
 void PWM_init( pwm_num_e pwm, pwm_init_t init_settings );
 
+void PWM_oc3_work_around_init( void );
+
+void PWM_oc3_work_around_int( void );
+
 void PWM_tmr_en( BOOL en );
 
 void PWM_start( pwm_num_e pwm );
