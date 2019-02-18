@@ -105,7 +105,7 @@ void PWM_init_tmr( uint32_t period )
     // 010 = 1:4 prescale value
     // 001 = 1:2 prescale value
     // Current setting is 256
-    T2CONbits.TCKPS = 3;
+    T2CONbits.TCKPS = 7;
 
     pwm_tmr_initialized = TRUE;
 }

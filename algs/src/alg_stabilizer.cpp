@@ -155,11 +155,11 @@ static void alg_stabilizer_task( void *p_arg )
          * This is test code for now.  The real implementation will most likely use a PID
          */
         float angle_percent = .5;
-        float pwm_duty_cycle = LOW_PWM_DUTY_CYCLE;
+        float pwm_duty_cycle = 6.0;
         if( accel_pitch > 0 )
         {
             angle_percent = (accel_pitch/90.0);
-            pwm_duty_cycle = (MAX_PWM_DUTY_CYCLE - LOW_PWM_DUTY_CYCLE)*angle_percent+LOW_PWM_DUTY_CYCLE;
+            pwm_duty_cycle = (MAX_PWM_DUTY_CYCLE - 6.0)*angle_percent+6.0;
             PWM_chg_duty( PWM1, pwm_duty_cycle );
             PWM_chg_duty( PWM2, pwm_duty_cycle );
             PWM_chg_duty( PWM3, pwm_duty_cycle );
@@ -167,7 +167,7 @@ static void alg_stabilizer_task( void *p_arg )
         }
         else if( accel_pitch == 0 )
         {
-            pwm_duty_cycle = LOW_PWM_DUTY_CYCLE;
+            pwm_duty_cycle = 6.0;
             PWM_chg_duty( PWM1, pwm_duty_cycle );
             PWM_chg_duty( PWM2, pwm_duty_cycle );
             PWM_chg_duty( PWM3, pwm_duty_cycle );
