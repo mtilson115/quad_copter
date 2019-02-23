@@ -20,6 +20,7 @@
  * Local Defines
  ******************************************************************************/
 #define PWM_MODE_NO_FAULT_DETECTION (6)
+#define SINGLE_COMPARE_MODE_TOGGLE  (3)
 
 /*******************************************************************************
  * Special Pragma for the interrupt handler to use a shadow register set (SRS)
@@ -178,7 +179,14 @@ void PWM_init( pwm_num_e pwm, pwm_init_t init_settings )
     *curr_pwm_cfg_p->OCxR = *curr_pwm_cfg_p->OCxRS;
 
     // Set up the mode to be PWM and no fault detection
-    curr_pwm_cfg_p->OCxCON->OCM = PWM_MODE_NO_FAULT_DETECTION;
+    if( pwm == PWM3 )
+    {
+        curr_pwm_cfg_p->OCxCON->OCM = SINGLE_COMPARE_MODE_TOGGLE;
+    }
+    else
+    {
+        curr_pwm_cfg_p->OCxCON->OCM = PWM_MODE_NO_FAULT_DETECTION;
+    }
 
     // Set the intialized flag
     curr_pwm_cfg_p->initialized = TRUE;
@@ -201,13 +209,11 @@ void PWM_init( pwm_num_e pwm, pwm_init_t init_settings )
  ******************************************************************************/
 void PWM_oc3_work_around_init( void )
 {
-
     /*
      * Set up RE6
      */
     TRISEbits.TRISE6 = 0;   // output
     ODCEbits.ODCE6 = 0;     // CMOS outout
-    PORTECLR = (1<<6);      // set the pin low
 
     /*
      * Enale TMR2 interrupts
@@ -220,19 +226,17 @@ void PWM_oc3_work_around_init( void )
     /*
      * Enable OC3 interrupts
      */
-    /*
     IFS0bits.OC3IF = 0;
     IPC3bits.OC3IP = 6;
     IPC3bits.OC3IS = 2;
     IEC0bits.OC3IE = 1;
-    */
 }
 
 /*******************************************************************************
  * PWM_tmr2_work_around_int
  *
- * Description: Handles both Timer2 and Output compare 3 interrupts by inverting
- *              RE6.  This is a work around for OC3 being broken.
+ * Description: Handles Timer2 interrupts by inverting
+ *              RE6.
  *
  * Inputs:      none
  *
@@ -248,9 +252,32 @@ void PWM_oc3_work_around_init( void )
  ******************************************************************************/
 void __ISR(_TIMER_2_VECTOR,IPL6SRS) PWM_tmr2_work_around_int( void )
 {
-    PORTEINV = (1<<6);
+    PORTESET = (1<<6);
     IFS0bits.T2IF = 0;
-    // IFS0bits.OC3IF = 0;
+}
+
+/*******************************************************************************
+ * PWM_oc3_work_around_int
+ *
+ * Description: Handles OC3 interrupts by inverting
+ *              RE6.
+ *
+ * Inputs:      none
+ *
+ * Returns:     none
+ *
+ * Revision:    Initial Creation 02/17/2016 - Mitchell S. Tilson
+ *
+ * Notes:       By definition, these two interrupts can't happen at the same time.
+ *
+ *              This function should use the microchip ISR creation and comment out
+ *              the vector_X code in bsp_a.S as it doesn't involve the OS.
+ *
+ ******************************************************************************/
+void __ISR(_OUTPUT_COMPARE_3_VECTOR,IPL6SRS) PWM_oc3_work_around_int( void )
+{
+    PORTECLR = (1<<6);
+    IFS0bits.OC3IF = 0;
 }
 
 /*******************************************************************************
@@ -371,7 +398,14 @@ void PWM_chg_duty( pwm_num_e pwm, float duty_cycle )
 
     float percentage = (float)duty_cycle/100.0;
     float clk_val = (float)(PR2)*percentage;
-    *curr_pwm_cfg_p->OCxRS = (uint32_t)(clk_val + 0.5);
+    if( pwm == PWM3 )
+    {
+        *curr_pwm_cfg_p->OCxR = (uint32_t)(clk_val + 0.5);
+    }
+    else
+    {
+        *curr_pwm_cfg_p->OCxRS = (uint32_t)(clk_val + 0.5);
+    }
 }
 
 /*******************************************************************************
