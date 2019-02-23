@@ -13,11 +13,18 @@
 #include "perif_sfr_map.h"
 #include <os.h>
 #include <p32xxxx.h>
+#include <xc.h>
+#include <sys/attribs.h>
 
 /*******************************************************************************
  * Local Defines
  ******************************************************************************/
 #define PWM_MODE_NO_FAULT_DETECTION (6)
+
+/*******************************************************************************
+ * Special Pragma for the interrupt handler to use a shadow register set (SRS)
+ ******************************************************************************/
+#pragma config FSRSSEL = PRIORITY_6
 
 /*******************************************************************************
  * Local Type Defs
@@ -107,6 +114,9 @@ void PWM_init_tmr( uint32_t period )
     // 001 = 1:2 prescale value
     // Current setting is 256
     T2CONbits.TCKPS = 7;
+
+    // Clear timer 2
+    TMR2 = 0;
 
     pwm_tmr_initialized = TRUE;
 }
@@ -219,7 +229,7 @@ void PWM_oc3_work_around_init( void )
 }
 
 /*******************************************************************************
- * PWM_oc3_work_around_int
+ * PWM_tmr2_work_around_int
  *
  * Description: Handles both Timer2 and Output compare 3 interrupts by inverting
  *              RE6.  This is a work around for OC3 being broken.
@@ -236,7 +246,7 @@ void PWM_oc3_work_around_init( void )
  *              the vector_X code in bsp_a.S as it doesn't involve the OS.
  *
  ******************************************************************************/
-void PWM_oc3_work_around_int( void )
+void __ISR(_TIMER_2_VECTOR,IPL6SRS) PWM_tmr2_work_around_int( void )
 {
     PORTEINV = (1<<6);
     IFS0bits.T2IF = 0;

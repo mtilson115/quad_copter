@@ -406,7 +406,7 @@ BSP_EXT1ISR:
 *                                  Vector 8  Timer2
 *********************************************************************************************************
 */
-
+/*
     .section .vector_8,code
     .set noreorder
     .ent _bsp_t2int
@@ -424,13 +424,14 @@ BSP_T2ISR:
 
     ISR_PROLOGUE
 
-    la    $8,  PWM_oc3_work_around_int      /* Call PWM_oc3_work_around_int() to handle the interrupt  */
+    la    $8,  PWM_oc3_work_around_int      // Call PWM_oc3_work_around_int() to handle the interrupt
     jalr  $8
     nop
 
     ISR_EPILOGUE    
 
     .end BSP_T2ISR
+*/
 
 /*
 *********************************************************************************************************
@@ -592,7 +593,7 @@ BSP_IC3ISR:
 *                                  Vector 14  Output Compare 3
 *********************************************************************************************************
 */
-
+/*
     .section .vector_14,code
     .set noreorder
     .ent _bsp_oc3int
@@ -610,13 +611,14 @@ BSP_OC3ISR:
 
     ISR_PROLOGUE
 
-    la    $8,  BSP_DefaultHandler       /* Call PWM_oc3_work_around_int() to handle the interrupt  */
+    la    $8,  BSP_DefaultHandler       // Call PWM_oc3_work_around_int() to handle the interrupt
     jalr  $8
     nop
 
     ISR_EPILOGUE    
 
     .end BSP_OC3ISR
+*/
 
 /*
 *********************************************************************************************************
