@@ -15,13 +15,16 @@ pitch = 0
 #try:
 while True:
     data, addr = sock.recvfrom(256) # buffer size is 1024 bytes
+    print data
+    '''
     try:
         float1 = struct.unpack('<f', data[0:4])[0]
         float2 = struct.unpack('<f', data[4:8])[0]
         float3 = struct.unpack('<f', data[8:12])[0]
-        print "Pitch: %f, Roll: %f, PWM: %f" % (float1,float2,float3)
+        print "Pitch: %f, Roll: %f, MotorSpeed: %f" % (float1,float2,100*float3)
     except (KeyboardInterrupt, SystemExit):
         print "Exiting..."
         raise
     except:
         print len(data)
+   '''

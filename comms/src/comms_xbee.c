@@ -12,6 +12,7 @@
  ******************************************************************************/
 #include "comms_xbee.h"
 #include "bsp_xbee.h"
+#include "type_defs.h"
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
@@ -20,12 +21,13 @@
 /*******************************************************************************
  * Constants
  ******************************************************************************/
-#define XBEE_MAX_HDR (12)
-#define XBEE_CKSM_SZ (1)
+#define XBEE_MAX_HDR        (12)
+#define XBEE_CKSM_SZ        (1)
 // This value should include any TX headers because the
 // RX buffer is written to any time a TX is completed
-#define XBEE_MAX_TX (128)
-#define XBEE_MAX_RX (XBEE_MAX_TX + XBEE_MAX_HDR + XBEE_CKSM_SZ)
+#define XBEE_MAX_TX         (128)
+#define XBEE_MAX_RX         (XBEE_MAX_TX + XBEE_MAX_HDR + XBEE_CKSM_SZ)
+#define XBEE_MAX_IPV4_RX    (64)
 
 /*******************************************************************************
  * XBEE states
@@ -55,6 +57,7 @@ enum {
 #define XBEE_STATUS     (0x8A)
 #define XBEE_AT_CMD     (0x08)
 #define XBEE_AT_CMD_RSP (0x88)
+#define XBEE_RX_MSG     (0xB0)
 
 /*******************************************************************************
  * AT Commands
@@ -64,6 +67,7 @@ enum {
 #define XBEE_DEST_ADDR      ("DL")
 #define XBEE_IP_PROTOCOL    ("IP")
 #define XBEE_SSID           ("ID")
+#define XBEE_MY_IP          ("MY")
 
 // AT status
 #define AT_CMD_STATUS_OK (0)
@@ -139,6 +143,16 @@ typedef struct __attribute__ ((packed)) {
     uint8_t     cmd[2];
 }comms_xbee_at_cmd_read_t;
 
+typedef struct __attribute__ ((packed)) {
+    uint8_t     api_frame_id;
+    uint8_t     src_ipv4_addr[4];
+    uint16_t    dest_port;
+    uint16_t    src_port;
+    uint8_t     protocol;
+    uint8_t     status;
+    uint8_t     rx_data[XBEE_MAX_IPV4_RX];
+}comms_xbee_ipv4_rx_t;
+
 // Internal section
 typedef struct {
     uint32_t    xbee_state;
@@ -146,6 +160,7 @@ typedef struct {
     uint8_t     xbee_protocol;
     uint8_t     xbee_dl_ip[4];
     char        xbee_ssid[32];
+    uint8_t     xbee_my_ip[4];
     // TODO: Add power level
 } comms_xbee_status_t;
 
@@ -165,6 +180,7 @@ static comms_xbee_status_t comms_xbee_status = {
     .xbee_protocol = 3,
     .xbee_dl_ip = {0,0,0,0},
     .xbee_ssid = {0},
+    .xbee_my_ip = {0,0,0,0},
 };
 
 // Task Data
@@ -217,6 +233,7 @@ static uint8_t comms_xbee_compute_cksum(comms_xbee_api_msg_t* api_msg);
 static comms_xbee_api_msg_t comms_xbee_at_cmd_rd(const char at_cmd[2]);
 static void comms_xbee_send_api_msg(comms_xbee_api_msg_t* api_msg);
 static void comms_xbee_handle_at_rsp(comms_xbee_api_msg_t* api_msg);
+static void comms_xbee_handle_rx_ipv4(comms_xbee_api_msg_t* api_msg);
 static void comms_xbee_handle_int_msg( void );
 static void comms_xbee_handle_rx_during_tx( uint16_t bytes_read );
 static void comms_xbee_parse_rx( comms_xbee_api_msg_t* api_msg );
@@ -375,6 +392,26 @@ uint8_t COMMS_xbee_ready( void )
 }
 
 /*******************************************************************************
+ * COMMS_xbee_register_rx_cb
+ *
+ * Description: Registers a function to be called for a specific RX message
+ *
+ * Inputs:      comms_xbee_rx_cb_t cb_data - the function pointer and RX message
+ *              to call this function for.
+ *
+ * Returns:     ret_t - rSUCCESS if the registration succeeded and rFAILURE if
+ *              there is too many registered return functions
+ *
+ * Revision:    Initial Creation 03/02/2019 - Mitchell S. Tilson
+ *
+ ******************************************************************************/
+/*
+ret_t COMMS_xbee_register_rx_cb( comms_xbee_rx_cb_t cb_data )
+{
+}
+*/
+
+/*******************************************************************************
  * Local Function Section
  ******************************************************************************/
 static void comms_xbee_task(void *p_arg)
@@ -478,6 +515,9 @@ static void comms_xbee_parse_rx( comms_xbee_api_msg_t* api_msg )
             case XBEE_AT_CMD_RSP:
                 comms_xbee_handle_at_rsp(api_msg);
                 break;
+            case XBEE_RX_MSG:
+                comms_xbee_handle_rx_ipv4(api_msg);
+                break;
             default:
                 break;
         }
@@ -535,8 +575,34 @@ static void comms_xbee_handle_at_rsp(comms_xbee_api_msg_t* api_msg)
         {
             uint16_t len = ((uint16_t)(api_msg->MSB_len << 8)) | (uint16_t)(api_msg->LSB_len);
             memcpy(comms_xbee_status.xbee_ssid,&api_msg->frame_data_ptr[5],len-5);
+            comms_xbee_at_cmd_rd(XBEE_MY_IP);
         }
     }
+    else if( 0 == memcmp(at_cmd,XBEE_MY_IP,sizeof(at_cmd)) )
+    {
+        uint8_t status = api_msg->frame_data_ptr[sizeof(at_cmd)+2];
+        if( status == AT_CMD_STATUS_OK )
+        {
+            memcpy(comms_xbee_status.xbee_my_ip,&api_msg->frame_data_ptr[sizeof(at_cmd)+3],sizeof(comms_xbee_status.xbee_my_ip));
+        }
+    }
+}
+
+static void comms_xbee_handle_rx_ipv4(comms_xbee_api_msg_t* api_msg)
+{
+    uint16_t len = ((uint16_t)(api_msg->MSB_len << 8)) | (uint16_t)(api_msg->LSB_len);
+    if( len >= (sizeof(comms_xbee_ipv4_rx_t) + 1) )
+    {
+        while(1); // critical fault
+    }
+    comms_xbee_ipv4_rx_t* ipv4_rx_msg;
+    ipv4_rx_msg = (comms_xbee_ipv4_rx_t*)api_msg->frame_data_ptr;
+
+    // Echo the message
+    comms_xbee_msg_t msg;
+    msg.data = ipv4_rx_msg->rx_data;
+    msg.len = len - (sizeof(comms_xbee_ipv4_rx_t) - XBEE_MAX_IPV4_RX);
+    COMMS_xbee_send(msg);
 }
 
 static comms_xbee_api_msg_t comms_xbee_at_cmd_rd(const char at_cmd[2])
