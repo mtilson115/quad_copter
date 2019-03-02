@@ -50,17 +50,17 @@ AppAccelGyroClass AclGyro;
  ******************************************************************************/
 
 /*******************************************************************************
-* Init
-*
-* Description: Initializes the accelerometer gyroscope board
-*
-* Inputs:      None
-*
-* Returns:     None
-*
-* Revision:    Initial Creation 03/26/2014 - Mitchell S. Tilson
-*
-******************************************************************************/
+ * Init
+ *
+ * Description: Initializes the accelerometer gyroscope board
+ *
+ * Inputs:      None
+ *
+ * Returns:     None
+ *
+ * Revision:    Initial Creation 03/26/2014 - Mitchell S. Tilson
+ *
+ ******************************************************************************/
 void AppAccelGyroClass::Init( void )
 {
 	// Initialize the accelerometer gyroscope ( the address pin is tied low )

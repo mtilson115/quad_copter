@@ -14,9 +14,9 @@
 #include "alg_stabilizer.h"
 #include "app_accel_gyro.h"
 #include "comms_xbee.h"
-#include "driver_pwm.h"
 #include "bsp_accel_gyro_int.h"
 #include "bsp_utils.h"
+#include "bsp_motor.h"
 #include <math.h>
 #include <string.h>
 #include <assert.h>
@@ -25,8 +25,6 @@
  * Constants
  ******************************************************************************/
 #define ALG_STB_TX_Q_DEPTH (0)
-#define LOW_PWM_DUTY_CYCLE (4.0)
-#define MAX_PWM_DUTY_CYCLE (9.0)
 #define M_PI (3.14159)
 
 /*******************************************************************************
@@ -99,34 +97,30 @@ static void alg_stabilizer_task( void *p_arg )
 {
     OS_ERR err;
 
-    // Initial settings for PWM
-    pwm_init_t init_settings = {
-        .period = 6250,             // (80e6/256)/6250 = 50Hz (80e6 == clock source, 256 == pre-scale, 6250 == num ticks before roll over)
-        .duty = LOW_PWM_DUTY_CYCLE,
-    };
+    BSPMotor motor1(PWM1);
+    BSPMotor motor2(PWM2);
+    BSPMotor motor3(PWM3);
+    BSPMotor motor4(PWM4);
 
     // Initialize the timer
-    PWM_init_tmr( init_settings.period );
+    BSPMotor::InitTmr();
 
-    // Initialize all PWMs
-    PWM_init( PWM1, init_settings );
-    PWM_init( PWM2, init_settings );
-    PWM_init( PWM3, init_settings );
-    PWM_init( PWM4, init_settings );
+    // Initialize all the motors
+    motor1.Init();
+    motor2.Init();
+    motor3.Init();
+    motor4.Init();
 
     // Turn on the timer
-    PWM_tmr_en( TRUE );
+    BSPMotor::TmrEn();
 
-    // Start the PWMs
-    PWM_start( PWM1 );
-    PWM_start( PWM2 );
-    PWM_start( PWM3 );
-    PWM_start( PWM4 );
+    // Start the motors
+    motor1.Start();
+    motor2.Start();
+    motor3.Start();
+    motor4.Start();
 
-    PWM_oc3_work_around_init();
-
-    // Necessary?
-    OSTimeDlyHMSM(0u, 0u, 10u, 0u,OS_OPT_TIME_HMSM_STRICT,&err);
+    // Delay here if necessary
 
     // Wait on comms
     BSP_PrintfInit();
@@ -152,35 +146,32 @@ static void alg_stabilizer_task( void *p_arg )
         accel_pitch = accel_pitch*180.0/M_PI;
         accel_roll = accel_roll*180.0/M_PI;
 
-        // Compute PWM outputs
+        // Compute motor outputs
         /*
          * This is test code for now.  The real implementation will most likely use a PID
          */
-        float angle_percent = .5;
-        float pwm_duty_cycle = 6.0;
+        float angle_percent = .10;
         if( accel_pitch > 0 )
         {
             angle_percent = (accel_pitch/90.0);
-            pwm_duty_cycle = (MAX_PWM_DUTY_CYCLE - 6.0)*angle_percent+6.0;
-            PWM_chg_duty( PWM1, pwm_duty_cycle );
-            PWM_chg_duty( PWM2, pwm_duty_cycle );
-            PWM_chg_duty( PWM3, pwm_duty_cycle );
-            PWM_chg_duty( PWM4, pwm_duty_cycle );
+            motor1.SetSpeedPercent( angle_percent );
+            motor2.SetSpeedPercent( angle_percent );
+            motor3.SetSpeedPercent( angle_percent );
+            motor4.SetSpeedPercent( angle_percent );
         }
         else if( accel_pitch == 0 )
         {
-            pwm_duty_cycle = 6.0;
-            PWM_chg_duty( PWM1, pwm_duty_cycle );
-            PWM_chg_duty( PWM2, pwm_duty_cycle );
-            PWM_chg_duty( PWM3, pwm_duty_cycle );
-            PWM_chg_duty( PWM4, pwm_duty_cycle );
+            motor1.SetSpeedPercent( angle_percent );
+            motor2.SetSpeedPercent( angle_percent );
+            motor3.SetSpeedPercent( angle_percent );
+            motor4.SetSpeedPercent( angle_percent );
         }
 
         // Allocate buffer and copy in the data
         uint8_t data_buff[3*sizeof(float)] = {0};
         memcpy(data_buff,&accel_pitch,sizeof(float));
         memcpy(&data_buff[sizeof(float)],&accel_roll,sizeof(float));
-        memcpy(&data_buff[2*sizeof(float)],&pwm_duty_cycle,sizeof(float));
+        memcpy(&data_buff[2*sizeof(float)],&angle_percent,sizeof(float));
 
         // Send the message
         comms_xbee_msg_t msg;
