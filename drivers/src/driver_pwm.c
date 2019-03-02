@@ -210,21 +210,22 @@ void PWM_init( pwm_num_e pwm, pwm_init_t init_settings )
 void PWM_oc3_work_around_init( void )
 {
     /*
-     * Set up RE6
+     * Set up RE1
      */
-    TRISEbits.TRISE6 = 0;   // output
-    ODCEbits.ODCE6 = 0;     // CMOS outout
+    TRISEbits.TRISE1 = 0;   // output
+    ODCEbits.ODCE1 = 0;     // CMOS outout
 
     /*
      * Enale TMR2 interrupts
      */
-    IFS0bits.T2IF = 0;
-    IPC2bits.T2IP = 6;
-    IPC2bits.T2IS = 2;
-    IEC0bits.T2IE = 1;
+    IFS0bits.T2IF = 0; // Clear the interrupt flag
+    IPC2bits.T2IP = 6; // Set the interrupt priority
+    IPC2bits.T2IS = 2; // Set the sub prioity
+    IEC0bits.T2IE = 1; // Enable the interrupt
 
     /*
      * Enable OC3 interrupts
+     * (Same explanation as above)
      */
     IFS0bits.OC3IF = 0;
     IPC3bits.OC3IP = 6;
@@ -252,7 +253,7 @@ void PWM_oc3_work_around_init( void )
  ******************************************************************************/
 void __ISR(_TIMER_2_VECTOR,IPL6SRS) PWM_tmr2_work_around_int( void )
 {
-    PORTESET = (1<<6);
+    PORTESET = (1<<1);
     IFS0bits.T2IF = 0;
 }
 
@@ -276,7 +277,7 @@ void __ISR(_TIMER_2_VECTOR,IPL6SRS) PWM_tmr2_work_around_int( void )
  ******************************************************************************/
 void __ISR(_OUTPUT_COMPARE_3_VECTOR,IPL6SRS) PWM_oc3_work_around_int( void )
 {
-    PORTECLR = (1<<6);
+    PORTECLR = (1<<1);
     IFS0bits.OC3IF = 0;
 }
 
