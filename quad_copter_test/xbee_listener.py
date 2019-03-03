@@ -15,8 +15,6 @@ pitch = 0
 #try:
 while True:
     data, addr = sock.recvfrom(256) # buffer size is 1024 bytes
-    print data
-    '''
     try:
         float1 = struct.unpack('<f', data[0:4])[0]
         float2 = struct.unpack('<f', data[4:8])[0]
@@ -26,5 +24,5 @@ while True:
         print "Exiting..."
         raise
     except:
+        print data
         print len(data)
-   '''

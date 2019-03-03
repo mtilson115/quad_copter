@@ -32,16 +32,15 @@ const pwm_init_t BSPMotor::pwm_init_data = {
  *
  * Description: Class constructor function
  *
- * Inputs:      pwm_num_e pwm - The PWM assigned to this object
+ * Inputs:      None
  *
  * Returns:     None
  *
  * Revision:    Initial Creation 03/01/2019 - Mitchell S. Tilson
  *
  ******************************************************************************/
-BSPMotor::BSPMotor( pwm_num_e pwm )
+BSPMotor::BSPMotor( void )
 {
-    _pwm = pwm;
 }
 
 /*******************************************************************************
@@ -67,15 +66,16 @@ void BSPMotor::InitTmr( void )
  *
  * Description: Initializes a motor
  *
- * Inputs:      None
+ * Inputs:      pwm_num_e pwm - The PWM assigned to this object
  *
  * Returns:     None
  *
  * Revision:    Initial Creation 03/01/2019 - Mitchell S. Tilson
  *
  ******************************************************************************/
-void BSPMotor::Init( void )
+void BSPMotor::Init( pwm_num_e pwm )
 {
+    _pwm = pwm;
     PWM_init( _pwm, pwm_init_data );
     if( _pwm == PWM3 )
     {

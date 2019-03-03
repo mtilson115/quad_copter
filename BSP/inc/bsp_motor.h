@@ -26,9 +26,9 @@ class BSPMotor {
      ******************************************************************************/
     public:
         /*
-         * Constructor
+         * Constructor (does nothing right now)
          */
-        BSPMotor( pwm_num_e pwm );
+        BSPMotor( void );
 
         /*
          * Class init for the timer
@@ -38,7 +38,7 @@ class BSPMotor {
         /*
          * Object initialize PWM set up
          */
-        void Init( void );
+        void Init( pwm_num_e pwm );
 
         /*
          * Class enabling of Timer2

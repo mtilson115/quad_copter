@@ -17,15 +17,24 @@ extern "C" {
 #include <stdint.h>
 #include <os.h>
 #include "app_cfg.h"
+#include "type_defs.h"
+
+#define COMMS_SET_THROTTLE (0x01)
 
 typedef struct __attribute__((packed)) {
     uint16_t    len;
     uint8_t*    data;
 }comms_xbee_msg_t;
 
+typedef struct {
+    void        (*cb)(uint8_t* data,uint16_t len);
+    uint8_t     msg_id;
+}comms_xbee_rx_cb_t;
+
 void COMMS_xbee_send(comms_xbee_msg_t msg);
 void COMMS_xbee_init(void);
 uint8_t COMMS_xbee_ready( void );
+ret_t COMMS_xbee_register_rx_cb( comms_xbee_rx_cb_t cb_data );
 
 /*
  * Debug data

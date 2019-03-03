@@ -12,7 +12,6 @@
  ******************************************************************************/
 #include "comms_xbee.h"
 #include "bsp_xbee.h"
-#include "type_defs.h"
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
@@ -28,6 +27,7 @@
 #define XBEE_MAX_TX         (128)
 #define XBEE_MAX_RX         (XBEE_MAX_TX + XBEE_MAX_HDR + XBEE_CKSM_SZ)
 #define XBEE_MAX_IPV4_RX    (64)
+#define XBEE_MAX_CB         (1)
 
 /*******************************************************************************
  * XBEE states
@@ -224,6 +224,12 @@ uint8_t comms_xbee_src_port[2] = {0x13,0x8D}; // 5005
 uint8_t comms_xbee_dest_port[2] = {0x13,0x8D}; // 5005
 
 /*******************************************************************************
+ * Call back array
+ ******************************************************************************/
+comms_xbee_rx_cb_t xbee_rx_cbs[XBEE_MAX_CB];
+static uint32_t xbee_cb_count = 0;
+
+/*******************************************************************************
  * Local Function Section
  ******************************************************************************/
 static void comms_xbee_task(void *p_arg);
@@ -405,11 +411,16 @@ uint8_t COMMS_xbee_ready( void )
  * Revision:    Initial Creation 03/02/2019 - Mitchell S. Tilson
  *
  ******************************************************************************/
-/*
 ret_t COMMS_xbee_register_rx_cb( comms_xbee_rx_cb_t cb_data )
 {
+    xbee_cb_count++;
+    if( xbee_cb_count <= XBEE_MAX_CB )
+    {
+        xbee_rx_cbs[xbee_cb_count-1] = cb_data;
+        return rSUCCESS;
+    }
+    return rFAILURE;
 }
-*/
 
 /*******************************************************************************
  * Local Function Section
@@ -590,13 +601,43 @@ static void comms_xbee_handle_at_rsp(comms_xbee_api_msg_t* api_msg)
 
 static void comms_xbee_handle_rx_ipv4(comms_xbee_api_msg_t* api_msg)
 {
+    /*
+     * Read the length of the API message
+     */
     uint16_t len = ((uint16_t)(api_msg->MSB_len << 8)) | (uint16_t)(api_msg->LSB_len);
+
+    /*
+     * Check to see if the current data types can handle the length
+     */
     if( len >= (sizeof(comms_xbee_ipv4_rx_t) + 1) )
     {
         while(1); // critical fault
     }
+
+    /*
+     * Allocate a pointer to the message and cast it to the RX data given
+     */
     comms_xbee_ipv4_rx_t* ipv4_rx_msg;
     ipv4_rx_msg = (comms_xbee_ipv4_rx_t*)api_msg->frame_data_ptr;
+
+    /*
+     * This is were the register call backs are called!
+     */
+    for( uint32_t cb_idx = 0; cb_idx < xbee_cb_count; cb_idx++ )
+    {
+        /*
+         * The message ID is set when COMMS_xbee_register_rx_cb is called.
+         * It's then checked here to see if the call back should be called.
+         */
+        if( xbee_rx_cbs[cb_idx].msg_id == ipv4_rx_msg->rx_data[0] )
+        {
+            uint16_t cb_data_len = len - (sizeof(comms_xbee_ipv4_rx_t) - XBEE_MAX_IPV4_RX);
+            /*
+             * Note that the message ID isn't removed here so that the callback can use it.
+             */
+            xbee_rx_cbs[cb_idx].cb(&ipv4_rx_msg->rx_data[0],cb_data_len);
+        }
+    }
 
     // Echo the message
     comms_xbee_msg_t msg;
