@@ -78,13 +78,14 @@ enum {
 #define XBEE_TX_EN_ACK      (0x00)
 #define XBEE_TX_DISABLE_ACK (0x01)
 #define XBEE_TX_UDP_OPT     (0x00)
+#define XBEE_TX_TCP_OPT     (0x00) // Leave socket open after transmission
 
 /*******************************************************************************
  * Misc
  ******************************************************************************/
 #define XBEE_IP_UDP (0x00)
 #define XBEE_IP_TCP (0x01)
-#define XBEE_IP     (XBEE_IP_UDP)
+#define XBEE_IP     (XBEE_IP_TCP)
 
 /*******************************************************************************
  * Local Type Defs
@@ -220,7 +221,15 @@ comms_xbee_ipv4_addr_t comms_xbee_addr_work_laptop = {
     .ip_3   = 177,
 };
 
-uint8_t comms_xbee_src_port[2] = {0x13,0x8D}; // 5005
+comms_xbee_ipv4_addr_t comms_xbee_addr_xbee_ctrl = {
+    .ip_0   = 192,
+    .ip_1   = 168,
+    .ip_2   = 1,
+    .ip_3   = 200,
+};
+
+//uint8_t comms_xbee_src_port[2] = {0x13,0x8D}; // 5005
+uint8_t comms_xbee_src_port[2] = {0x00,0x00}; // 0 for TCP IP?
 uint8_t comms_xbee_dest_port[2] = {0x13,0x8D}; // 5005
 
 /*******************************************************************************
@@ -277,11 +286,11 @@ void COMMS_xbee_send(comms_xbee_msg_t msg)
         // Build the TX frame
         tx_frame->api_frame_id = XBEE_TX_REQ;
         tx_frame->frame_id = frame_id;
-        tx_frame->addr = comms_xbee_addr_desktop;
+        tx_frame->addr = comms_xbee_addr_xbee_ctrl;
         memcpy(tx_frame->dest_port,comms_xbee_dest_port,sizeof(tx_frame->dest_port));
         memcpy(tx_frame->src_port,comms_xbee_src_port,sizeof(tx_frame->src_port));
         tx_frame->protocol = XBEE_IP;
-        tx_frame->opt = XBEE_TX_UDP_OPT;
+        tx_frame->opt = XBEE_TX_TCP_OPT;
         memcpy(tx_frame->data,msg.data,msg.len);
         uint16_t len = sizeof(comms_xbee_tx_frame_ipv4_t)-sizeof(tx_frame->data)+msg.len;
 
@@ -308,7 +317,7 @@ void COMMS_xbee_send(comms_xbee_msg_t msg)
             while(1);
             // break;
         }
-        frame_id++;
+        // frame_id++;
     }
 }
 
@@ -540,10 +549,18 @@ static void comms_xbee_handle_status(comms_xbee_api_msg_t* api_msg)
     comms_xbee_rx_status_t* status;
     status = (comms_xbee_rx_status_t*)api_msg->frame_data_ptr;
     comms_xbee_status.xbee_state = status->status;
-    if( comms_xbee_status.xbee_state == XBEE_JOINED)
+    if( comms_xbee_status.xbee_state == XBEE_JOINED )
     {
         // Read the configuration of the module
         comms_xbee_at_cmd_rd(XBEE_PORT);
+    }
+
+    /*
+     * Try and re-establish the connection
+     */
+    else if( comms_xbee_status.xbee_state == XBEE_LOST_CONNECTION )
+    {
+        BSP_xbee_reset();
     }
 }
 

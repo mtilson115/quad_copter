@@ -148,6 +148,36 @@ void BSP_xbee_write_read( uint8_ua_t* wdata, uint8_ua_t* rdata, uint16_t len )
 }
 
 /*******************************************************************************
+ * BSP_xbee_reset
+ *
+ * Description: Resets the xbee module
+ *
+ *
+ * Inputs:      none
+ *
+ * Returns:     none
+ *
+ * Revision:    Initial Creation 03/03/2019 - Mitchell S. Tilson
+ *
+ ******************************************************************************/
+void BSP_xbee_reset( void )
+{
+    /*
+     * Place the xbee in reset for 200ms while also holding
+     * DOUT low
+     */
+    PORTBbits.RB3 = 0;
+    PORTFbits.RF2 = 0;
+    OS_ERR err;
+    OSTimeDlyHMSM(0u, 0u, 0u, 200u,OS_OPT_TIME_HMSM_STRICT,&err);
+
+    /*
+     * Release reset
+     */
+    PORTBbits.RB3 = 1;
+}
+
+/*******************************************************************************
  * bsp_xbee_int_init
  *
  * Description: Initializes the SPI attn interrupt
@@ -232,19 +262,7 @@ static void bsp_xbee_spi_en_seq( void )
     // Delay just to be safe.  Probably not necessary
     BSP_Dly(2);
 
-    /*
-     * Place the xbee in reset for 200ms while also holding
-     * DOUT low
-     */
-    PORTBbits.RB3 = 0;
-    PORTFbits.RF2 = 0;
-    OS_ERR err;
-    OSTimeDlyHMSM(0u, 0u, 0u, 200u,OS_OPT_TIME_HMSM_STRICT,&err);
-
-    /*
-     * Release reset
-     */
-    PORTBbits.RB3 = 1;
+    BSP_xbee_reset();
 }
 
 // Temp function for testing.  It is called using the default interrupt function

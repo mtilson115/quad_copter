@@ -166,14 +166,13 @@ static void alg_stabilizer_task( void *p_arg )
         accel_pitch = accel_pitch*180.0/M_PI;
         accel_roll = accel_roll*180.0/M_PI;
 
-        alg_stabilizer(accel_pitch,accel_roll);
+        // alg_stabilizer(accel_pitch,accel_roll);
 
         // Compute motor outputs
         /*
          * This is test code for now.  The real implementation will most likely use a PID
          */
 
-        /*
         float angle_percent = .10;
         if( accel_pitch > 0 )
         {
@@ -197,12 +196,13 @@ static void alg_stabilizer_task( void *p_arg )
         memcpy(&data_buff[sizeof(float)],&accel_roll,sizeof(float));
         memcpy(&data_buff[2*sizeof(float)],&angle_percent,sizeof(float));
 
+        // uint8_t data_buff[] = "Hello";
+
         // Send the message
         comms_xbee_msg_t msg;
         msg.data = data_buff;
         msg.len = sizeof(data_buff);
         COMMS_xbee_send(msg);
-        */
     }
 }
 
