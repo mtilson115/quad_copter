@@ -17,6 +17,7 @@
 #include "bsp_accel_gyro_int.h"
 #include "bsp_utils.h"
 #include "bsp_motor.h"
+#include "bsp_accel_gyro.h"
 #include <math.h>
 #include <string.h>
 #include <assert.h>
@@ -43,7 +44,7 @@ static BSPMotor motor3;
 static BSPMotor motor4;
 
 // Throttle
-static float alg_stabilizer_throttle = 0;
+static float alg_stabilizer_throttle = 35;
 
 /*******************************************************************************
  * Local Function Section
@@ -157,46 +158,52 @@ static void alg_stabilizer_task( void *p_arg )
         // Read accel
         AppAccelGyroClass::motion6_data_type data;
         AclGyro.GetMotion6Data(&data);
+        float ax = (float)data.ax;
+        float ay = (float)data.ay;
+        float az = (float)data.az;
+        float gx = (float)data.gx;
+        float gy = (float)data.gy;
+        float gz = (float)data.gz;
+
+        float accel_divisor, gyro_divisor;
+        AccelGyro.GetFullRangeDivisor(&accel_divisor,&gyro_divisor);
+
+        ax /= accel_divisor;
+        ay /= accel_divisor;
+        az /= accel_divisor;
+
+        gx /= gyro_divisor;
+        gy /= gyro_divisor;
+        gz /= gyro_divisor;
 
         // Calculate roll and pitch
-        float accel_pitch = atan2(data.ax,data.az);
-        float accel_roll = atan2(data.ay,data.az);
+        float accel_pitch = atan2(ax,sqrt(ay*ay,az*az));
+        float accel_roll = atan2(ay,sqrt(ax*ax,az*az));
 
         // Convert to degrees
         accel_pitch = accel_pitch*180.0/M_PI;
         accel_roll = accel_roll*180.0/M_PI;
 
-        // alg_stabilizer(accel_pitch,accel_roll);
-
-        // Compute motor outputs
+        // Calcualte angles
         /*
-         * This is test code for now.  The real implementation will most likely use a PID
+         * This uses a complimentary filter where gyro is
+         * prioritized over accel.
          */
+        static float roll = 0;
+        static float pitch = 0;
+        float A = 0.962;
+        float dt = 20e-3; // 20ms
+        roll = A*(roll+gx*dt)+(1-A)*accel_roll;
+        pitch = A*(pitch+gy*dt)+(1-A)*accel_pitch;
 
-        float angle_percent = .10;
-        if( accel_pitch > 0 )
-        {
-            angle_percent = (accel_pitch/90.0);
-            motor1.SetSpeedPercent( angle_percent );
-            motor2.SetSpeedPercent( angle_percent );
-            motor3.SetSpeedPercent( angle_percent );
-            motor4.SetSpeedPercent( angle_percent );
-        }
-        else if( accel_pitch == 0 )
-        {
-            motor1.SetSpeedPercent( angle_percent );
-            motor2.SetSpeedPercent( angle_percent );
-            motor3.SetSpeedPercent( angle_percent );
-            motor4.SetSpeedPercent( angle_percent );
-        }
+        // alg_stabilizer(pitch,roll);
 
         // Allocate buffer and copy in the data
-        uint8_t data_buff[3*sizeof(float)] = {0};
-        memcpy(data_buff,&accel_pitch,sizeof(float));
-        memcpy(&data_buff[sizeof(float)],&accel_roll,sizeof(float));
-        memcpy(&data_buff[2*sizeof(float)],&angle_percent,sizeof(float));
-
-        // uint8_t data_buff[] = "Hello";
+        uint8_t hdr = 14;
+        uint8_t data_buff[2*sizeof(float)+sizeof(hdr)] = {0};
+        memcpy(data_buff,&hdr,sizeof(uint8_t));
+        memcpy(&data_buff[sizeof(hdr)],&accel_pitch,sizeof(float));
+        memcpy(&data_buff[sizeof(float)+sizeof(hdr)],&accel_roll,sizeof(float));
 
         // Send the message
         comms_xbee_msg_t msg;
