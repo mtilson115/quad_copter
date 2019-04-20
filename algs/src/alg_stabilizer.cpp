@@ -17,6 +17,7 @@
 #include "bsp_accel_gyro_int.h"
 #include "bsp_utils.h"
 #include "bsp_motor.h"
+#include "bsp_accel_gyro.h"
 #include <math.h>
 #include <string.h>
 #include <assert.h>
@@ -157,27 +158,51 @@ static void alg_stabilizer_task( void *p_arg )
         // Read accel
         AppAccelGyroClass::motion6_data_type data;
         AclGyro.GetMotion6Data(&data);
+        float ax = (float)data.ax;
+        float ay = (float)data.ay;
+        float az = (float)data.az;
+        float gx = (float)data.gx;
+        float gy = (float)data.gy;
+        float gz = (float)data.gz;
+
+        float accel_divisor, gyro_divisor;
+        AccelGyro.GetFullRangeDivisor(&accel_divisor,&gyro_divisor);
+
+        ax /= accel_divisor;
+        ay /= accel_divisor;
+        az /= accel_divisor;
+
+        gx /= gyro_divisor;
+        gy /= gyro_divisor;
+        gz /= gyro_divisor;
 
         // Calculate roll and pitch
-        float accel_pitch = atan2(data.ax,data.az);
-        float accel_roll = atan2(data.ay,data.az);
+        float accel_pitch = atan2(ax,sqrt(ay*ay,az*az));
+        float accel_roll = atan2(ay,sqrt(ax*ax,az*az));
 
         // Convert to degrees
         accel_pitch = accel_pitch*180.0/M_PI;
         accel_roll = accel_roll*180.0/M_PI;
 
-        alg_stabilizer(accel_pitch,accel_roll);
+        /*
+         * This uses a complimentary filter where gyro is
+         * prioritized over accel.
+         */
+        static float roll = 0;
+        static float pitch = 0;
+        float A = 0.962;
+        float dt = 20e-3; // 20ms
+        roll = A*(roll+gx*dt)+(1-A)*accel_roll;
+        pitch = A*(pitch+gy*dt)+(1-A)*accel_pitch;
+
+        // alg_stabilizer(pitch,roll);
 
         // Allocate buffer and copy in the data
-        uint8_t hdr = 11;
-        uint8_t data_buff[6*sizeof(uint16_t)+sizeof(hdr)] = {0};
-        data_buff[0] = hdr;
-        memcpy(&data_buff[sizeof(hdr)],&data.ax,sizeof(uint16_t));
-        memcpy(&data_buff[sizeof(hdr)+sizeof(uint16_t)],&data.ay,sizeof(uint16_t));
-        memcpy(&data_buff[sizeof(hdr)+2*sizeof(uint16_t)],&data.az,sizeof(uint16_t));
-        memcpy(&data_buff[sizeof(hdr)+3*sizeof(uint16_t)],&data.gx,sizeof(uint16_t));
-        memcpy(&data_buff[sizeof(hdr)+4*sizeof(uint16_t)],&data.gy,sizeof(uint16_t));
-        memcpy(&data_buff[sizeof(hdr)+5*sizeof(uint16_t)],&data.gz,sizeof(uint16_t));
+        uint8_t hdr = 14;
+        uint8_t data_buff[2*sizeof(float)+sizeof(hdr)] = {0};
+        memcpy(data_buff,&hdr,sizeof(uint8_t));
+        memcpy(&data_buff[sizeof(hdr)],&pitch,sizeof(float));
+        memcpy(&data_buff[sizeof(float)+sizeof(hdr)],&roll,sizeof(float));
 
         // Send the message
         comms_xbee_msg_t msg;
