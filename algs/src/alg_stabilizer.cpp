@@ -43,7 +43,7 @@ static BSPMotor motor3;
 static BSPMotor motor4;
 
 // Throttle
-static float alg_stabilizer_throttle = 0;
+static float alg_stabilizer_throttle_percent = 35;
 
 /*******************************************************************************
  * Local Function Section
@@ -166,37 +166,18 @@ static void alg_stabilizer_task( void *p_arg )
         accel_pitch = accel_pitch*180.0/M_PI;
         accel_roll = accel_roll*180.0/M_PI;
 
-        // alg_stabilizer(accel_pitch,accel_roll);
-
-        // Compute motor outputs
-        /*
-         * This is test code for now.  The real implementation will most likely use a PID
-         */
-
-        float angle_percent = .10;
-        if( accel_pitch > 0 )
-        {
-            angle_percent = (accel_pitch/90.0);
-            motor1.SetSpeedPercent( angle_percent );
-            motor2.SetSpeedPercent( angle_percent );
-            motor3.SetSpeedPercent( angle_percent );
-            motor4.SetSpeedPercent( angle_percent );
-        }
-        else if( accel_pitch == 0 )
-        {
-            motor1.SetSpeedPercent( angle_percent );
-            motor2.SetSpeedPercent( angle_percent );
-            motor3.SetSpeedPercent( angle_percent );
-            motor4.SetSpeedPercent( angle_percent );
-        }
+        alg_stabilizer(accel_pitch,accel_roll);
 
         // Allocate buffer and copy in the data
-        uint8_t data_buff[3*sizeof(float)] = {0};
-        memcpy(data_buff,&accel_pitch,sizeof(float));
-        memcpy(&data_buff[sizeof(float)],&accel_roll,sizeof(float));
-        memcpy(&data_buff[2*sizeof(float)],&angle_percent,sizeof(float));
-
-        // uint8_t data_buff[] = "Hello";
+        uint8_t hdr = 11;
+        uint8_t data_buff[6*sizeof(uint16_t)+sizeof(hdr)] = {0};
+        data_buff[0] = hdr;
+        memcpy(&data_buff[sizeof(hdr)],&data.ax,sizeof(uint16_t));
+        memcpy(&data_buff[sizeof(hdr)+sizeof(uint16_t)],&data.ay,sizeof(uint16_t));
+        memcpy(&data_buff[sizeof(hdr)+2*sizeof(uint16_t)],&data.az,sizeof(uint16_t));
+        memcpy(&data_buff[sizeof(hdr)+3*sizeof(uint16_t)],&data.gx,sizeof(uint16_t));
+        memcpy(&data_buff[sizeof(hdr)+4*sizeof(uint16_t)],&data.gy,sizeof(uint16_t));
+        memcpy(&data_buff[sizeof(hdr)+5*sizeof(uint16_t)],&data.gz,sizeof(uint16_t));
 
         // Send the message
         comms_xbee_msg_t msg;
@@ -256,7 +237,7 @@ static void alg_stabilizer_set_throttle( float throttle )
     OS_ERR err;
     CPU_TS ts = 0;
     OSMutexPend(&alg_stabilizer_throttle_mutex,0,OS_OPT_PEND_BLOCKING,&ts,&err);
-    alg_stabilizer_throttle = throttle;
+    alg_stabilizer_throttle_percent = throttle;
     OSMutexPost(&alg_stabilizer_throttle_mutex,OS_OPT_POST_NONE,&err);
 }
 static float alg_stabilizer_get_throttle( void )
@@ -265,7 +246,7 @@ static float alg_stabilizer_get_throttle( void )
     OS_ERR err;
     CPU_TS ts = 0;
     OSMutexPend(&alg_stabilizer_throttle_mutex,0,OS_OPT_PEND_BLOCKING,&ts,&err);
-    throttle = alg_stabilizer_throttle;
+    throttle = alg_stabilizer_throttle_percent;
     OSMutexPost(&alg_stabilizer_throttle_mutex,OS_OPT_POST_NONE,&err);
     return throttle;
 }
@@ -298,21 +279,42 @@ static void alg_stabilizer( float pitch, float roll )
     roll_sum += roll;
 
     // Get the desired throttle
-    float throttle = alg_stabilizer_get_throttle();
+    float throttle_percent = alg_stabilizer_get_throttle();
 
     // Calculate Motor1's desired throttle
     float motor1_throttle_err = asP*(-pitch)+asP*(-roll)+asI*(-pitch_sum)+asI*(-roll_sum);
-    float motor1_throttle = throttle + motor1_throttle_err;
+    float motor1_throttle = throttle_percent + motor1_throttle_err;
 
     // Calculate Motor2's desired speed
     float motor2_throttle_err = asP*(pitch)+asP*(-roll)+asI*(pitch_sum)+asI*(-roll_sum);
-    float motor2_throttle = throttle + motor2_throttle_err;
+    float motor2_throttle = throttle_percent + motor2_throttle_err;
 
     // Calculate Motor3's desired speed
     float motor3_throttle_err = asP*(pitch)+asP*(roll)+asI*(pitch_sum)+asI*(roll_sum);
-    float motor3_throttle = throttle + motor3_throttle_err;
+    float motor3_throttle = throttle_percent + motor3_throttle_err;
 
     // Calculate Motor4's desired speed
     float motor4_throttle_err = asP*(-pitch)+asP*(roll)+asI*(-pitch_sum)+asI*(roll_sum);
-    float motor4_throttle = throttle + motor4_throttle_err;
+    float motor4_throttle = throttle_percent + motor4_throttle_err;
+
+    motor1.SetSpeedPercent( motor1_throttle/100.0 );
+    motor2.SetSpeedPercent( motor2_throttle/100.0 );
+    motor3.SetSpeedPercent( motor3_throttle/100.0 );
+    motor4.SetSpeedPercent( motor4_throttle/100.0 );
+
+    /*
+    uint8_t msg_hdr = 16;
+    uint8_t data_buff[sizeof(msg_hdr)+4*sizeof(float)] = {0};
+    data_buff[0] = msg_hdr;
+    memcpy(&data_buff[sizeof(msg_hdr)],&motor1_throttle,sizeof(float));
+    memcpy(&data_buff[sizeof(float)+sizeof(msg_hdr)],&motor2_throttle,sizeof(float));
+    memcpy(&data_buff[2*sizeof(float)+sizeof(msg_hdr)],&motor3_throttle,sizeof(float));
+    memcpy(&data_buff[3*sizeof(float)+sizeof(msg_hdr)],&motor4_throttle,sizeof(float));
+
+    // Send the message
+    comms_xbee_msg_t msg;
+    msg.data = data_buff;
+    msg.len = sizeof(data_buff);
+    COMMS_xbee_send(msg);
+    */
 }
