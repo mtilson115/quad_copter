@@ -44,7 +44,7 @@ static BSPMotor motor3;
 static BSPMotor motor4;
 
 // Throttle
-static float alg_stabilizer_throttle_percent = 35;
+static float alg_stabilizer_throttle_percent = 0;
 
 /*******************************************************************************
  * Local Function Section
