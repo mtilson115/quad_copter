@@ -177,8 +177,8 @@ static void alg_stabilizer_task( void *p_arg )
         gz /= gyro_divisor;
 
         // Calculate roll and pitch
-        float accel_pitch = atan2(ax,sqrt(ay*ay,az*az));
-        float accel_roll = atan2(ay,sqrt(ax*ax,az*az));
+        float accel_pitch = atan2(ax,sqrt(ay*ay+az*az));
+        float accel_roll = atan2(ay,sqrt(ax*ax+az*az));
 
         // Convert to degrees
         accel_pitch = accel_pitch*180.0/M_PI;
@@ -190,12 +190,12 @@ static void alg_stabilizer_task( void *p_arg )
          */
         static float roll = 0;
         static float pitch = 0;
-        float A = 0.962;
+        float A = 0.8;
         float dt = 20e-3; // 20ms
         roll = A*(roll+gx*dt)+(1-A)*accel_roll;
         pitch = A*(pitch+gy*dt)+(1-A)*accel_pitch;
 
-        // alg_stabilizer(pitch,roll);
+        alg_stabilizer(pitch,roll);
 
         // Allocate buffer and copy in the data
         uint8_t hdr = 14;
@@ -228,18 +228,25 @@ static void alg_stabilizer_task( void *p_arg )
 static void alg_stabilizer_msg_cb(uint8_t* data,uint16_t len)
 {
     float throttle_percent = 0;
+
     if( data[0] == COMMS_SET_THROTTLE )
     {
         len -= 1;
         if( len == sizeof(throttle_percent) )
         {
             memcpy(&throttle_percent,&data[1],len);
-            if( throttle_percent >= 0 && throttle_percent <= 1 )
+            if( throttle_percent >= 0.0 && throttle_percent <= 100.0 )
             {
                 alg_stabilizer_set_throttle(throttle_percent);
             }
         }
     }
+    /*
+    comms_xbee_msg_t msg;
+    msg.data = (uint8_t*)&throttle_percent;
+    msg.len = len-1;
+    COMMS_xbee_send(msg);
+    */
 }
 
 /*******************************************************************************

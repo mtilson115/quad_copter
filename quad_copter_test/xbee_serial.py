@@ -28,8 +28,14 @@ def print_accel_gyro():
 
 def print_accel_x():
     data = ser.read(2)
-    ax = struct.unpack('<H', data[0:2])[0]
+    ax = struct.unpack('<h', data[0:2])[0]
     print "%d" % (ax)
+
+def print_pitch_roll():
+    data = ser.read(8)
+    pitch = struct.unpack('<f', data[0:4])[0]
+    roll = struct.unpack('<f', data[4:8])[0]
+    print "pitch: %f, roll: %f" % (pitch,roll)
 
 ser = serial.Serial('/dev/ttyUSB0',115200)
 
@@ -51,6 +57,8 @@ if ser.is_open == True:
                 print_accel_gyro();
             elif hdr == 12:
                 print_accel_x();
+            elif hdr == 14:
+                print_pitch_roll();
             time.sleep(0.020)
         except (KeyboardInterrupt, SystemExit):
             print "Exiting..."

@@ -660,7 +660,7 @@ static void comms_xbee_handle_rx_ipv4(comms_xbee_api_msg_t* api_msg)
     comms_xbee_msg_t msg;
     msg.data = ipv4_rx_msg->rx_data;
     msg.len = len - (sizeof(comms_xbee_ipv4_rx_t) - XBEE_MAX_IPV4_RX);
-    COMMS_xbee_send(msg);
+    // COMMS_xbee_send(msg);
 }
 
 static comms_xbee_api_msg_t comms_xbee_at_cmd_rd(const char at_cmd[2])
