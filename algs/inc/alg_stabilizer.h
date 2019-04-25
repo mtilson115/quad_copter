@@ -1,5 +1,5 @@
 /*******************************************************************************
- * File:    alg_stabilizer.h (TODO: name?)
+ * File:    alg_stabilizer.h
  * Author:  Mitchell S. Tilson
  * Created: 02/12/2019
  *

@@ -20,6 +20,7 @@ extern "C" {
 #include "type_defs.h"
 
 #define COMMS_SET_THROTTLE (0x01)
+#define COMMS_SET_PI (0x02)
 
 typedef struct __attribute__((packed)) {
     uint16_t    len;

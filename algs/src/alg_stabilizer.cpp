@@ -28,6 +28,8 @@
 #define ALG_STB_TX_Q_DEPTH (0)
 #define M_PI (3.14159)
 
+#define ALG_STB_DBG_HDR_MOTOR_PITCH_ROLL (17)
+
 /*******************************************************************************
  * Local Data
  ******************************************************************************/
@@ -36,6 +38,7 @@
 CPU_STK alg_stabilizer_stack[ALG_STABILIZER_STK_SIZE];
 OS_TCB alg_stabilizer_TCB;
 OS_MUTEX alg_stabilizer_throttle_mutex;
+OS_MUTEX alg_stabilizer_PI_mutex;
 
 // Motor objects
 static BSPMotor motor1;
@@ -46,14 +49,26 @@ static BSPMotor motor4;
 // Throttle
 static float alg_stabilizer_throttle_percent = 0;
 
+// PID constants
+static float asP = 0.5;
+static float asI = 0.005;
+
+// Fitler coefficients
+static float A = 0.8;
+static float dt = 20e-3; // 20ms
+
 /*******************************************************************************
  * Local Function Section
  ******************************************************************************/
 static void alg_stabilizer_task( void *p_arg );
-static void alg_stabilizer_msg_cb(uint8_t* data,uint16_t len);
+static void alg_stabilizer_throttle_msg_cb(uint8_t* data,uint16_t len);
+static void alg_stabilizer_PI_msg_cb(uint8_t* data,uint16_t len);
 static void alg_stabilizer_set_throttle( float throttle );
 static float alg_stabilizer_get_throttle( void );
+static void alg_stabilizer_set_PI_consts( float P, float I );
+static void alg_stabilizer_get_PI_consts( float* P, float* I );
 static void alg_stabilizer( float pitch, float roll );
+static void alg_stabilizer_compute_pitch_roll( float* pitch, float* roll );
 
 /*******************************************************************************
  * Public Function Section
@@ -94,16 +109,24 @@ void alg_stabilizer_init( void )
 
     OSMutexCreate(&alg_stabilizer_throttle_mutex,(CPU_CHAR*)"Throttle Mutex",&err);
     assert(err==OS_ERR_NONE);
+    OSMutexCreate(&alg_stabilizer_PI_mutex,(CPU_CHAR*)"PI Mutex",&err);
+    assert(err==OS_ERR_NONE);
 
     // Register the TCB with the accel bsp code
     bsp_accel_gyro_int_register(&alg_stabilizer_TCB);
 
     // Register a message call back routine
-    comms_xbee_rx_cb_t rx_cb = {
-        .cb = alg_stabilizer_msg_cb,
+    comms_xbee_rx_cb_t throttle_rx_cb = {
+        .cb = alg_stabilizer_throttle_msg_cb,
         .msg_id = COMMS_SET_THROTTLE,
     };
-    ret_t ret = COMMS_xbee_register_rx_cb(rx_cb);
+    ret_t ret = COMMS_xbee_register_rx_cb(throttle_rx_cb);
+    assert(ret==rSUCCESS);
+    comms_xbee_rx_cb_t pi_rx_cb = {
+        .cb = alg_stabilizer_PI_msg_cb,
+        .msg_id = COMMS_SET_PI,
+    };
+    ret_t ret = COMMS_xbee_register_rx_cb(pi_rx_c);
     assert(ret==rSUCCESS);
 }
 
@@ -141,8 +164,6 @@ static void alg_stabilizer_task( void *p_arg )
     motor3.Start();
     motor4.Start();
 
-    // Delay here if necessary
-
     // Wait on comms
     BSP_PrintfInit();
 
@@ -152,68 +173,26 @@ static void alg_stabilizer_task( void *p_arg )
     uint32_t ts = 0;
     while (DEF_ON)
     {
-        // Pend on the task semaphore (posted to from the interrupt for accel)
+        /*
+         * Pend on the task semaphore (posted to from the interrupt for accel)
+         */
         OSTaskSemPend(0,OS_OPT_PEND_BLOCKING,&ts,&err);
 
-        // Read accel
-        AppAccelGyroClass::motion6_data_type data;
-        AclGyro.GetMotion6Data(&data);
-        float ax = (float)data.ax;
-        float ay = (float)data.ay;
-        float az = (float)data.az;
-        float gx = (float)data.gx;
-        float gy = (float)data.gy;
-        float gz = (float)data.gz;
-
-        float accel_divisor, gyro_divisor;
-        AccelGyro.GetFullRangeDivisor(&accel_divisor,&gyro_divisor);
-
-        ax /= accel_divisor;
-        ay /= accel_divisor;
-        az /= accel_divisor;
-
-        gx /= gyro_divisor;
-        gy /= gyro_divisor;
-        gz /= gyro_divisor;
-
-        // Calculate roll and pitch
-        float accel_pitch = atan2(ax,sqrt(ay*ay+az*az));
-        float accel_roll = atan2(ay,sqrt(ax*ax+az*az));
-
-        // Convert to degrees
-        accel_pitch = accel_pitch*180.0/M_PI;
-        accel_roll = accel_roll*180.0/M_PI;
+        /*
+         * Get the pitch and roll
+         */
+        float pitch, roll;
+        alg_stabilizer_compute_pitch_roll(&pitch,&roll);
 
         /*
-         * This uses a complimentary filter where gyro is
-         * prioritized over accel.
+         * Apply the values
          */
-        static float roll = 0;
-        static float pitch = 0;
-        float A = 0.8;
-        float dt = 20e-3; // 20ms
-        roll = A*(roll+gx*dt)+(1-A)*accel_roll;
-        pitch = A*(pitch+gy*dt)+(1-A)*accel_pitch;
-
         alg_stabilizer(pitch,roll);
-
-        // Allocate buffer and copy in the data
-        uint8_t hdr = 14;
-        uint8_t data_buff[2*sizeof(float)+sizeof(hdr)] = {0};
-        memcpy(data_buff,&hdr,sizeof(uint8_t));
-        memcpy(&data_buff[sizeof(hdr)],&pitch,sizeof(float));
-        memcpy(&data_buff[sizeof(float)+sizeof(hdr)],&roll,sizeof(float));
-
-        // Send the message
-        comms_xbee_msg_t msg;
-        msg.data = data_buff;
-        msg.len = sizeof(data_buff);
-        COMMS_xbee_send(msg);
     }
 }
 
 /*******************************************************************************
- * alg_stabilizer_msg_cb
+ * alg_stabilizer_throttle_msg_cb
  *
  * Description: This function is called when a message is recieved and has the
  *              msg_id = COMMS_SET_THROTTLE (0x01)
@@ -225,7 +204,7 @@ static void alg_stabilizer_task( void *p_arg )
  * Revision:    Initial Creation 03/02/2019 - Mitchell S. Tilson
  *
  ******************************************************************************/
-static void alg_stabilizer_msg_cb(uint8_t* data,uint16_t len)
+static void alg_stabilizer_throttle_msg_cb(uint8_t* data,uint16_t len)
 {
     float throttle_percent = 0;
 
@@ -241,12 +220,35 @@ static void alg_stabilizer_msg_cb(uint8_t* data,uint16_t len)
             }
         }
     }
-    /*
-    comms_xbee_msg_t msg;
-    msg.data = (uint8_t*)&throttle_percent;
-    msg.len = len-1;
-    COMMS_xbee_send(msg);
-    */
+}
+
+/*******************************************************************************
+ * alg_stabilizer_PI_msg_cb
+ *
+ * Description: This function is called when a message is recieved and has the
+ *              msg_id = COMMS_SET_PI (0x01)
+ *
+ * Inputs:      None
+ *
+ * Returns:     None
+ *
+ * Revision:    Initial Creation 03/02/2019 - Mitchell S. Tilson
+ *
+ ******************************************************************************/
+static void alg_stabilizer_PI_msg_cb(uint8_t* data,uint16_t len)
+{
+    float loc_P;
+    float loc_I;
+    if( data[0] == COMMS_SET_PI )
+    {
+        len -= 1;
+        if( len == sizeof(loc_P)+sizeof(loc_I) )
+        {
+            memcpy(&loc_P,&data[1],sizeof(loc_P));
+            memcpy(&loc_P,&data[sizeof(loc_P)+1],sizeof(loc_P));
+            alg_stabilizer_set_PI_consts(loc_P,loc_I);
+        }
+    }
 }
 
 /*******************************************************************************
@@ -284,6 +286,43 @@ static float alg_stabilizer_get_throttle( void )
 }
 
 /*******************************************************************************
+ * alg_stabilizer_set/get_PI_consts
+ *
+ * Description: These functions set and get the PI controller constants
+ *
+ * Inputs:      float P
+ *              float I
+ *
+ * Returns:     float P
+ *              float I
+ *
+ * Revision:    Initial Creation 04/25/2019 - Mitchell S. Tilson
+ *
+ * Notes:       These values are set from a different thread so its safer to use
+ *              a mutex given it is a float.
+ *
+ ******************************************************************************/
+static void alg_stabilizer_set_PI_consts( float P, float I )
+{
+    OS_ERR err;
+    CPU_TS ts = 0;
+    OSMutexPend(&alg_stabilizer_PI_mutex,0,OS_OPT_PEND_BLOCKING,&ts,&err);
+    asP = P;
+    asI = I;
+    OSMutexPost(&alg_stabilizer_PI_mutex,OS_OPT_POST_NONE,&err);
+}
+static void alg_stabilizer_get_PI_consts( float* P, float* I )
+{
+    float throttle;
+    OS_ERR err;
+    CPU_TS ts = 0;
+    OSMutexPend(&alg_stabilizer_PI_mutex,0,OS_OPT_PEND_BLOCKING,&ts,&err);
+    *P = asP;
+    *I = asI;
+    OSMutexPost(&alg_stabilizer_PI_mutex,OS_OPT_POST_NONE,&err);
+}
+
+/*******************************************************************************
  * alg_stabilizer
  *
  * Description: This function takes in the pitch and roll and calculates the
@@ -304,29 +343,30 @@ static void alg_stabilizer( float pitch, float roll )
     static float pitch_sum = 0;
     static float roll_sum = 0;
 
-    static const float asP = 0.5;
-    static const float asI = 0.005;
-
     pitch_sum += pitch;
     roll_sum += roll;
+
+    // Get the PI constants
+    float P,I;
+    alg_stabilizer_get_PI_consts(&P,&I);
 
     // Get the desired throttle
     float throttle_percent = alg_stabilizer_get_throttle();
 
     // Calculate Motor1's desired throttle
-    float motor1_throttle_err = asP*(-pitch)+asP*(-roll)+asI*(-pitch_sum)+asI*(-roll_sum);
+    float motor1_throttle_err = P*(-pitch)+P*(-roll)+I*(-pitch_sum)+I*(-roll_sum);
     float motor1_throttle = throttle_percent + motor1_throttle_err;
 
     // Calculate Motor2's desired speed
-    float motor2_throttle_err = asP*(pitch)+asP*(-roll)+asI*(pitch_sum)+asI*(-roll_sum);
+    float motor2_throttle_err = P*(pitch)+P*(-roll)+I*(pitch_sum)+I*(-roll_sum);
     float motor2_throttle = throttle_percent + motor2_throttle_err;
 
     // Calculate Motor3's desired speed
-    float motor3_throttle_err = asP*(pitch)+asP*(roll)+asI*(pitch_sum)+asI*(roll_sum);
+    float motor3_throttle_err = P*(pitch)+P*(roll)+I*(pitch_sum)+I*(roll_sum);
     float motor3_throttle = throttle_percent + motor3_throttle_err;
 
     // Calculate Motor4's desired speed
-    float motor4_throttle_err = asP*(-pitch)+asP*(roll)+asI*(-pitch_sum)+asI*(roll_sum);
+    float motor4_throttle_err = P*(-pitch)+P*(roll)+I*(-pitch_sum)+I*(roll_sum);
     float motor4_throttle = throttle_percent + motor4_throttle_err;
 
     motor1.SetSpeedPercent( motor1_throttle/100.0 );
@@ -335,18 +375,95 @@ static void alg_stabilizer( float pitch, float roll )
     motor4.SetSpeedPercent( motor4_throttle/100.0 );
 
     /*
-    uint8_t msg_hdr = 16;
-    uint8_t data_buff[sizeof(msg_hdr)+4*sizeof(float)] = {0};
+     * Debug data
+     */
+    uint8_t msg_hdr = ALG_STB_DBG_HDR_MOTOR_PITCH_ROLL;
+    uint8_t data_buff[sizeof(msg_hdr)+8*sizeof(float)] = {0};
     data_buff[0] = msg_hdr;
     memcpy(&data_buff[sizeof(msg_hdr)],&motor1_throttle,sizeof(float));
     memcpy(&data_buff[sizeof(float)+sizeof(msg_hdr)],&motor2_throttle,sizeof(float));
     memcpy(&data_buff[2*sizeof(float)+sizeof(msg_hdr)],&motor3_throttle,sizeof(float));
     memcpy(&data_buff[3*sizeof(float)+sizeof(msg_hdr)],&motor4_throttle,sizeof(float));
+    memcpy(&data_buff[4*sizeof(float)+sizeof(msg_hdr)],&pitch,sizeof(float));
+    memcpy(&data_buff[5*sizeof(float)+sizeof(msg_hdr)],&roll,sizeof(float));
+    memcpy(&data_buff[6*sizeof(float)+sizeof(msg_hdr)],&P,sizeof(float));
+    memcpy(&data_buff[7*sizeof(float)+sizeof(msg_hdr)],&I,sizeof(float));
 
     // Send the message
     comms_xbee_msg_t msg;
     msg.data = data_buff;
     msg.len = sizeof(data_buff);
     COMMS_xbee_send(msg);
-    */
 }
+
+/*******************************************************************************
+ * alg_stabilizer_compute_pitch_roll
+ *
+ * Description: This function computes the pitch and roll using the x,y,z accel
+ *              and gyroscope data.
+ *
+ * Outputs:     float - pitch
+ *              float - roll
+ *
+ * Returns:     None
+ *
+ * Revision:    Initial Creation 04/25/2019 - Mitchell S. Tilson
+ *
+ * Notes:       The output is current computed using a complimentary filter
+ *              consisting of a low pass filter for the accel and a high pass
+ *              for the gyroscope outputs.
+ *
+ ******************************************************************************/
+static void alg_stabilizer_compute_pitch_roll( float* pitch, float* roll )
+{
+        /*
+         * Read accel from the hardware
+         */
+        AppAccelGyroClass::motion6_data_type data;
+        AclGyro.GetMotion6Data(&data);
+        float ax = (float)data.ax;
+        float ay = (float)data.ay;
+        float az = (float)data.az;
+        float gx = (float)data.gx;
+        float gy = (float)data.gy;
+        float gz = (float)data.gz;
+
+        /*
+         * Convert the data to units of g and degrees
+         */
+        float accel_divisor, gyro_divisor;
+        AccelGyro.GetFullRangeDivisor(&accel_divisor,&gyro_divisor);
+
+        ax /= accel_divisor; // Convert to g
+        ay /= accel_divisor;
+        az /= accel_divisor;
+
+        gx /= gyro_divisor; // Convert to degrees
+        gy /= gyro_divisor;
+        gz /= gyro_divisor;
+
+        /*
+         * Calculate roll and pitch
+         */
+        float accel_pitch = atan2(ax,sqrt(ay*ay+az*az));
+        float accel_roll = atan2(ay,sqrt(ax*ax+az*az));
+
+        /*
+         * Convert to degrees
+         */
+        accel_pitch = accel_pitch*180.0/M_PI;
+        accel_roll = accel_roll*180.0/M_PI;
+
+        /*
+         * This uses a complimentary filter where gyro is
+         * prioritized over accel.
+         */
+        static float loc_roll = 0;
+        static float loc_pitch = 0;
+        loc_roll = A*(loc_roll+gx*dt)+(1-A)*accel_roll;
+        loc_pitch = A*(loc_pitch+gy*dt)+(1-A)*accel_pitch;
+
+        *pitch = loc_pitch;
+        *roll = loc_roll;
+}
+

@@ -27,7 +27,7 @@
 #define XBEE_MAX_TX         (128)
 #define XBEE_MAX_RX         (XBEE_MAX_TX + XBEE_MAX_HDR + XBEE_CKSM_SZ)
 #define XBEE_MAX_IPV4_RX    (64)
-#define XBEE_MAX_CB         (1)
+#define XBEE_MAX_CB         (2)
 
 /*******************************************************************************
  * XBEE states
@@ -655,12 +655,6 @@ static void comms_xbee_handle_rx_ipv4(comms_xbee_api_msg_t* api_msg)
             xbee_rx_cbs[cb_idx].cb(&ipv4_rx_msg->rx_data[0],cb_data_len);
         }
     }
-
-    // Echo the message
-    comms_xbee_msg_t msg;
-    msg.data = ipv4_rx_msg->rx_data;
-    msg.len = len - (sizeof(comms_xbee_ipv4_rx_t) - XBEE_MAX_IPV4_RX);
-    // COMMS_xbee_send(msg);
 }
 
 static comms_xbee_api_msg_t comms_xbee_at_cmd_rd(const char at_cmd[2])

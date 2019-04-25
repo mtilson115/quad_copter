@@ -16,6 +16,18 @@ def print_motor_speeds():
     motor4 = struct.unpack('<f', data[12:16])[0]
     print "Motor1: %f, Motor2: %f, Motor3: %f, Motor4: %f" % (motor1,motor2,motor3,motor4)
 
+def print_motor_speeds_pitch_roll_P_I():
+    data = ser.read(32)
+    motor1  = struct.unpack('<f', data[0:4])[0]
+    motor2  = struct.unpack('<f', data[4:8])[0]
+    motor3  = struct.unpack('<f', data[8:12])[0]
+    motor4  = struct.unpack('<f', data[12:16])[0]
+    pitch   = struct.unpack('<f', data[16:20])[0]
+    roll    = struct.unpack('<f', data[20:24])[0]
+    P       = struct.unpack('<f', data[24:28])[0]
+    I       = struct.unpack('<f', data[28:32])[0]
+    print "%f,%f,%f,%f,%f,%f,%f,%f" % (motor1,motor2,motor3,motor4,pitch,roll,P,I)
+
 def print_accel_gyro():
     data = ser.read(12)
     ax = struct.unpack('<h', data[0:2])[0]
@@ -59,6 +71,8 @@ if ser.is_open == True:
                 print_accel_x();
             elif hdr == 14:
                 print_pitch_roll();
+            elif hdr == 17:
+                print_motor_speeds_pitch_roll_P_I();
             time.sleep(0.020)
         except (KeyboardInterrupt, SystemExit):
             print "Exiting..."
