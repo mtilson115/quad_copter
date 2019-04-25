@@ -304,8 +304,8 @@ static void alg_stabilizer( float pitch, float roll )
     static float pitch_sum = 0;
     static float roll_sum = 0;
 
-    static const float asP = 0.1;
-    static const float asI = 0.001;
+    static const float asP = 0.5;
+    static const float asI = 0.005;
 
     pitch_sum += pitch;
     roll_sum += roll;
