@@ -37,3 +37,4 @@ def rx_thread():
                 print_motor_speeds_pitch_roll_P_I()
 
 def input_thread():
+    print "Press s to set the speed, 
