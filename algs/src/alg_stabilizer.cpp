@@ -50,11 +50,11 @@ static BSPMotor motor4;
 static float alg_stabilizer_throttle_percent = 0;
 
 // PID constants
-static float asP = 0.5;
-static float asI = 0.005;
+static float asP = 0.2;
+static float asI = 0.001;
 
 // Fitler coefficients
-static float A = 0.8;
+static float A = 0.9;
 static float dt = 20e-3; // 20ms
 
 /*******************************************************************************
@@ -373,7 +373,7 @@ static void alg_stabilizer( float pitch, float roll )
     /*
      * Catch moving too much.
      */
-    if( pitch > 20 || roll > 20 )
+    if( pitch > 20 || roll > 20 || pitch < -20 || roll < -20 )
     {
         motor1_throttle = 1.0;
         motor2_throttle = 1.0;
