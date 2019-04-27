@@ -245,7 +245,7 @@ static void alg_stabilizer_PI_msg_cb(uint8_t* data,uint16_t len)
         if( len == sizeof(loc_P)+sizeof(loc_I) )
         {
             memcpy(&loc_P,&data[1],sizeof(loc_P));
-            memcpy(&loc_P,&data[sizeof(loc_P)+1],sizeof(loc_P));
+            memcpy(&loc_I,&data[sizeof(loc_P)+1],sizeof(loc_I));
             alg_stabilizer_set_PI_consts(loc_P,loc_I);
         }
     }
@@ -353,13 +353,6 @@ static void alg_stabilizer( float pitch, float roll )
     // Get the desired throttle
     float throttle_percent = alg_stabilizer_get_throttle();
 
-    /*
-     * Catch moving too much.
-     */
-    if( pitch > 30 || roll > 30 )
-    {
-        throttle_percent = 0;
-    }
 
     // Calculate Motor1's desired throttle
     float motor1_throttle_err = P*(-pitch)+P*(-roll)+I*(-pitch_sum)+I*(-roll_sum);
@@ -376,6 +369,18 @@ static void alg_stabilizer( float pitch, float roll )
     // Calculate Motor4's desired speed
     float motor4_throttle_err = P*(-pitch)+P*(roll)+I*(-pitch_sum)+I*(roll_sum);
     float motor4_throttle = throttle_percent + motor4_throttle_err;
+
+    /*
+     * Catch moving too much.
+     */
+    if( pitch > 20 || roll > 20 )
+    {
+        motor1_throttle = 1.0;
+        motor2_throttle = 1.0;
+        motor3_throttle = 1.0;
+        motor4_throttle = 1.0;
+    }
+
 
     motor1.SetSpeedPercent( motor1_throttle/100.0 );
     motor2.SetSpeedPercent( motor2_throttle/100.0 );
