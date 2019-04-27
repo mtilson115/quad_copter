@@ -353,6 +353,14 @@ static void alg_stabilizer( float pitch, float roll )
     // Get the desired throttle
     float throttle_percent = alg_stabilizer_get_throttle();
 
+    /*
+     * Catch moving too much.
+     */
+    if( pitch > 30 || roll > 30 )
+    {
+        throttle_percent = 0;
+    }
+
     // Calculate Motor1's desired throttle
     float motor1_throttle_err = P*(-pitch)+P*(-roll)+I*(-pitch_sum)+I*(-roll_sum);
     float motor1_throttle = throttle_percent + motor1_throttle_err;
