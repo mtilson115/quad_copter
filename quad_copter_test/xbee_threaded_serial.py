@@ -1,6 +1,7 @@
 import threading
 import queue
 import serial
+import struct
 
 msg_queue = queue.Queue()
 COMMS_SET_THROTTLE = 0x01
