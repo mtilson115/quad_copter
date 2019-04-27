@@ -126,7 +126,7 @@ void alg_stabilizer_init( void )
         .cb = alg_stabilizer_PI_msg_cb,
         .msg_id = COMMS_SET_PI,
     };
-    ret_t ret = COMMS_xbee_register_rx_cb(pi_rx_c);
+    ret = COMMS_xbee_register_rx_cb(pi_rx_cb);
     assert(ret==rSUCCESS);
 }
 
