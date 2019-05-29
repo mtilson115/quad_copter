@@ -49,16 +49,19 @@ def print_pitch_roll():
     roll = struct.unpack('<f', data[4:8])[0]
     print "pitch: %f, roll: %f" % (pitch,roll)
 
-ser = serial.Serial('/dev/ttyUSB0',115200)
+ser = serial.Serial('/dev/ttyACM0',115200)
 
 print (ser.is_open)
 
 if ser.is_open == True:
+    '''
     print "Ctrl-C to exit"
     data = ser.read(4)
     print data
+    '''
     while True:
         try:
+            '''
             hdr = ser.read(1)
             hdr = struct.unpack('B',hdr[0])[0]
             if hdr == 16:
@@ -74,6 +77,9 @@ if ser.is_open == True:
             elif hdr == 17:
                 print_motor_speeds_pitch_roll_P_I();
             time.sleep(0.020)
+            '''
+            data = ser.read(5)
+            print data
         except (KeyboardInterrupt, SystemExit):
             print "Exiting..."
             ser.close()

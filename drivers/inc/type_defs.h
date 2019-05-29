@@ -37,6 +37,12 @@ typedef enum {
 typedef __attribute__((aligned(1))) uint8_t uint8_ua_t;
 typedef __attribute__((aligned(1))) uint16_t uint16_ua_t;
 
+/*******************************************************************************
+ * Macros
+ ******************************************************************************/
+#define max(a,b) (((a) > (b)) ? (a) : (b))
+#define min(a,b) (((a) < (b)) ? (a) : (b))
+
 #ifdef	__cplusplus
 }
 #endif

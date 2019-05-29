@@ -50,11 +50,11 @@ static BSPMotor motor4;
 static float alg_stabilizer_throttle_percent = 0;
 
 // PID constants
-static float asP = 0.2;
+static float asP = 1.0;
 static float asI = 0.001;
 
 // Fitler coefficients
-static float A = 0.9;
+static float A = 0.85;
 static float dt = 20e-3; // 20ms
 
 /*******************************************************************************
@@ -67,8 +67,8 @@ static void alg_stabilizer_set_throttle( float throttle );
 static float alg_stabilizer_get_throttle( void );
 static void alg_stabilizer_set_PI_consts( float P, float I );
 static void alg_stabilizer_get_PI_consts( float* P, float* I );
-static void alg_stabilizer( float pitch, float roll );
-static void alg_stabilizer_compute_pitch_roll( float* pitch, float* roll );
+static void alg_stabilizer( float pitch, float roll, float gravity );
+static void alg_stabilizer_compute_pitch_roll( float* pitch, float* roll, float* gravity );
 
 /*******************************************************************************
  * Public Function Section
@@ -180,14 +180,17 @@ static void alg_stabilizer_task( void *p_arg )
 
         /*
          * Get the pitch and roll
+         * gravity is included for error conditions.
+         * If -gravity is detected, somethings wrong in this design as
+         * the quad copter is upside down.
          */
-        float pitch, roll;
-        alg_stabilizer_compute_pitch_roll(&pitch,&roll);
+        float pitch, roll, gravity;
+        alg_stabilizer_compute_pitch_roll(&pitch,&roll,&gravity);
 
         /*
          * Apply the values
          */
-        alg_stabilizer(pitch,roll);
+        alg_stabilizer(pitch,roll,gravity);
     }
 }
 
@@ -330,6 +333,7 @@ static void alg_stabilizer_get_PI_consts( float* P, float* I )
  *
  * Inputs:      float - pitch
  *              float - roll
+ *              float - gravity (for error detection if negative or upside down)
  *
  * Returns:     None
  *
@@ -338,7 +342,7 @@ static void alg_stabilizer_get_PI_consts( float* P, float* I )
  * Notes:       Right now this function assumes the desired pitch and roll is 0.
  *
  ******************************************************************************/
-static void alg_stabilizer( float pitch, float roll )
+static void alg_stabilizer( float pitch, float roll, float gravity )
 {
     static float pitch_sum = 0;
     static float roll_sum = 0;
@@ -357,30 +361,33 @@ static void alg_stabilizer( float pitch, float roll )
     // Calculate Motor1's desired throttle
     float motor1_throttle_err = P*(-pitch)+P*(-roll)+I*(-pitch_sum)+I*(-roll_sum);
     float motor1_throttle = throttle_percent + motor1_throttle_err;
+    motor1_throttle = min(motor1_throttle,100);
 
     // Calculate Motor2's desired speed
     float motor2_throttle_err = P*(pitch)+P*(-roll)+I*(pitch_sum)+I*(-roll_sum);
     float motor2_throttle = throttle_percent + motor2_throttle_err;
+    motor2_throttle = min(motor2_throttle,100);
 
     // Calculate Motor3's desired speed
     float motor3_throttle_err = P*(pitch)+P*(roll)+I*(pitch_sum)+I*(roll_sum);
     float motor3_throttle = throttle_percent + motor3_throttle_err;
+    motor3_throttle = min(motor3_throttle,100);
 
     // Calculate Motor4's desired speed
     float motor4_throttle_err = P*(-pitch)+P*(roll)+I*(-pitch_sum)+I*(roll_sum);
     float motor4_throttle = throttle_percent + motor4_throttle_err;
+    motor4_throttle = min(motor4_throttle,100);
 
     /*
-     * Catch moving too much.
+     * Catch moving too much or upside down.
      */
-    if( pitch > 20 || roll > 20 || pitch < -20 || roll < -20 )
+    if( pitch > 30 || roll > 30 || pitch < -30 || roll < -30 || gravity < 0 )
     {
         motor1_throttle = 1.0;
         motor2_throttle = 1.0;
         motor3_throttle = 1.0;
         motor4_throttle = 1.0;
     }
-
 
     motor1.SetSpeedPercent( motor1_throttle/100.0 );
     motor2.SetSpeedPercent( motor2_throttle/100.0 );
@@ -417,6 +424,7 @@ static void alg_stabilizer( float pitch, float roll )
  *
  * Outputs:     float - pitch
  *              float - roll
+ *              float - gravity (gravity accel vector)
  *
  * Returns:     None
  *
@@ -427,7 +435,7 @@ static void alg_stabilizer( float pitch, float roll )
  *              for the gyroscope outputs.
  *
  ******************************************************************************/
-static void alg_stabilizer_compute_pitch_roll( float* pitch, float* roll )
+static void alg_stabilizer_compute_pitch_roll( float* pitch, float* roll, float* gravity )
 {
         /*
          * Read accel from the hardware
@@ -450,6 +458,7 @@ static void alg_stabilizer_compute_pitch_roll( float* pitch, float* roll )
         ax /= accel_divisor; // Convert to g
         ay /= accel_divisor;
         az /= accel_divisor;
+        *gravity = az;
 
         gx /= gyro_divisor; // Convert to degrees
         gy /= gyro_divisor;
