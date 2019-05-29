@@ -29,6 +29,7 @@
 #define M_PI (3.14159)
 
 #define ALG_STB_DBG_HDR_MOTOR_PITCH_ROLL (17)
+#define SEND_DEBUG 0
 
 /*******************************************************************************
  * Local Data
@@ -397,6 +398,7 @@ static void alg_stabilizer( float pitch, float roll, float gravity )
     /*
      * Debug data
      */
+#if SEND_DEBUG
     uint8_t msg_hdr = ALG_STB_DBG_HDR_MOTOR_PITCH_ROLL;
     uint8_t data_buff[sizeof(msg_hdr)+8*sizeof(float)] = {0};
     data_buff[0] = msg_hdr;
@@ -414,6 +416,7 @@ static void alg_stabilizer( float pitch, float roll, float gravity )
     msg.data = data_buff;
     msg.len = sizeof(data_buff);
     COMMS_xbee_send(msg);
+#endif
 }
 
 /*******************************************************************************
