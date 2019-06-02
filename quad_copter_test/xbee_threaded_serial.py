@@ -7,7 +7,7 @@ msg_queue = queue.Queue()
 COMMS_SET_THROTTLE = 0x01
 COMMS_SET_PI = 0x02
 #ser = serial.Serial('/dev/tty.usbserial-A602TSTD',115200)
-ser = serial.Serial('/dev/ttyUSB0',115200)
+ser = serial.Serial('/dev/ttyUSB1',115200)
 
 def print_motor_speeds_pitch_roll_P_I():
     data = ser.read(32)
@@ -20,6 +20,11 @@ def print_motor_speeds_pitch_roll_P_I():
     P       = struct.unpack('<f', data[24:28])[0]
     I       = struct.unpack('<f', data[28:32])[0]
     print "%f,%f,%f,%f,%f,%f,%f,%f" % (motor1,motor2,motor3,motor4,pitch,roll,P,I)
+
+def print_battery_voltage():
+    data = ser.read(4)
+    voltage = struct.unpack('<f', data[0:4])[0]
+    print "Battery = %fV" % (voltage)
 
 def msg_thread():
     if ser.is_open:
@@ -35,6 +40,10 @@ def rx_thread():
             hdr = struct.unpack('B',hdr[0])[0]
             if hdr == 17:
                 print_motor_speeds_pitch_roll_P_I()
+            elif hdr == 20:
+                print_battery_voltage()
+            else:
+                print hdr
 
 def input_thread():
     while True:
