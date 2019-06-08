@@ -1,14 +1,14 @@
 /*******************************************************************************
- * File:    driver_analog.h
+ * File:    driver_flash.h
  * Author:  Mitchell S. Tilson
- * Created: 06/01/2019
+ * Created: 06/08/2019
  *
- * Description: This file provides a driver interface to the analog to digital
+ * Description: This file provides a driver interface to the flash programming
  * periperial.
  ******************************************************************************/
 #pragma once
-#ifndef DRIVER_ANALOG_H
-#define	DRIVER_ANALOG_H
+#ifndef DRIVER_FLASH_H
+#define	DRIVER_FLASH_H
 
 #ifdef	__cplusplus
 extern "C" {
@@ -22,15 +22,13 @@ extern "C" {
 /*******************************************************************************
  * Public Functions
  ******************************************************************************/
+    unsigned int driver_flash_unlock (unsigned int nvmop);
 
-    void driver_analog_init( void );
+    unsigned int driver_flash_write_word(void* address, unsigned int data);
 
-    void driver_analog_init_pin( unsigned int port, unsigned int pin );
-
-    int16_t driver_analog_get_10bit( unsigned int pin );
 
 #ifdef	__cplusplus
 }
 #endif
 
-#endif	/* DRIVER_ANALOG_H*/
+#endif	/* DRIVER_FLASH_H*/

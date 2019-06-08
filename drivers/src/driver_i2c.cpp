@@ -737,8 +737,6 @@ void I2C_Class::disable( void )
  ******************************************************************************/
 int I2C_Class::communicate( I2C_MSG* msg )
 {
-    // CPU_SR_ALLOC();
-    // CPU_CRITICAL_ENTER();
     uint32_t byte_count = 0;
     if( FALSE == initialized_ ) {
     	return 0;
@@ -811,7 +809,6 @@ int I2C_Class::communicate( I2C_MSG* msg )
 
     // Disable the I2C
     // disable();
-    // CPU_CRITICAL_EXIT();
     return byte_count;
 }
 
