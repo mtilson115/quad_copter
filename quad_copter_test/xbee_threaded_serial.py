@@ -1,5 +1,5 @@
 import threading
-import queue
+import Queue as queue
 import serial
 import struct
 
@@ -7,7 +7,8 @@ msg_queue = queue.Queue()
 COMMS_SET_THROTTLE = 0x01
 COMMS_SET_PI = 0x02
 #ser = serial.Serial('/dev/tty.usbserial-A602TSTD',115200)
-ser = serial.Serial('/dev/ttyUSB0',115200)
+#ser = serial.Serial('/dev/ttyUSB0',115200)
+ser = serial.Serial('/dev/tty.usbserial-DN050LLX',115200)
 
 def print_motor_speeds_pitch_roll_P_I():
     data = ser.read(32)
