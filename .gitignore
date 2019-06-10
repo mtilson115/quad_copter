@@ -21,6 +21,7 @@ BIN/
 *.properties
 *.mk
 *.xml
+.DS_Store
 
 # Tags
 tags
