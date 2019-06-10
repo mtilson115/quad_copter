@@ -60,14 +60,15 @@
  * Overview:        Interrupts are disabled by clearing the IE bit
  *                  in the status register
  ********************************************************************/
-extern inline uint32_t __attribute__((always_inline)) INTDisableInterrupts(void) 
+inline uint32_t __attribute__((always_inline)) INTDisableInterrupts(void)
 {
     uint32_t status = 0;
-    
+
     __asm__ volatile("di    %0" : "=r"(status));
 
     return status;
 }
+
 /*********************************************************************
  * Function:        mINTEnableInterrupts()
  *
@@ -82,14 +83,15 @@ extern inline uint32_t __attribute__((always_inline)) INTDisableInterrupts(void)
  * Overview:        Interrupts are enabled by setting the IE bit
  *                  in the status register
  ********************************************************************/
-extern inline uint32_t __attribute__((always_inline)) INTEnableInterrupts(void)
+inline uint32_t __attribute__((always_inline)) INTEnableInterrupts(void)
 {
     uint32_t status = 0;
-    
+
     __asm__ volatile("ei    %0" : "=r"(status));
 
     return status;
 }
+
 /*********************************************************************
  * Function:        INTRestoreInterrupts(uint32_t status)
  *
@@ -104,13 +106,14 @@ extern inline uint32_t __attribute__((always_inline)) INTEnableInterrupts(void)
  * Overview:        Interrupts are enabled by setting the IE bit
  *                  in the status register
  ********************************************************************/
-extern inline void __attribute__((always_inline)) INTRestoreInterrupts(uint32_t status)
+inline void __attribute__((always_inline)) INTRestoreInterrupts(uint32_t status)
 {
     if(status & 0x00000001)
         __asm__ volatile("ei");
     else
         __asm__ volatile("di");
 }
+
 /*********************************************************************
  * Function:        void INTEnableSystemMultiVectoredInt(void)
  *

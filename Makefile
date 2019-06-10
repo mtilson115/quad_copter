@@ -22,14 +22,15 @@ OUT:=$(CURRENT_DIR)/OUT
 BIN:=$(CURRENT_DIR)/BIN
 
 # Compiler
-CC_VERS=v2.10
-export CC=/opt/microchip/xc32/$(CC_VERS)/bin/xc32
+# CC_VERS=v1.34
+CC_VERS=v2.20
+export CC=/Applications/microchip/xc32/$(CC_VERS)/bin/xc32
 
 # Linker
 LD=$(CC)-g++
 
 # Programmer
-PROGRAMMER=/opt/microchip/mplabx/v5.10/mplab_platform/bin/mdb.sh
+PROGRAMMER=/Applications/microchip/mplabx/v5.20/mplab_platform/bin/mdb.sh
 
 # CC Compiler directives
 CFLAGS=-g -std=c99 -mprocessor=$(DEVICE) -nostartfiles

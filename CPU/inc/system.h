@@ -55,7 +55,7 @@
  *
  * Side Effects:    Sets the PB divider to the optimum value
  ********************************************************************/
-extern inline uint32_t __attribute__((always_inline)) SYSTEMConfigPB(uint32_t sys_clock)
+inline uint32_t __attribute__((always_inline)) SYSTEMConfigPB(uint32_t sys_clock)
 {
     uint32_t dma_status;
     uint32_t int_status;
@@ -94,7 +94,7 @@ extern inline uint32_t __attribute__((always_inline)) SYSTEMConfigPB(uint32_t sy
  *
  * Side Effects:    Sets the PB and Flash Wait states
  ********************************************************************/
-extern inline uint32_t __attribute__((always_inline)) SYSTEMConfigWaitStatesAndPB(uint32_t sys_clock)
+inline uint32_t __attribute__((always_inline)) SYSTEMConfigWaitStatesAndPB(uint32_t sys_clock)
 {
 #ifdef _PCACHE
     uint32_t wait_states;
@@ -135,7 +135,7 @@ extern inline uint32_t __attribute__((always_inline)) SYSTEMConfigWaitStatesAndP
  *
  * Side Effects:    Sets the PB and Flash Wait states
  ********************************************************************/
-extern inline uint32_t __attribute__((always_inline)) SYSTEMConfigPerformance(uint32_t sys_clock)
+inline uint32_t __attribute__((always_inline)) SYSTEMConfigPerformance(uint32_t sys_clock)
 {
     // set up the wait states
     uint32_t pb_clk;
