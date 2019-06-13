@@ -28,6 +28,7 @@ export CC=/Applications/microchip/xc32/$(CC_VERS)/bin/xc32
 
 # Linker
 LD=$(CC)-g++
+# LD=$(CC)-ld
 
 # Programmer
 PROGRAMMER=/Applications/microchip/mplabx/v5.20/mplab_platform/bin/mdb.sh
@@ -37,7 +38,7 @@ CFLAGS=-g -std=c99 -mprocessor=$(DEVICE) -nostartfiles
 CPPFLAGS=-g -mprocessor=$(DEVICE) -nostartfiles
 
 # LD flags --defsym=_min_heap_size=1024
-LDFLAGS=-mprocessor=$(DEVICE) -nostartfiles -Wl,--defsym=_min_heap_size=0x800 -Wl,-Map=$(BIN)/$(PROJECT).map -Wl,--defsym=_vector_spacing=4 -Wl,--report-mem -Wl,--verbose
+LDFLAGS= -mprocessor=$(DEVICE) -nostartfiles -Wl,--defsym=_min_heap_size=0x800 -Wl,-Map=$(BIN)/$(PROJECT).map -Wl,--defsym=_vector_spacing=4 -Wl,--report-mem -Wl,--verbose -Wl,--script p32MX795F512L.ld
 
 # Directories of the project
 DIRS= BSP CPU app drivers uC-CPU uC-LIB uCOS-III algs comms
@@ -97,7 +98,7 @@ $(BIN)/$(PROJECT).hex: $(BIN)/$(PROJECT).elf
 
 #Binary file generation
 $(BIN)/$(PROJECT).elf: $(S_OBJ_FILES) $(C_OBJ_FILES) $(CPP_OBJ_FILES)
-	$(LD) $(LDFLAGS) $(S_OBJ_FILES) $(C_OBJ_FILES) $(CPP_OBJ_FILES) -o $(BIN)/$(PROJECT).elf
+	$(LD) -o $(BIN)/$(PROJECT).elf $(S_OBJ_FILES) $(C_OBJ_FILES) $(CPP_OBJ_FILES) $(LDFLAGS)
 
 $(BIN)/$(PROJECT).lst: $(BIN)/$(PROJECT).elf
 	$(CC)-objdump -d $(BIN)/$(PROJECT).elf > $(BIN)/$(PROJECT).lst
