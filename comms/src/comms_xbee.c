@@ -27,7 +27,7 @@
 #define XBEE_MAX_TX         (128)
 #define XBEE_MAX_RX         (XBEE_MAX_TX + XBEE_MAX_HDR + XBEE_CKSM_SZ)
 #define XBEE_MAX_IPV4_RX    (64)
-#define XBEE_MAX_CB         (2)
+#define XBEE_MAX_CB         (3)
 
 /*******************************************************************************
  * XBEE states
@@ -638,7 +638,7 @@ static void comms_xbee_handle_rx_ipv4(comms_xbee_api_msg_t* api_msg)
     ipv4_rx_msg = (comms_xbee_ipv4_rx_t*)api_msg->frame_data_ptr;
 
     /*
-     * This is were the register call backs are called!
+     * This is were the registered call backs are called!
      */
     for( uint32_t cb_idx = 0; cb_idx < xbee_cb_count; cb_idx++ )
     {

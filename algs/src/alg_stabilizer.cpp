@@ -64,6 +64,7 @@ static float dt = 20e-3; // 20ms
 static void alg_stabilizer_task( void *p_arg );
 static void alg_stabilizer_throttle_msg_cb(uint8_t* data,uint16_t len);
 static void alg_stabilizer_PI_msg_cb(uint8_t* data,uint16_t len);
+static void alg_stabilizer_calibrate_msg_cb(uint8_t* data,uint16_t len);
 static void alg_stabilizer_set_throttle( float throttle );
 static float alg_stabilizer_get_throttle( void );
 static void alg_stabilizer_set_PI_consts( float P, float I );
@@ -116,18 +117,26 @@ void alg_stabilizer_init( void )
     // Register the TCB with the accel bsp code
     bsp_accel_gyro_int_register(&alg_stabilizer_TCB);
 
-    // Register a message call back routine
+    // Register the message call back routines
     comms_xbee_rx_cb_t throttle_rx_cb = {
         .cb = alg_stabilizer_throttle_msg_cb,
         .msg_id = COMMS_SET_THROTTLE,
     };
     ret_t ret = COMMS_xbee_register_rx_cb(throttle_rx_cb);
     assert(ret==rSUCCESS);
+
     comms_xbee_rx_cb_t pi_rx_cb = {
         .cb = alg_stabilizer_PI_msg_cb,
         .msg_id = COMMS_SET_PI,
     };
     ret = COMMS_xbee_register_rx_cb(pi_rx_cb);
+    assert(ret==rSUCCESS);
+
+    comms_xbee_rx_cb_t calibrate_cb = {
+        .cb = alg_stabilizer_calibrate_msg_cb,
+        .msg_id = COMMS_CALIBRATE,
+    };
+    ret = COMMS_xbee_register_rx_cb(calibrate_cb);
     assert(ret==rSUCCESS);
 }
 
@@ -170,6 +179,9 @@ static void alg_stabilizer_task( void *p_arg )
 
     // Initialize the AccelGyro
     AclGyro.Init();
+
+    // Start the accel gyro interrupt
+    AclGyro.Start();
 
     uint32_t ts = 0;
     while (DEF_ON)
@@ -230,7 +242,7 @@ static void alg_stabilizer_throttle_msg_cb(uint8_t* data,uint16_t len)
  * alg_stabilizer_PI_msg_cb
  *
  * Description: This function is called when a message is recieved and has the
- *              msg_id = COMMS_SET_PI (0x01)
+ *              msg_id = COMMS_SET_PI (0x02)
  *
  * Inputs:      None
  *
@@ -252,6 +264,29 @@ static void alg_stabilizer_PI_msg_cb(uint8_t* data,uint16_t len)
             memcpy(&loc_I,&data[sizeof(loc_P)+1],sizeof(loc_I));
             alg_stabilizer_set_PI_consts(loc_P,loc_I);
         }
+    }
+}
+
+/*******************************************************************************
+ * alg_stabilizer_calibrate_msg_cb
+ *
+ * Description: This function is called when a message is recieved and has the
+ *              msg_id = COMMS_CALIBRATE (0x03)
+ *
+ * Inputs:      None
+ *
+ * Returns:     None
+ *
+ * Revision:    Initial Creation 06/17/2019 - Mitchell S. Tilson
+ *
+ ******************************************************************************/
+static void alg_stabilizer_calibrate_msg_cb(uint8_t* data,uint16_t len)
+{
+    if( data[0] == COMMS_CALIBRATE )
+    {
+        AclGyro.Stop();
+        AclGyro.Calibrate();
+        AclGyro.Start();
     }
 }
 

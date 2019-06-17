@@ -168,6 +168,24 @@ void Accel_Gyro::IntEn( void )
 }
 
 /*******************************************************************************
+ * IntDisable
+ *
+ * Description:	Disables interrupts for the MPU6050 (AccelGyro chip)
+ *
+ * Inputs: none
+ *
+ * Revision: Initial Creation Mitchell Tilson
+ *					 06/17/2019 - Mitchell Tilson
+ *
+ * Notes:
+ *
+ ******************************************************************************/
+void Accel_Gyro::IntDisable( void )
+{
+    SetIntDataReadyEnabled(false);
+}
+
+/*******************************************************************************
  * GetFullRangeDivisor
  *
  * Description:	Returns the full range divisor for converting the ADC values to

@@ -57,6 +57,10 @@ public:
 
 	void Init( void );
 
+	void Start( void );
+
+	void Stop( void );
+
 	void Calibrate( void );
 
 	void PrintOffsets( void );
@@ -78,7 +82,6 @@ private:
  * Private Data
  ******************************************************************************/
 private:
-    motion6_data_type offsets;
 
     static const uint32_t CAL_SUM_CNT;
 

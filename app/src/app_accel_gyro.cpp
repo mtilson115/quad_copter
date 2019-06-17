@@ -26,6 +26,7 @@
 const uint32_t AppAccelGyroClass::CAL_SUM_CNT = 400;
 const uint16_t AppAccelGyroClass::ONE_G = 16384;
 #define M_PI (3.14159)
+#define ACCEL_GYRO_CAL_HDR (0xA5A5)
 
 /*******************************************************************************
  * Public data
@@ -83,8 +84,40 @@ void AppAccelGyroClass::Init( void )
      * interrupts.
      */
     AccelGyro.GetFullRangeDivisor(&accel_full_range_divisor,&gyro_full_range_divisor);
-    Calibrate();
+}
+
+/*******************************************************************************
+ * Start
+ *
+ * Description: Enables the interrupts from the accel gyro
+ *
+ * Inputs:      None
+ *
+ * Returns:     None
+ *
+ * Revision:    Initial Creation 06/17/2019 - Mitchell S. Tilson
+ *
+ ******************************************************************************/
+void AppAccelGyroClass::Start( void )
+{
     AccelGyro.IntEn();
+}
+
+/*******************************************************************************
+ * Start
+ *
+ * Description: Enables the interrupts from the accel gyro
+ *
+ * Inputs:      None
+ *
+ * Returns:     None
+ *
+ * Revision:    Initial Creation 06/17/2019 - Mitchell S. Tilson
+ *
+ ******************************************************************************/
+void AppAccelGyroClass::Stop( void )
+{
+    AccelGyro.IntDisable();
 }
 
 /*******************************************************************************
@@ -105,6 +138,7 @@ void AppAccelGyroClass::Init( void )
 void AppAccelGyroClass::Calibrate( void )
 {
     OS_ERR err;
+    motion6_data_type offsets;
 	memset(&offsets,0x00,sizeof(offsets));
     int32_t ax_s = 0;
     int32_t ay_s = 0;
@@ -131,13 +165,7 @@ void AppAccelGyroClass::Calibrate( void )
     offsets.gy = int16_t(((float)gy_s)/((float)CAL_SUM_CNT));
     offsets.gz = int16_t(((float)gz_s)/((float)CAL_SUM_CNT));
 
-    driver_flash_erase_page(accel_gyro_cal);
-    driver_flash_write_word(&accel_gyro_cal[0],offsets.ax);
-    driver_flash_write_word(&accel_gyro_cal[2],offsets.ay);
-    driver_flash_write_word(&accel_gyro_cal[4],offsets.az);
-    driver_flash_write_word(&accel_gyro_cal[6],offsets.gx);
-    driver_flash_write_word(&accel_gyro_cal[8],offsets.gy);
-    driver_flash_write_word(&accel_gyro_cal[10],offsets.gz);
+    setOffsets(&offsets);
 }
 
 /*******************************************************************************
@@ -155,6 +183,8 @@ void AppAccelGyroClass::Calibrate( void )
 void AppAccelGyroClass::PrintOffsets( void )
 {
 	BSP_Printf("Offset values (not the actual readings)\n\r");
+    motion6_data_type offsets;
+    readOffsets( &offsets );
 	BSP_Printf("AX %d\n\rAY %d\n\rAZ %d\n\r",offsets.ax,offsets.ay,offsets.az);
 	BSP_Printf("GX %d\n\rGY %d\n\rGZ %d\n\r",offsets.gx,offsets.gy,offsets.gz);
 }
@@ -174,6 +204,8 @@ void AppAccelGyroClass::PrintOffsets( void )
 void AppAccelGyroClass::GetMotion6Data( motion6_data_type* data )
 {
 	AccelGyro.GetMotion6( &data->ax, &data->ay, &data->az, &data->gx, &data->gy, &data->gz );
+    motion6_data_type offsets;
+    readOffsets( &offsets );
     data->ax -= offsets.ax;
     data->ay -= offsets.ay;
     data->az -= offsets.az;
@@ -240,13 +272,16 @@ void AppAccelGyroClass::PrintMotion6Data( void )
  ******************************************************************************/
 void AppAccelGyroClass::readOffsets( motion6_data_type* data )
 {
-	data->ax = AccelGyro.GetXAccelOffset();
-	data->ay = AccelGyro.GetYAccelOffset();
-	data->az = AccelGyro.GetZAccelOffset();
-
-	data->gx = AccelGyro.GetXGyroOffset();
-	data->gy = AccelGyro.GetYGyroOffset();
-	data->gz = AccelGyro.GetZGyroOffset();
+    uint16_t hdr = 0;
+    memcpy(&hdr,&accel_gyro_cal[0],sizeof(hdr));
+    if( hdr == ACCEL_GYRO_CAL_HDR )
+    {
+        memcpy(data,&accel_gyro_cal[2],sizeof(motion6_data_type));
+    }
+    else
+    {
+        memset(data,0x00,sizeof(motion6_data_type));
+    }
 }
 
 /*******************************************************************************
@@ -263,12 +298,13 @@ void AppAccelGyroClass::readOffsets( motion6_data_type* data )
  ******************************************************************************/
 void AppAccelGyroClass::setOffsets( motion6_data_type* data )
 {
-	AccelGyro.SetXAccelOffset( data->ax );
-	AccelGyro.SetYAccelOffset( data->ay );
-	AccelGyro.SetZAccelOffset( data->az );
-
-	AccelGyro.SetXGyroOffset( data->gx );
-	AccelGyro.SetYGyroOffset( data->gy );
-	AccelGyro.SetZGyroOffset( data->gz );
+    driver_flash_erase_page(accel_gyro_cal);
+    driver_flash_write_word(&accel_gyro_cal[0],ACCEL_GYRO_CAL_HDR);
+    driver_flash_write_word(&accel_gyro_cal[2],data->ax);
+    driver_flash_write_word(&accel_gyro_cal[4],data->ay);
+    driver_flash_write_word(&accel_gyro_cal[6],data->az);
+    driver_flash_write_word(&accel_gyro_cal[8],data->gx);
+    driver_flash_write_word(&accel_gyro_cal[10],data->gy);
+    driver_flash_write_word(&accel_gyro_cal[12],data->gz);
 }
 
