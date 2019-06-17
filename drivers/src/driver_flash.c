@@ -43,7 +43,7 @@
  * Notes:       None
  *
  ******************************************************************************/
-unsigned int driver_flash_unlock(unsigned int nvmop)
+unsigned int driver_flash_unlock( unsigned int nvmop )
 {
     // Suspend or Disable all Interrupts
     CPU_SR_ALLOC();
@@ -86,7 +86,7 @@ unsigned int driver_flash_unlock(unsigned int nvmop)
  * Notes:       None
  *
  ******************************************************************************/
-unsigned int driver_flash_write_word(void* address, unsigned int data)
+unsigned int driver_flash_write_word( const void* address, unsigned int data )
 {
     unsigned int res;
 
@@ -100,5 +100,34 @@ unsigned int driver_flash_write_word(void* address, unsigned int data)
     res = driver_flash_unlock(0x4001);
 
     // Return WRERR and LVDERR Error Status Bits
+    return res;
+}
+
+/*******************************************************************************
+ * driver_flash_erase_page
+ *
+ * Description: Erases a page of flash memory
+ *
+ * Inputs:      None
+ *
+ * Returns:     WRERR and LVDERR Error Status Bits
+ *
+ * Revision:    Initial Creation 06/08/2019 - Mitchell S. Tilson
+ *
+ * Notes:       The passed address should be the start of a page
+ *
+ ******************************************************************************/
+unsigned int driver_flash_erase_page( const void* address )
+{
+
+    unsigned int res;
+
+    // Set NVMADDR to the Start Address of page to erase
+    NVMADDR = (unsigned int) address;
+
+    // Unlock and Erase Page
+    res = driver_flash_unlock(0x4004);
+
+    // Return Result
     return res;
 }

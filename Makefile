@@ -38,7 +38,7 @@ CFLAGS=-g -std=c99 -mprocessor=$(DEVICE) -nostartfiles
 CPPFLAGS=-g -mprocessor=$(DEVICE) -nostartfiles
 
 # LD flags --defsym=_min_heap_size=1024
-LDFLAGS= -mprocessor=$(DEVICE) -nostartfiles -Wl,--defsym=_min_heap_size=0x800 -Wl,-Map=$(BIN)/$(PROJECT).map -Wl,--defsym=_vector_spacing=4 -Wl,--report-mem -Wl,--verbose -Wl,--script p32MX795F512L.ld
+LDFLAGS= -mprocessor=$(DEVICE) -nostartfiles -Wl,--defsym=_min_heap_size=0x800 -Wl,-Map=$(BIN)/$(PROJECT).map -Wl,--defsym=_vector_spacing=4 -Wl,--report-mem -Wl,--script p32MX795F512L.ld
 
 # Directories of the project
 DIRS= BSP CPU app drivers uC-CPU uC-LIB uCOS-III algs comms

@@ -22,9 +22,11 @@ extern "C" {
 /*******************************************************************************
  * Public Functions
  ******************************************************************************/
-    unsigned int driver_flash_unlock (unsigned int nvmop);
+    unsigned int driver_flash_unlock( unsigned int nvmop );
 
-    unsigned int driver_flash_write_word(void* address, unsigned int data);
+    unsigned int driver_flash_write_word( const void* address, unsigned int data );
+
+    unsigned int driver_flash_erase_page( const void* address );
 
 
 #ifdef	__cplusplus

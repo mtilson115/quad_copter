@@ -14,6 +14,7 @@
 #include "type_defs.h"
 #include "bsp_accel_gyro.h"
 #include "driver_i2c.h"
+#include "driver_flash.h"
 #include "bsp_utils.h"
 #include "comms_xbee.h"
 #include <string.h>
@@ -25,6 +26,11 @@
 const uint32_t AppAccelGyroClass::CAL_SUM_CNT = 400;
 const uint16_t AppAccelGyroClass::ONE_G = 16384;
 #define M_PI (3.14159)
+
+/*******************************************************************************
+ * Public data
+ ******************************************************************************/
+const unsigned char accel_gyro_cal[1024] __attribute__((section (".cal_space"),space(prog))) = {1};
 
 /*******************************************************************************
  * Public Object declaration
@@ -124,6 +130,14 @@ void AppAccelGyroClass::Calibrate( void )
     offsets.gx = int16_t(((float)gx_s)/((float)CAL_SUM_CNT));
     offsets.gy = int16_t(((float)gy_s)/((float)CAL_SUM_CNT));
     offsets.gz = int16_t(((float)gz_s)/((float)CAL_SUM_CNT));
+
+    driver_flash_erase_page(accel_gyro_cal);
+    driver_flash_write_word(&accel_gyro_cal[0],offsets.ax);
+    driver_flash_write_word(&accel_gyro_cal[2],offsets.ay);
+    driver_flash_write_word(&accel_gyro_cal[4],offsets.az);
+    driver_flash_write_word(&accel_gyro_cal[6],offsets.gx);
+    driver_flash_write_word(&accel_gyro_cal[8],offsets.gy);
+    driver_flash_write_word(&accel_gyro_cal[10],offsets.gz);
 }
 
 /*******************************************************************************
