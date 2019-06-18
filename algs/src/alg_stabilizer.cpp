@@ -40,6 +40,7 @@ CPU_STK alg_stabilizer_stack[ALG_STABILIZER_STK_SIZE];
 OS_TCB alg_stabilizer_TCB;
 OS_MUTEX alg_stabilizer_throttle_mutex;
 OS_MUTEX alg_stabilizer_PI_mutex;
+OS_MUTEX alg_stabilizer_calibrate_mutex;
 
 // Motor objects
 static BSPMotor motor1;
@@ -58,6 +59,9 @@ static float asI = 0.001;
 static float A = 0.85;
 static float dt = 20e-3; // 20ms
 
+// Calibration
+static bool do_calibration = false;
+
 /*******************************************************************************
  * Local Function Section
  ******************************************************************************/
@@ -71,6 +75,8 @@ static void alg_stabilizer_set_PI_consts( float P, float I );
 static void alg_stabilizer_get_PI_consts( float* P, float* I );
 static void alg_stabilizer( float pitch, float roll, float gravity );
 static void alg_stabilizer_compute_pitch_roll( float* pitch, float* roll, float* gravity );
+static void alg_stabilizer_set_calibrate( bool en );
+static bool alg_stabilizer_get_calibrate( void );
 
 /*******************************************************************************
  * Public Function Section
@@ -112,6 +118,8 @@ void alg_stabilizer_init( void )
     OSMutexCreate(&alg_stabilizer_throttle_mutex,(CPU_CHAR*)"Throttle Mutex",&err);
     assert(err==OS_ERR_NONE);
     OSMutexCreate(&alg_stabilizer_PI_mutex,(CPU_CHAR*)"PI Mutex",&err);
+    assert(err==OS_ERR_NONE);
+    OSMutexCreate(&alg_stabilizer_calibrate_mutex,(CPU_CHAR*)"Cal Mutex",&err);
     assert(err==OS_ERR_NONE);
 
     // Register the TCB with the accel bsp code
@@ -190,6 +198,29 @@ static void alg_stabilizer_task( void *p_arg )
          * Pend on the task semaphore (posted to from the interrupt for accel)
          */
         OSTaskSemPend(0,OS_OPT_PEND_BLOCKING,&ts,&err);
+
+        /*
+         * Check to see if calibration was requested.
+         * The throttle should be off.  The motors don't turn
+         * on until 35 percent.
+         */
+        if( alg_stabilizer_get_throttle() < 5.0 )
+        {
+            if( alg_stabilizer_get_calibrate() )
+            {
+                AclGyro.Stop();
+                AclGyro.Calibrate();
+                AclGyro.Start();
+                alg_stabilizer_set_calibrate( false );
+            }
+        }
+        else
+        {
+            if( alg_stabilizer_get_calibrate() )
+            {
+                alg_stabilizer_set_calibrate( false );
+            }
+        }
 
         /*
          * Get the pitch and roll
@@ -284,9 +315,7 @@ static void alg_stabilizer_calibrate_msg_cb(uint8_t* data,uint16_t len)
 {
     if( data[0] == COMMS_CALIBRATE )
     {
-        AclGyro.Stop();
-        AclGyro.Calibrate();
-        AclGyro.Start();
+        alg_stabilizer_set_calibrate( true );
     }
 }
 
@@ -332,8 +361,7 @@ static float alg_stabilizer_get_throttle( void )
  * Inputs:      float P
  *              float I
  *
- * Returns:     float P
- *              float I
+ * Returns:     None
  *
  * Revision:    Initial Creation 04/25/2019 - Mitchell S. Tilson
  *
@@ -359,6 +387,39 @@ static void alg_stabilizer_get_PI_consts( float* P, float* I )
     *P = asP;
     *I = asI;
     OSMutexPost(&alg_stabilizer_PI_mutex,OS_OPT_POST_NONE,&err);
+}
+
+/*******************************************************************************
+ * alg_stabilizer_set_calibrate/alg_stabilizer_get_calibrate
+ *
+ * Description: This function sets a variable indicating calibration should be done.
+ *
+ * Inputs:      None
+ *
+ * Returns:     None
+ *
+ * Revision:    Initial Creation 06/17/2019 - Mitchell S. Tilson
+ *
+ * Notes:
+ *
+ ******************************************************************************/
+static void alg_stabilizer_set_calibrate( bool en )
+{
+    OS_ERR err;
+    CPU_TS ts = 0;
+    OSMutexPend(&alg_stabilizer_calibrate_mutex,0,OS_OPT_PEND_BLOCKING,&ts,&err);
+    do_calibration = en;
+    OSMutexPost(&alg_stabilizer_calibrate_mutex,OS_OPT_POST_NONE,&err);
+}
+static bool alg_stabilizer_get_calibrate( void )
+{
+    OS_ERR err;
+    CPU_TS ts = 0;
+    bool ret = false;
+    OSMutexPend(&alg_stabilizer_calibrate_mutex,0,OS_OPT_PEND_BLOCKING,&ts,&err);
+    ret = do_calibration;
+    OSMutexPost(&alg_stabilizer_calibrate_mutex,OS_OPT_POST_NONE,&err);
+    return ret;
 }
 
 /*******************************************************************************
