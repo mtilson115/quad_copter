@@ -86,7 +86,7 @@ unsigned int driver_flash_unlock( unsigned int nvmop )
  * Notes:       None
  *
  ******************************************************************************/
-unsigned int driver_flash_write_word( const void* address, unsigned int data )
+unsigned int driver_flash_write_word( unsigned int address, unsigned int data )
 {
     unsigned int res;
 
@@ -117,7 +117,7 @@ unsigned int driver_flash_write_word( const void* address, unsigned int data )
  * Notes:       The passed address should be the start of a page
  *
  ******************************************************************************/
-unsigned int driver_flash_erase_page( const void* address )
+unsigned int driver_flash_erase_page( unsigned int address )
 {
 
     unsigned int res;

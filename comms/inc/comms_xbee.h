@@ -19,9 +19,15 @@ extern "C" {
 #include "app_cfg.h"
 #include "type_defs.h"
 
+// RX Messages
 #define COMMS_SET_THROTTLE (0x01)
 #define COMMS_SET_PI (0x02)
 #define COMMS_CALIBRATE (0x03)
+
+// TX Messages
+#define COMMS_DBG_HDR_MOTOR_PITCH_ROLL (17)
+#define COMMS_BATTERY_VOLTAGE (20)
+#define COMMS_CALIBRATION (1)
 
 typedef struct __attribute__((packed)) {
     uint16_t    len;

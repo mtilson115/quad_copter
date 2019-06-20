@@ -19,6 +19,7 @@
 #include "comms_xbee.h"
 #include <string.h>
 #include <math.h>
+#include <sys/kmem.h>
 
 /*******************************************************************************
  * Private data
@@ -26,12 +27,12 @@
 const uint32_t AppAccelGyroClass::CAL_SUM_CNT = 400;
 const uint16_t AppAccelGyroClass::ONE_G = 16384;
 #define M_PI (3.14159)
-#define ACCEL_GYRO_CAL_HDR (0xA5A5)
+#define ACCEL_GYRO_CAL_HDR (0xA5A5A5A5)
 
 /*******************************************************************************
  * Public data
  ******************************************************************************/
-const unsigned char accel_gyro_cal[1024] __attribute__((section (".cal_space"),space(prog))) = {1};
+unsigned char accel_gyro_cal[1024] __attribute__((section (".cal_space"),space(prog))) = {1};
 
 /*******************************************************************************
  * Public Object declaration
@@ -166,6 +167,25 @@ void AppAccelGyroClass::Calibrate( void )
     offsets.gz = int16_t(((float)gz_s)/((float)CAL_SUM_CNT));
 
     setOffsets(&offsets);
+
+    // Build the message
+    uint8_t msg_hdr = COMMS_CALIBRATION;
+    uint8_t data_buff[sizeof(msg_hdr)+6*sizeof(int16_t)] = {0};
+    data_buff[0] = msg_hdr;
+    memcpy(&data_buff[sizeof(msg_hdr)],&offsets.ax,sizeof(int16_t));
+    memcpy(&data_buff[sizeof(int16_t)+sizeof(msg_hdr)],&offsets.ay,sizeof(int16_t));
+    memcpy(&data_buff[2*sizeof(int16_t)+sizeof(msg_hdr)],&offsets.az,sizeof(int16_t));
+    memcpy(&data_buff[3*sizeof(int16_t)+sizeof(msg_hdr)],&offsets.gx,sizeof(int16_t));
+    memcpy(&data_buff[4*sizeof(int16_t)+sizeof(msg_hdr)],&offsets.gy,sizeof(int16_t));
+    memcpy(&data_buff[5*sizeof(int16_t)+sizeof(msg_hdr)],&offsets.gz,sizeof(int16_t));
+
+    // Send the message
+    comms_xbee_msg_t msg;
+    msg.data = data_buff;
+    msg.len = sizeof(data_buff);
+    COMMS_xbee_send(msg);
+
+    PrintOffsets();
 }
 
 /*******************************************************************************
@@ -182,11 +202,26 @@ void AppAccelGyroClass::Calibrate( void )
  ******************************************************************************/
 void AppAccelGyroClass::PrintOffsets( void )
 {
-	BSP_Printf("Offset values (not the actual readings)\n\r");
+    // Get the offsets
     motion6_data_type offsets;
     readOffsets( &offsets );
-	BSP_Printf("AX %d\n\rAY %d\n\rAZ %d\n\r",offsets.ax,offsets.ay,offsets.az);
-	BSP_Printf("GX %d\n\rGY %d\n\rGZ %d\n\r",offsets.gx,offsets.gy,offsets.gz);
+
+    // Build the message
+    uint8_t msg_hdr = COMMS_CALIBRATION;
+    uint8_t data_buff[sizeof(msg_hdr)+6*sizeof(int16_t)] = {0};
+    data_buff[0] = msg_hdr;
+    memcpy(&data_buff[sizeof(msg_hdr)],&offsets.ax,sizeof(int16_t));
+    memcpy(&data_buff[sizeof(int16_t)+sizeof(msg_hdr)],&offsets.ay,sizeof(int16_t));
+    memcpy(&data_buff[2*sizeof(int16_t)+sizeof(msg_hdr)],&offsets.az,sizeof(int16_t));
+    memcpy(&data_buff[3*sizeof(int16_t)+sizeof(msg_hdr)],&offsets.gx,sizeof(int16_t));
+    memcpy(&data_buff[4*sizeof(int16_t)+sizeof(msg_hdr)],&offsets.gy,sizeof(int16_t));
+    memcpy(&data_buff[5*sizeof(int16_t)+sizeof(msg_hdr)],&offsets.gz,sizeof(int16_t));
+
+    // Send the message
+    comms_xbee_msg_t msg;
+    msg.data = data_buff;
+    msg.len = sizeof(data_buff);
+    COMMS_xbee_send(msg);
 }
 
 /*******************************************************************************
@@ -272,11 +307,16 @@ void AppAccelGyroClass::PrintMotion6Data( void )
  ******************************************************************************/
 void AppAccelGyroClass::readOffsets( motion6_data_type* data )
 {
-    uint16_t hdr = 0;
+    uint32_t hdr = 0;
     memcpy(&hdr,&accel_gyro_cal[0],sizeof(hdr));
     if( hdr == ACCEL_GYRO_CAL_HDR )
     {
-        memcpy(data,&accel_gyro_cal[2],sizeof(motion6_data_type));
+        data->ax = (int16_t)accel_gyro_cal[4];
+        data->ay = (int16_t)accel_gyro_cal[8];
+        data->az = (int16_t)accel_gyro_cal[12];
+        data->gx = (int16_t)accel_gyro_cal[16];
+        data->gy = (int16_t)accel_gyro_cal[20];
+        data->gz = (int16_t)accel_gyro_cal[24];
     }
     else
     {
@@ -298,13 +338,13 @@ void AppAccelGyroClass::readOffsets( motion6_data_type* data )
  ******************************************************************************/
 void AppAccelGyroClass::setOffsets( motion6_data_type* data )
 {
-    driver_flash_erase_page(accel_gyro_cal);
-    driver_flash_write_word(&accel_gyro_cal[0],ACCEL_GYRO_CAL_HDR);
-    driver_flash_write_word(&accel_gyro_cal[2],data->ax);
-    driver_flash_write_word(&accel_gyro_cal[4],data->ay);
-    driver_flash_write_word(&accel_gyro_cal[6],data->az);
-    driver_flash_write_word(&accel_gyro_cal[8],data->gx);
-    driver_flash_write_word(&accel_gyro_cal[10],data->gy);
-    driver_flash_write_word(&accel_gyro_cal[12],data->gz);
+    driver_flash_erase_page(KVA_TO_PA(accel_gyro_cal));
+    driver_flash_write_word(KVA_TO_PA(&accel_gyro_cal[0]),ACCEL_GYRO_CAL_HDR);
+    driver_flash_write_word(KVA_TO_PA(&accel_gyro_cal[4]),data->ax);
+    driver_flash_write_word(KVA_TO_PA(&accel_gyro_cal[8]),data->ay);
+    driver_flash_write_word(KVA_TO_PA(&accel_gyro_cal[12]),data->az);
+    driver_flash_write_word(KVA_TO_PA(&accel_gyro_cal[16]),data->gx);
+    driver_flash_write_word(KVA_TO_PA(&accel_gyro_cal[20]),data->gy);
+    driver_flash_write_word(KVA_TO_PA(&accel_gyro_cal[24]),data->gz);
 }
 

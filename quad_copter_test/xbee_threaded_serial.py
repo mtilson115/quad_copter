@@ -6,6 +6,8 @@ import struct
 msg_queue = queue.Queue()
 COMMS_SET_THROTTLE = 0x01
 COMMS_SET_PI = 0x02
+COMMS_CALIBRATE = 0x03
+
 #ser = serial.Serial('/dev/tty.usbserial-A602TSTD',115200)
 #ser = serial.Serial('/dev/ttyUSB0',115200)
 ser = serial.Serial('/dev/tty.usbserial-DN050LLX',115200)
@@ -27,11 +29,21 @@ def print_battery_voltage():
     voltage = struct.unpack('<f', data[0:4])[0]
     print "Battery = %fV" % (voltage)
 
+def print_calibration():
+    data = ser.read(12)
+    AX = struct.unpack('<h', data[0:2])[0]
+    AY = struct.unpack('<h', data[2:4])[0]
+    AZ = struct.unpack('<h', data[4:6])[0]
+    GX = struct.unpack('<h', data[6:8])[0]
+    GY = struct.unpack('<h', data[8:10])[0]
+    GZ = struct.unpack('<h', data[10:12])[0]
+    print "AX = %d,AY = %d,AZ = %d,GX = %d,GY = %d,GZ = %d" % (AX,AY,AZ,GX,GY,GZ)
+
 def msg_thread():
     if ser.is_open:
         while True:
             msg = msg_queue.get(block=True)
-            if msg[0] == COMMS_SET_THROTTLE or msg[0] == COMMS_SET_PI:
+            if msg[0] == COMMS_SET_THROTTLE or msg[0] == COMMS_SET_PI or msg[0] == COMMS_CALIBRATE:
                 ser.write(msg)
 
 def rx_thread():
@@ -43,6 +55,8 @@ def rx_thread():
                 print_motor_speeds_pitch_roll_P_I()
             elif hdr == 20:
                 print_battery_voltage()
+            elif hdr == 1:
+                print_calibration()
             else:
                 print hdr
 
@@ -51,6 +65,7 @@ def input_thread():
         print "Commands:"
         print "s: set the speed as a percentage (0 - 100)"
         print "p: set PI constants"
+        print "c: Run Calibration"
         cmd = raw_input()
         if cmd == 's':
             speed = raw_input()
@@ -74,6 +89,11 @@ def input_thread():
             struct.pack_into('<f',msg,5,I)
             print "Set P = %f I = %f" % (P,I)
             msg_queue.put(msg)
+        if cmd == 'c':
+            msg = bytearray(1)
+            struct.pack_into('B',msg,0,COMMS_CALIBRATE)
+            msg_queue.put(msg)
+
 
 if __name__ == "__main__":
     if ser.is_open:

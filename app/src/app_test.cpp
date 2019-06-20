@@ -51,7 +51,7 @@ static void test_task(void  *p_arg)
         voltage = (voltage*(10*1000+2.8*1000))/(2.8*1000);
 
         // Create the message
-        uint8_t msg_hdr = 20;
+        uint8_t msg_hdr = COMMS_BATTERY_VOLTAGE;
         uint8_t data_buff[sizeof(msg_hdr)+sizeof(float)] = {0};
         data_buff[0] = msg_hdr;
         memcpy(&data_buff[sizeof(msg_hdr)],&voltage,sizeof(float));

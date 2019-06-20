@@ -24,9 +24,9 @@ extern "C" {
  ******************************************************************************/
     unsigned int driver_flash_unlock( unsigned int nvmop );
 
-    unsigned int driver_flash_write_word( const void* address, unsigned int data );
+    unsigned int driver_flash_write_word( unsigned int address, unsigned int data );
 
-    unsigned int driver_flash_erase_page( const void* address );
+    unsigned int driver_flash_erase_page( unsigned int address );
 
 
 #ifdef	__cplusplus
