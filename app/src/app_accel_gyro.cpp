@@ -76,7 +76,6 @@ void AppAccelGyroClass::Init( void )
 
 	// Intialize the chip
 	if( false == AccelGyro.Init() ) {
-		BSP_Printf("Failed to initialize the gyro\n\r");
 		return;
 	}
 
@@ -311,12 +310,12 @@ void AppAccelGyroClass::readOffsets( motion6_data_type* data )
     memcpy(&hdr,&accel_gyro_cal[0],sizeof(hdr));
     if( hdr == ACCEL_GYRO_CAL_HDR )
     {
-        data->ax = (int16_t)accel_gyro_cal[4];
-        data->ay = (int16_t)accel_gyro_cal[8];
-        data->az = (int16_t)accel_gyro_cal[12];
-        data->gx = (int16_t)accel_gyro_cal[16];
-        data->gy = (int16_t)accel_gyro_cal[20];
-        data->gz = (int16_t)accel_gyro_cal[24];
+        memcpy(&data->ax,&accel_gyro_cal[4],sizeof(data->ax));
+        memcpy(&data->ay,&accel_gyro_cal[8],sizeof(data->ay));
+        memcpy(&data->az,&accel_gyro_cal[12],sizeof(data->az));
+        memcpy(&data->gx,&accel_gyro_cal[16],sizeof(data->gx));
+        memcpy(&data->gy,&accel_gyro_cal[20],sizeof(data->gy));
+        memcpy(&data->gz,&accel_gyro_cal[24],sizeof(data->gz));
     }
     else
     {

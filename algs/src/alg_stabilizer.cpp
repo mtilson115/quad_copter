@@ -190,6 +190,9 @@ static void alg_stabilizer_task( void *p_arg )
     // Start the accel gyro interrupt
     AclGyro.Start();
 
+    // Print the offsets
+    AclGyro.PrintOffsets();
+
     uint32_t ts = 0;
     while (DEF_ON)
     {
