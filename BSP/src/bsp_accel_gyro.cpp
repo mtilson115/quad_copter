@@ -131,16 +131,19 @@ bool Accel_Gyro::Init( void )
     SetFullScaleGyroRange(MPU6050_GYRO_FS_250);
     SetFullScaleAccelRange(MPU6050_ACCEL_FS_2);
     SetSleepEnabled(false); // thanks to Jack Elston for pointing this one out!
+
     /*
      * There are no external chips attached to the MPU6050
      */
     SetExternalFrameSync(0);
+
     /*
      * 10Hz, 10Hz, 1khz
      */
     SetDLPFMode(5);
+
     /*
-     * Set the update rate to be 20ms
+     * Set the update rate to be 20Hz
      */
     SetRate(49);
     return TestConnection();

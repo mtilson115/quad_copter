@@ -21,6 +21,7 @@
 #include <math.h>
 #include <string.h>
 #include <assert.h>
+#include <p32xxxx.h>
 
 /*******************************************************************************
  * Constants
@@ -56,7 +57,7 @@ static float asI = 0.001;
 
 // Fitler coefficients
 static float A = 0.85;
-static float dt = 20e-3; // 20ms
+static float dt = 50e-3; // 20ms
 
 // Calibration
 static bool do_calibration = false;
@@ -196,6 +197,9 @@ static void alg_stabilizer_task( void *p_arg )
     uint32_t ts = 0;
     while (DEF_ON)
     {
+
+        PORTEINV = (1<<7);
+
         /*
          * Pend on the task semaphore (posted to from the interrupt for accel)
          */
