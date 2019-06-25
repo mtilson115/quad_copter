@@ -53,11 +53,11 @@ static float alg_stabilizer_throttle_percent = 0;
 
 // PID constants
 static float asP = 1.0;
-static float asI = 0.001;
+static float asI = 0.0;
 
 // Fitler coefficients
-static float A = 0.85;
-static float dt = 50e-3; // 20ms
+static float A = 0.9;
+static float dt = 31.0e-3; // 31.25Hz
 
 // Calibration
 static bool do_calibration = false;
@@ -181,6 +181,23 @@ static void alg_stabilizer_task( void *p_arg )
     motor2.Start();
     motor3.Start();
     motor4.Start();
+
+    // Calibrate the motors
+    motor1.SetSpeedPercent(1.0);
+    motor2.SetSpeedPercent(1.0);
+    motor3.SetSpeedPercent(1.0);
+    motor4.SetSpeedPercent(1.0);
+
+    // Delay 2.25s
+    OSTimeDlyHMSM(0u, 0u, 2u, 250u,OS_OPT_TIME_HMSM_STRICT,&err);
+
+    motor1.SetSpeedPercent(0.0);
+    motor2.SetSpeedPercent(0.0);
+    motor3.SetSpeedPercent(0.0);
+    motor4.SetSpeedPercent(0.0);
+
+    // Delay 2.5s
+    OSTimeDlyHMSM(0u, 0u, 2u, 250u,OS_OPT_TIME_HMSM_STRICT,&err);
 
     // Wait on comms
     BSP_PrintfInit();
@@ -460,21 +477,25 @@ static void alg_stabilizer( float pitch, float roll, float gravity )
 
     // Calculate Motor1's desired throttle
     float motor1_throttle_err = P*(-pitch)+P*(-roll)+I*(-pitch_sum)+I*(-roll_sum);
+    motor1_throttle_err = max(motor1_throttle_err,0.0);
     float motor1_throttle = throttle_percent + motor1_throttle_err;
     motor1_throttle = min(motor1_throttle,100);
 
     // Calculate Motor2's desired speed
     float motor2_throttle_err = P*(pitch)+P*(-roll)+I*(pitch_sum)+I*(-roll_sum);
+    motor2_throttle_err = max(motor2_throttle_err,0.0);
     float motor2_throttle = throttle_percent + motor2_throttle_err;
     motor2_throttle = min(motor2_throttle,100);
 
     // Calculate Motor3's desired speed
     float motor3_throttle_err = P*(pitch)+P*(roll)+I*(pitch_sum)+I*(roll_sum);
+    motor3_throttle_err = max(motor3_throttle_err,0.0);
     float motor3_throttle = throttle_percent + motor3_throttle_err;
     motor3_throttle = min(motor3_throttle,100);
 
     // Calculate Motor4's desired speed
     float motor4_throttle_err = P*(-pitch)+P*(roll)+I*(-pitch_sum)+I*(roll_sum);
+    motor4_throttle_err = max(motor4_throttle_err,0.0);
     float motor4_throttle = throttle_percent + motor4_throttle_err;
     motor4_throttle = min(motor4_throttle,100);
 
