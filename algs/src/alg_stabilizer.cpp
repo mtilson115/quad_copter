@@ -197,9 +197,6 @@ static void alg_stabilizer_task( void *p_arg )
     uint32_t ts = 0;
     while (DEF_ON)
     {
-
-        PORTEINV = (1<<7);
-
         /*
          * Pend on the task semaphore (posted to from the interrupt for accel)
          */
