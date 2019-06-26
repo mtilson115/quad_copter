@@ -57,7 +57,7 @@ static float asI = 0.0;
 
 // Fitler coefficients
 static float A = 0.9;
-static float dt = 31.0e-3; // 31.25Hz
+static float dt = 50.0e-3; // units s
 
 // Calibration
 static bool do_calibration = false;
@@ -182,22 +182,24 @@ static void alg_stabilizer_task( void *p_arg )
     motor3.Start();
     motor4.Start();
 
+#if DO_THROTTLE_CAL
     // Calibrate the motors
     motor1.SetSpeedPercent(1.0);
     motor2.SetSpeedPercent(1.0);
     motor3.SetSpeedPercent(1.0);
     motor4.SetSpeedPercent(1.0);
 
-    // Delay 2.25s
-    OSTimeDlyHMSM(0u, 0u, 2u, 250u,OS_OPT_TIME_HMSM_STRICT,&err);
+    // Delay 6s
+    OSTimeDlyHMSM(0u, 0u, 6u, 0u,OS_OPT_TIME_HMSM_STRICT,&err);
 
     motor1.SetSpeedPercent(0.0);
     motor2.SetSpeedPercent(0.0);
     motor3.SetSpeedPercent(0.0);
     motor4.SetSpeedPercent(0.0);
 
-    // Delay 2.5s
+    // Delay 2.25s
     OSTimeDlyHMSM(0u, 0u, 2u, 250u,OS_OPT_TIME_HMSM_STRICT,&err);
+#endif
 
     // Wait on comms
     BSP_PrintfInit();
