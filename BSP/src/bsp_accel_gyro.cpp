@@ -138,14 +138,14 @@ bool Accel_Gyro::Init( void )
     SetExternalFrameSync(0);
 
     /*
-     * 184Hz, 188Hz, 1khz
+     * 94, 98Hz, 1khz
      */
-    SetDLPFMode(1);
+    SetDLPFMode(2);
 
     /*
-     * Set the update rate to be 20Hz
+     * Set the update rate to be 200Hz
      */
-    SetRate(49);
+    SetRate(4);
     return TestConnection();
 }
 

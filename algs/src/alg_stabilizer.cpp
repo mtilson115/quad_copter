@@ -56,8 +56,8 @@ static float asP = 1.0;
 static float asI = 0.0;
 
 // Fitler coefficients
-static float A = 0.9;
-static float dt = 50.0e-3; // units s
+static float A = 0.95;
+static float dt = 5.0e-3; // units s
 
 // Calibration
 static bool do_calibration = false;
@@ -592,8 +592,8 @@ static void alg_stabilizer_compute_pitch_roll( float* pitch, float* roll, float*
         /*
          * Calculate roll and pitch
          */
-        float accel_pitch = atan2(ax,sqrt(ay*ay+az*az));
-        float accel_roll = atan2(ay,sqrt(ax*ax+az*az));
+        float accel_pitch = atan2f(ax,sqrt(ax*ax+az*az));
+        float accel_roll = atan2f(ay,sqrt(ay*ay+az*az));
 
         /*
          * Convert to degrees
