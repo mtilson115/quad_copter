@@ -592,8 +592,8 @@ static void alg_stabilizer_compute_pitch_roll( float* pitch, float* roll, float*
         /*
          * Calculate roll and pitch
          */
-        float accel_pitch = atan2f(ax,sqrt(ax*ax+az*az));
-        float accel_roll = atan2f(ay,sqrt(ay*ay+az*az));
+        float accel_pitch = atan2f(ax,sqrt(ay*ay+az*az));
+        float accel_roll = atan2f(ay,sqrt(ax*ax+az*az));
 
         /*
          * Convert to degrees
