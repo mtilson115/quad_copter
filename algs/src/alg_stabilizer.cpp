@@ -488,25 +488,25 @@ static void alg_stabilizer( float pitch, float roll, float gravity )
 
 
     // Calculate Motor1's desired throttle
-    float motor1_throttle_err = P*(-pitch)+P*(-roll)+I*(-pitch_sum)+I*(-roll_sum)+D*(-pitch_d)+D*(-roll_d);
+    float motor1_throttle_err = P*(-pitch)+P*(-roll)+I*(-pitch_sum)+I*(-roll_sum)+D*(pitch_d)+D*(roll_d);
     motor1_throttle_err = max(motor1_throttle_err,1.0);
     float motor1_throttle = throttle_percent + motor1_throttle_err;
     motor1_throttle = min(motor1_throttle,100);
 
     // Calculate Motor2's desired speed
-    float motor2_throttle_err = P*(pitch)+P*(-roll)+I*(pitch_sum)+I*(-roll_sum)+D*(pitch_d)+D*(-roll_d);
+    float motor2_throttle_err = P*(pitch)+P*(-roll)+I*(pitch_sum)+I*(-roll_sum)+D*(-pitch_d)+D*(roll_d);
     motor2_throttle_err = max(motor2_throttle_err,1.0);
     float motor2_throttle = throttle_percent + motor2_throttle_err;
     motor2_throttle = min(motor2_throttle,100);
 
     // Calculate Motor3's desired speed
-    float motor3_throttle_err = P*(pitch)+P*(roll)+I*(pitch_sum)+I*(roll_sum)+D*(pitch_d)+D*(roll_d);
+    float motor3_throttle_err = P*(pitch)+P*(roll)+I*(pitch_sum)+I*(roll_sum)+D*(-pitch_d)+D*(-roll_d);
     motor3_throttle_err = max(motor3_throttle_err,1.0);
     float motor3_throttle = throttle_percent + motor3_throttle_err;
     motor3_throttle = min(motor3_throttle,100);
 
     // Calculate Motor4's desired speed
-    float motor4_throttle_err = P*(-pitch)+P*(roll)+I*(-pitch_sum)+I*(roll_sum)+D*(-pitch_d)+D*(roll_d);
+    float motor4_throttle_err = P*(-pitch)+P*(roll)+I*(-pitch_sum)+I*(roll_sum)+D*(pitch_d)+D*(-roll_d);
     motor4_throttle_err = max(motor4_throttle_err,1.0);
     float motor4_throttle = throttle_percent + motor4_throttle_err;
     motor4_throttle = min(motor4_throttle,100);
