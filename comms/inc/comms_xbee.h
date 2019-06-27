@@ -21,7 +21,7 @@ extern "C" {
 
 // RX Messages
 #define COMMS_SET_THROTTLE (0x01)
-#define COMMS_SET_PI (0x02)
+#define COMMS_SET_PID (0x02)
 #define COMMS_CALIBRATE (0x03)
 
 // TX Messages

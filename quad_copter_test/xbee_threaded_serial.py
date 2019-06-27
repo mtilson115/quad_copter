@@ -5,7 +5,7 @@ import struct
 
 msg_queue = queue.Queue()
 COMMS_SET_THROTTLE = 0x01
-COMMS_SET_PI = 0x02
+COMMS_SET_PID = 0x02
 COMMS_CALIBRATE = 0x03
 
 #ser = serial.Serial('/dev/tty.usbserial-A602TSTD',115200)
@@ -13,7 +13,7 @@ COMMS_CALIBRATE = 0x03
 ser = serial.Serial('/dev/tty.usbserial-DN050LLX',115200)
 
 def print_motor_speeds_pitch_roll_P_I():
-    data = ser.read(32)
+    data = ser.read(36)
     motor1  = struct.unpack('<f', data[0:4])[0]
     motor2  = struct.unpack('<f', data[4:8])[0]
     motor3  = struct.unpack('<f', data[8:12])[0]
@@ -22,7 +22,8 @@ def print_motor_speeds_pitch_roll_P_I():
     roll    = struct.unpack('<f', data[20:24])[0]
     P       = struct.unpack('<f', data[24:28])[0]
     I       = struct.unpack('<f', data[28:32])[0]
-    print "%f,%f,%f,%f,%f,%f,%f,%f" % (motor1,motor2,motor3,motor4,pitch,roll,P,I)
+    D       = struct.unpack('<f', data[32:36])[0]
+    print "%f,%f,%f,%f,%f,%f,%f,%f,%f" % (motor1,motor2,motor3,motor4,pitch,roll,P,I,D)
 
 def print_battery_voltage():
     data = ser.read(4)
@@ -43,7 +44,7 @@ def msg_thread():
     if ser.is_open:
         while True:
             msg = msg_queue.get(block=True)
-            if msg[0] == COMMS_SET_THROTTLE or msg[0] == COMMS_SET_PI or msg[0] == COMMS_CALIBRATE:
+            if msg[0] == COMMS_SET_THROTTLE or msg[0] == COMMS_SET_PID or msg[0] == COMMS_CALIBRATE:
                 ser.write(msg)
 
 def rx_thread():
@@ -64,7 +65,7 @@ def input_thread():
     while True:
         print "Commands:"
         print "s: set the speed as a percentage (0 - 100)"
-        print "p: set PI constants"
+        print "p: set PID constants"
         print "c: Run Calibration"
         cmd = raw_input()
         if cmd == 's':
@@ -83,11 +84,15 @@ def input_thread():
             print "Enter the I value:"
             I = raw_input()
             I = float(I)
-            msg = bytearray(9)
-            struct.pack_into('B',msg,0,COMMS_SET_PI)
+            print "Enter the D value:"
+            D = raw_input()
+            D = float(D)
+            msg = bytearray(13)
+            struct.pack_into('B',msg,0,COMMS_SET_PID)
             struct.pack_into('<f',msg,1,P)
             struct.pack_into('<f',msg,5,I)
-            print "Set P = %f I = %f" % (P,I)
+            struct.pack_into('<f',msg,9,D)
+            print "Set P = %f I = %f D = %f" % (P,I,D)
             msg_queue.put(msg)
         if cmd == 'c':
             msg = bytearray(1)

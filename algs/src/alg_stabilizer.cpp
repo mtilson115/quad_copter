@@ -29,7 +29,7 @@
 #define ALG_STB_TX_Q_DEPTH (0)
 #define M_PI (3.14159)
 
-#define SEND_DEBUG 0
+#define SEND_DEBUG 1
 
 /*******************************************************************************
  * Local Data
@@ -39,7 +39,7 @@
 CPU_STK alg_stabilizer_stack[ALG_STABILIZER_STK_SIZE];
 OS_TCB alg_stabilizer_TCB;
 OS_MUTEX alg_stabilizer_throttle_mutex;
-OS_MUTEX alg_stabilizer_PI_mutex;
+OS_MUTEX alg_stabilizer_PID_mutex;
 OS_MUTEX alg_stabilizer_calibrate_mutex;
 
 // Motor objects
@@ -51,12 +51,13 @@ static BSPMotor motor4;
 // Throttle
 static float alg_stabilizer_throttle_percent = 0;
 
-// PID constants
-static float asP = 1.0;
-static float asI = 0.0;
+// PID constant
+static float asP = 2.0;
+static float asI = 0.001;
+static float asD = 3.0;
 
 // Fitler coefficients
-static float A = 0.95;
+static float A = 0.98;
 static float dt = 5.0e-3; // units s
 
 // Calibration
@@ -67,12 +68,12 @@ static bool do_calibration = false;
  ******************************************************************************/
 static void alg_stabilizer_task( void *p_arg );
 static void alg_stabilizer_throttle_msg_cb(uint8_t* data,uint16_t len);
-static void alg_stabilizer_PI_msg_cb(uint8_t* data,uint16_t len);
+static void alg_stabilizer_PID_msg_cb(uint8_t* data,uint16_t len);
 static void alg_stabilizer_calibrate_msg_cb(uint8_t* data,uint16_t len);
 static void alg_stabilizer_set_throttle( float throttle );
 static float alg_stabilizer_get_throttle( void );
-static void alg_stabilizer_set_PI_consts( float P, float I );
-static void alg_stabilizer_get_PI_consts( float* P, float* I );
+static void alg_stabilizer_set_PID_consts( float P, float I, float D );
+static void alg_stabilizer_get_PID_consts( float* P, float* I, float *D );
 static void alg_stabilizer( float pitch, float roll, float gravity );
 static void alg_stabilizer_compute_pitch_roll( float* pitch, float* roll, float* gravity );
 static void alg_stabilizer_set_calibrate( bool en );
@@ -117,7 +118,7 @@ void alg_stabilizer_init( void )
 
     OSMutexCreate(&alg_stabilizer_throttle_mutex,(CPU_CHAR*)"Throttle Mutex",&err);
     assert(err==OS_ERR_NONE);
-    OSMutexCreate(&alg_stabilizer_PI_mutex,(CPU_CHAR*)"PI Mutex",&err);
+    OSMutexCreate(&alg_stabilizer_PID_mutex,(CPU_CHAR*)"PID Mutex",&err);
     assert(err==OS_ERR_NONE);
     OSMutexCreate(&alg_stabilizer_calibrate_mutex,(CPU_CHAR*)"Cal Mutex",&err);
     assert(err==OS_ERR_NONE);
@@ -134,8 +135,8 @@ void alg_stabilizer_init( void )
     assert(ret==rSUCCESS);
 
     comms_xbee_rx_cb_t pi_rx_cb = {
-        .cb = alg_stabilizer_PI_msg_cb,
-        .msg_id = COMMS_SET_PI,
+        .cb = alg_stabilizer_PID_msg_cb,
+        .msg_id = COMMS_SET_PID,
     };
     ret = COMMS_xbee_register_rx_cb(pi_rx_cb);
     assert(ret==rSUCCESS);
@@ -292,10 +293,10 @@ static void alg_stabilizer_throttle_msg_cb(uint8_t* data,uint16_t len)
 }
 
 /*******************************************************************************
- * alg_stabilizer_PI_msg_cb
+ * alg_stabilizer_PID_msg_cb
  *
  * Description: This function is called when a message is recieved and has the
- *              msg_id = COMMS_SET_PI (0x02)
+ *              msg_id = COMMS_SET_PID (0x02)
  *
  * Inputs:      None
  *
@@ -304,18 +305,20 @@ static void alg_stabilizer_throttle_msg_cb(uint8_t* data,uint16_t len)
  * Revision:    Initial Creation 03/02/2019 - Mitchell S. Tilson
  *
  ******************************************************************************/
-static void alg_stabilizer_PI_msg_cb(uint8_t* data,uint16_t len)
+static void alg_stabilizer_PID_msg_cb(uint8_t* data,uint16_t len)
 {
     float loc_P;
     float loc_I;
-    if( data[0] == COMMS_SET_PI )
+    float loc_D;
+    if( data[0] == COMMS_SET_PID )
     {
         len -= 1;
-        if( len == sizeof(loc_P)+sizeof(loc_I) )
+        if( len == sizeof(loc_P)+sizeof(loc_I)+sizeof(loc_D) )
         {
             memcpy(&loc_P,&data[1],sizeof(loc_P));
             memcpy(&loc_I,&data[sizeof(loc_P)+1],sizeof(loc_I));
-            alg_stabilizer_set_PI_consts(loc_P,loc_I);
+            memcpy(&loc_D,&data[sizeof(loc_P)+sizeof(loc_I)+1],sizeof(loc_D));
+            alg_stabilizer_set_PID_consts(loc_P,loc_I,loc_D);
         }
     }
 }
@@ -376,12 +379,13 @@ static float alg_stabilizer_get_throttle( void )
 }
 
 /*******************************************************************************
- * alg_stabilizer_set/get_PI_consts
+ * alg_stabilizer_set/get_PID_consts
  *
- * Description: These functions set and get the PI controller constants
+ * Description: These functions set and get the PID controller constants
  *
  * Inputs:      float P
  *              float I
+ *              float D
  *
  * Returns:     None
  *
@@ -391,24 +395,26 @@ static float alg_stabilizer_get_throttle( void )
  *              a mutex given it is a float.
  *
  ******************************************************************************/
-static void alg_stabilizer_set_PI_consts( float P, float I )
+static void alg_stabilizer_set_PID_consts( float P, float I, float D )
 {
     OS_ERR err;
     CPU_TS ts = 0;
-    OSMutexPend(&alg_stabilizer_PI_mutex,0,OS_OPT_PEND_BLOCKING,&ts,&err);
+    OSMutexPend(&alg_stabilizer_PID_mutex,0,OS_OPT_PEND_BLOCKING,&ts,&err);
     asP = P;
     asI = I;
-    OSMutexPost(&alg_stabilizer_PI_mutex,OS_OPT_POST_NONE,&err);
+    asD = D;
+    OSMutexPost(&alg_stabilizer_PID_mutex,OS_OPT_POST_NONE,&err);
 }
-static void alg_stabilizer_get_PI_consts( float* P, float* I )
+static void alg_stabilizer_get_PID_consts( float* P, float* I, float* D )
 {
     float throttle;
     OS_ERR err;
     CPU_TS ts = 0;
-    OSMutexPend(&alg_stabilizer_PI_mutex,0,OS_OPT_PEND_BLOCKING,&ts,&err);
+    OSMutexPend(&alg_stabilizer_PID_mutex,0,OS_OPT_PEND_BLOCKING,&ts,&err);
     *P = asP;
     *I = asI;
-    OSMutexPost(&alg_stabilizer_PI_mutex,OS_OPT_POST_NONE,&err);
+    *D = asD;
+    OSMutexPost(&alg_stabilizer_PID_mutex,OS_OPT_POST_NONE,&err);
 }
 
 /*******************************************************************************
@@ -465,46 +471,50 @@ static void alg_stabilizer( float pitch, float roll, float gravity )
 {
     static float pitch_sum = 0;
     static float roll_sum = 0;
+    static float last_pitch = 0;
+    static float last_roll = 0;
+    float pitch_d = pitch-last_pitch;
+    float roll_d = roll-last_roll;
 
     pitch_sum += pitch;
     roll_sum += roll;
 
-    // Get the PI constants
-    float P,I;
-    alg_stabilizer_get_PI_consts(&P,&I);
+    // Get the PID constants
+    float P,I,D;
+    alg_stabilizer_get_PID_consts(&P,&I,&D);
 
     // Get the desired throttle
     float throttle_percent = alg_stabilizer_get_throttle();
 
 
     // Calculate Motor1's desired throttle
-    float motor1_throttle_err = P*(-pitch)+P*(-roll)+I*(-pitch_sum)+I*(-roll_sum);
-    motor1_throttle_err = max(motor1_throttle_err,0.0);
+    float motor1_throttle_err = P*(-pitch)+P*(-roll)+I*(-pitch_sum)+I*(-roll_sum)+D*(-pitch_d)+D*(-roll_d);
+    motor1_throttle_err = max(motor1_throttle_err,1.0);
     float motor1_throttle = throttle_percent + motor1_throttle_err;
     motor1_throttle = min(motor1_throttle,100);
 
     // Calculate Motor2's desired speed
-    float motor2_throttle_err = P*(pitch)+P*(-roll)+I*(pitch_sum)+I*(-roll_sum);
-    motor2_throttle_err = max(motor2_throttle_err,0.0);
+    float motor2_throttle_err = P*(pitch)+P*(-roll)+I*(pitch_sum)+I*(-roll_sum)+D*(pitch_d)+D*(-roll_d);
+    motor2_throttle_err = max(motor2_throttle_err,1.0);
     float motor2_throttle = throttle_percent + motor2_throttle_err;
     motor2_throttle = min(motor2_throttle,100);
 
     // Calculate Motor3's desired speed
-    float motor3_throttle_err = P*(pitch)+P*(roll)+I*(pitch_sum)+I*(roll_sum);
-    motor3_throttle_err = max(motor3_throttle_err,0.0);
+    float motor3_throttle_err = P*(pitch)+P*(roll)+I*(pitch_sum)+I*(roll_sum)+D*(pitch_d)+D*(roll_d);
+    motor3_throttle_err = max(motor3_throttle_err,1.0);
     float motor3_throttle = throttle_percent + motor3_throttle_err;
     motor3_throttle = min(motor3_throttle,100);
 
     // Calculate Motor4's desired speed
-    float motor4_throttle_err = P*(-pitch)+P*(roll)+I*(-pitch_sum)+I*(roll_sum);
-    motor4_throttle_err = max(motor4_throttle_err,0.0);
+    float motor4_throttle_err = P*(-pitch)+P*(roll)+I*(-pitch_sum)+I*(roll_sum)+D*(-pitch_d)+D*(roll_d);
+    motor4_throttle_err = max(motor4_throttle_err,1.0);
     float motor4_throttle = throttle_percent + motor4_throttle_err;
     motor4_throttle = min(motor4_throttle,100);
 
     /*
      * Catch moving too much or upside down.
      */
-    if( pitch > 30 || roll > 30 || pitch < -30 || roll < -30 || gravity < 0 )
+    if( pitch > 45 || roll > 45 || pitch < -45 || roll < -45 || gravity < 0 )
     {
         motor1_throttle = 1.0;
         motor2_throttle = 1.0;
@@ -517,12 +527,15 @@ static void alg_stabilizer( float pitch, float roll, float gravity )
     motor3.SetSpeedPercent( motor3_throttle/100.0 );
     motor4.SetSpeedPercent( motor4_throttle/100.0 );
 
+    last_pitch = pitch;
+    last_roll = roll;
+
     /*
      * Debug data
      */
-#if SEND_DEBUG
+    /*
     uint8_t msg_hdr = COMMS_DBG_HDR_MOTOR_PITCH_ROLL;
-    uint8_t data_buff[sizeof(msg_hdr)+8*sizeof(float)] = {0};
+    uint8_t data_buff[sizeof(msg_hdr)+9*sizeof(float)] = {0};
     data_buff[0] = msg_hdr;
     memcpy(&data_buff[sizeof(msg_hdr)],&motor1_throttle,sizeof(float));
     memcpy(&data_buff[sizeof(float)+sizeof(msg_hdr)],&motor2_throttle,sizeof(float));
@@ -532,13 +545,15 @@ static void alg_stabilizer( float pitch, float roll, float gravity )
     memcpy(&data_buff[5*sizeof(float)+sizeof(msg_hdr)],&roll,sizeof(float));
     memcpy(&data_buff[6*sizeof(float)+sizeof(msg_hdr)],&P,sizeof(float));
     memcpy(&data_buff[7*sizeof(float)+sizeof(msg_hdr)],&I,sizeof(float));
+    memcpy(&data_buff[8*sizeof(float)+sizeof(msg_hdr)],&D,sizeof(float));
+
 
     // Send the message
     comms_xbee_msg_t msg;
     msg.data = data_buff;
     msg.len = sizeof(data_buff);
     COMMS_xbee_send(msg);
-#endif
+    */
 }
 
 /*******************************************************************************
