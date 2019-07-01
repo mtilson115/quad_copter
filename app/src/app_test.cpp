@@ -57,10 +57,12 @@ static void test_task(void  *p_arg)
         memcpy(&data_buff[sizeof(msg_hdr)],&voltage,sizeof(float));
 
         // Send the message
+	/*
         comms_xbee_msg_t msg;
         msg.data = data_buff;
         msg.len = sizeof(data_buff);
         COMMS_xbee_send(msg);
+	*/
 
         // Delay 1s
         OSTimeDlyHMSM(0u, 0u, 1u, 0u,OS_OPT_TIME_HMSM_STRICT,&err);

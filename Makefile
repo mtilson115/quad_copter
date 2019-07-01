@@ -22,16 +22,24 @@ OUT:=$(CURRENT_DIR)/OUT
 BIN:=$(CURRENT_DIR)/BIN
 
 # Compiler
-# CC_VERS=v1.34
-CC_VERS=v2.20
-export CC=/Applications/microchip/xc32/$(CC_VERS)/bin/xc32
+UNAME_S := $(shell uname -s)
+ifeq ($(UNAME_S),Linux)
+	CC_VERS=v2.10
+	export CC=/opt/microchip/xc32/$(CC_VERS)/bin/xc32
+	PROGRAMMER=/opt/microchip/mplabx/v5.20/mplab_platform/bin/mdb.sh
+endif
+
+ifeq ($(UNAME_S),Darwin)
+	CC_VERS=v2.20
+	export CC=/Applications/microchip/xc32/$(CC_VERS)/bin/xc32
+	PROGRAMMER=/Applications/microchip/mplabx/v5.20/mplab_platform/bin/mdb.sh
+endif
 
 # Linker
 LD=$(CC)-g++
 # LD=$(CC)-ld
 
 # Programmer
-PROGRAMMER=/Applications/microchip/mplabx/v5.20/mplab_platform/bin/mdb.sh
 
 # CC Compiler directives
 CFLAGS=-g -std=c99 -mprocessor=$(DEVICE) -nostartfiles

@@ -29,7 +29,7 @@
 #define ALG_STB_TX_Q_DEPTH (0)
 #define M_PI (3.14159)
 
-#define SEND_DEBUG 1
+#define SEND_DEBUG 0
 
 /*******************************************************************************
  * Local Data
@@ -57,8 +57,8 @@ static float asI = 0.001;
 static float asD = 3.0;
 
 // Fitler coefficients
-static float A = 0.98;
-static float dt = 5.0e-3; // units s
+static float A = 0.90;
+static float dt = 20.0e-3; // units s
 
 // Calibration
 static bool do_calibration = false;
@@ -533,7 +533,7 @@ static void alg_stabilizer( float pitch, float roll, float gravity )
     /*
      * Debug data
      */
-    /*
+#if SEND_DEBUG == 1 
     uint8_t msg_hdr = COMMS_DBG_HDR_MOTOR_PITCH_ROLL;
     uint8_t data_buff[sizeof(msg_hdr)+9*sizeof(float)] = {0};
     data_buff[0] = msg_hdr;
@@ -553,7 +553,8 @@ static void alg_stabilizer( float pitch, float roll, float gravity )
     msg.data = data_buff;
     msg.len = sizeof(data_buff);
     COMMS_xbee_send(msg);
-    */
+#endif
+
 }
 
 /*******************************************************************************

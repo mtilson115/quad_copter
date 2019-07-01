@@ -145,7 +145,7 @@ bool Accel_Gyro::Init( void )
     /*
      * Set the update rate to be 200Hz
      */
-    SetRate(4);
+    SetRate(19);
     return TestConnection();
 }
 
