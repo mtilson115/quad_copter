@@ -2,9 +2,6 @@
 MKDIR=mkdir -p
 RM=rm -R -f
 
-# to debug or not to debug
-DEBUG?=1
-
 # quad controller project
 PROJECT=quad_controller
 
@@ -26,13 +23,15 @@ UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Linux)
 	CC_VERS=v2.10
 	export CC=/opt/microchip/xc32/$(CC_VERS)/bin/xc32
-	PROGRAMMER=/opt/microchip/mplabx/v5.20/mplab_platform/bin/mdb.sh
+	DEBUGGER=/opt/microchip/mplabx/v5.20/mplab_platform/bin/mdb.sh
+	FLASHTOOL=/opt/microchip/mplabx/v5.20/mplab_platform/mplab_ipe/bin/ipecmd.sh
 endif
 
 ifeq ($(UNAME_S),Darwin)
 	CC_VERS=v2.20
 	export CC=/Applications/microchip/xc32/$(CC_VERS)/bin/xc32
-	PROGRAMMER=/Applications/microchip/mplabx/v5.20/mplab_platform/bin/mdb.sh
+	DEBUGGER=/Applications/microchip/mplabx/v5.20/mplab_platform/bin/mdb.sh
+	FLASHTOOL=/Applications/microchip/mplabx/v5.20/mplab_platform/mplab_ipe/bin/ipecmd.sh
 endif
 
 # Linker
@@ -120,29 +119,29 @@ clean:
 	$(RM) $(OUT)
 	$(RM) $(BIN)
 
-# programming
-install:
+# program in debug mode with mdb.sh
+debug:
 ifneq ("$(wildcard $(BIN))","")
 	@echo 'Creating install config'
 	@echo 'device PIC'$(DEVICE) > install.txt
 	@echo 'hwtool '$(HWTOOL) >> install.txt
-ifeq ($(DEBUG),1)
 	@echo 'programming in debug mode'
 	@echo 'program '$(PROJECT).elf >> install.txt
-else
-	@echo 'programming in normal mode'
-	@echo 'program '$(PROJECT).hex >> install.txt
-endif
 	@echo 'reset MCLR' >> install.txt
 	@echo 'Moving install config'
 	mv install.txt $(BIN)
-ifeq ($(DEBUG),1)
 	@echo 'Programming...' $(BIN)/$(PROJECT).elf
+	@echo $(DEBUGGER)
+	cd $(BIN) && $(DEBUGGER) install.txt
 else
-	@echo 'Programming...' $(BIN)/$(PROJECT).hex
+	@echo 'No valid binaries.  Call make first?'
 endif
-	@echo $(PROGRAMMER)
-	cd $(BIN) && $(PROGRAMMER) install.txt
+
+# flash
+flash:
+ifneq ("$(wildcard $(BIN))","")
+	@echo 'Flashing the .hex file'
+	cd $(BIN) && $(FLASHTOOL) -P$(DEVICE) -TP$(HWTOOL) -M -F$(PROJECT).hex
 else
 	@echo 'No valid binaries.  Call make first?'
 endif
