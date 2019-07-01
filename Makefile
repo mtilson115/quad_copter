@@ -39,7 +39,6 @@ endif
 LD=$(CC)-g++
 # LD=$(CC)-ld
 
-# Programmer
 
 # CC Compiler directives
 CFLAGS=-g -std=c99 -mprocessor=$(DEVICE) -nostartfiles
