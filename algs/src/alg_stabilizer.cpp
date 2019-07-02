@@ -29,7 +29,7 @@
 #define ALG_STB_TX_Q_DEPTH (0)
 #define M_PI (3.14159)
 
-#define SEND_DEBUG 0
+#define SEND_DEBUG 1
 
 /*******************************************************************************
  * Local Data
