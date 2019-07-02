@@ -24,7 +24,7 @@ ifeq ($(UNAME_S),Linux)
 	CC_VERS=v2.10
 	export CC=/opt/microchip/xc32/$(CC_VERS)/bin/xc32
 	DEBUGGER=/opt/microchip/mplabx/v5.20/mplab_platform/bin/mdb.sh
-	FLASHTOOL=/opt/microchip/mplabx/v5.20/mplab_platform/mplab_ipe/bin/ipecmd.sh
+	FLASHTOOL=/opt/microchip/mplabx/v5.20/mplab_platform/mplab_ipe/ipecmd.sh
 endif
 
 ifeq ($(UNAME_S),Darwin)
