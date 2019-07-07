@@ -14,17 +14,18 @@ ser = serial.Serial('/dev/ttyUSB0',115200)
 #ser = serial.Serial('/dev/tty.usbserial-DN050LLX',115200)
 
 def print_motor_speeds_pitch_roll_P_I():
-    data = ser.read(36)
-    motor1  = struct.unpack('<f', data[0:4])[0]
-    motor2  = struct.unpack('<f', data[4:8])[0]
-    motor3  = struct.unpack('<f', data[8:12])[0]
-    motor4  = struct.unpack('<f', data[12:16])[0]
-    pitch   = struct.unpack('<f', data[16:20])[0]
-    roll    = struct.unpack('<f', data[20:24])[0]
-    P       = struct.unpack('<f', data[24:28])[0]
-    I       = struct.unpack('<f', data[28:32])[0]
-    D       = struct.unpack('<f', data[32:36])[0]
-    print ("{},{},{},{},{},{},{},{},{}".format(motor1,motor2,motor3,motor4,pitch,roll,P,I,D))
+    data = ser.read(40)
+    timestamp = struct.unpack('<I', data[0:4])[0];
+    motor1  = struct.unpack('<f', data[4:8])[0]
+    motor2  = struct.unpack('<f', data[8:12])[0]
+    motor3  = struct.unpack('<f', data[12:16])[0]
+    motor4  = struct.unpack('<f', data[16:20])[0]
+    pitch   = struct.unpack('<f', data[20:24])[0]
+    roll    = struct.unpack('<f', data[24:28])[0]
+    P       = struct.unpack('<f', data[28:32])[0]
+    I       = struct.unpack('<f', data[32:36])[0]
+    D       = struct.unpack('<f', data[36:40])[0]
+    print ("{:.3f},{:.3f},{:.3f},{:.3f},{:.3f},{:.3f},{:.3f},{:.3f},{:.3f},{:.3f}".format(timestamp,motor1,motor2,motor3,motor4,pitch,roll,P,I,D))
 #    print "%f,%f,%f,%f,%f,%f,%f,%f,%f" % (motor1,motor2,motor3,motor4,pitch,roll,P,I,D)
 
 def print_battery_voltage():

@@ -22,6 +22,7 @@
 #include <string.h>
 #include <assert.h>
 #include <p32xxxx.h>
+#include <os.h>
 
 /*******************************************************************************
  * Constants
@@ -29,7 +30,7 @@
 #define ALG_STB_TX_Q_DEPTH (0)
 #define M_PI (3.14159)
 
-#define SEND_DEBUG 1
+#define SEND_DEBUG 0
 
 /*******************************************************************************
  * Local Data
@@ -57,7 +58,7 @@ static float asI = 0.001;
 static float asD = 3.0;
 
 // Fitler coefficients
-static float A = 0.90;
+static float A = 0.80;
 static float dt = 20.0e-3; // units s
 
 // Calibration
@@ -202,6 +203,8 @@ static void alg_stabilizer_task( void *p_arg )
     OSTimeDlyHMSM(0u, 0u, 2u, 250u,OS_OPT_TIME_HMSM_STRICT,&err);
 #endif
 
+    TRISEbits.TRISE7 = 0;
+
     // Wait on comms
     BSP_PrintfInit();
 
@@ -221,6 +224,8 @@ static void alg_stabilizer_task( void *p_arg )
          * Pend on the task semaphore (posted to from the interrupt for accel)
          */
         OSTaskSemPend(0,OS_OPT_PEND_BLOCKING,&ts,&err);
+
+        PORTEINV = (1<<7);
 
         /*
          * Check to see if calibration was requested.
@@ -535,17 +540,19 @@ static void alg_stabilizer( float pitch, float roll, float gravity )
      */
 #if SEND_DEBUG == 1 
     uint8_t msg_hdr = COMMS_DBG_HDR_MOTOR_PITCH_ROLL;
-    uint8_t data_buff[sizeof(msg_hdr)+9*sizeof(float)] = {0};
+    uint8_t data_buff[sizeof(msg_hdr)+10*sizeof(float)] = {0};
     data_buff[0] = msg_hdr;
-    memcpy(&data_buff[sizeof(msg_hdr)],&motor1_throttle,sizeof(float));
-    memcpy(&data_buff[sizeof(float)+sizeof(msg_hdr)],&motor2_throttle,sizeof(float));
-    memcpy(&data_buff[2*sizeof(float)+sizeof(msg_hdr)],&motor3_throttle,sizeof(float));
-    memcpy(&data_buff[3*sizeof(float)+sizeof(msg_hdr)],&motor4_throttle,sizeof(float));
-    memcpy(&data_buff[4*sizeof(float)+sizeof(msg_hdr)],&pitch,sizeof(float));
-    memcpy(&data_buff[5*sizeof(float)+sizeof(msg_hdr)],&roll,sizeof(float));
-    memcpy(&data_buff[6*sizeof(float)+sizeof(msg_hdr)],&P,sizeof(float));
-    memcpy(&data_buff[7*sizeof(float)+sizeof(msg_hdr)],&I,sizeof(float));
-    memcpy(&data_buff[8*sizeof(float)+sizeof(msg_hdr)],&D,sizeof(float));
+    uint32_t ts = CPU_TS_Get32();
+    memcpy(&data_buff[sizeof(msg_hdr)],&ts,sizeof(float));
+    memcpy(&data_buff[sizeof(uint32_t)+sizeof(msg_hdr)],&motor1_throttle,sizeof(float));
+    memcpy(&data_buff[2*sizeof(float)+sizeof(msg_hdr)],&motor2_throttle,sizeof(float));
+    memcpy(&data_buff[3*sizeof(float)+sizeof(msg_hdr)],&motor3_throttle,sizeof(float));
+    memcpy(&data_buff[4*sizeof(float)+sizeof(msg_hdr)],&motor4_throttle,sizeof(float));
+    memcpy(&data_buff[5*sizeof(float)+sizeof(msg_hdr)],&pitch,sizeof(float));
+    memcpy(&data_buff[6*sizeof(float)+sizeof(msg_hdr)],&roll,sizeof(float));
+    memcpy(&data_buff[7*sizeof(float)+sizeof(msg_hdr)],&P,sizeof(float));
+    memcpy(&data_buff[8*sizeof(float)+sizeof(msg_hdr)],&I,sizeof(float));
+    memcpy(&data_buff[9*sizeof(float)+sizeof(msg_hdr)],&D,sizeof(float));
 
 
     // Send the message

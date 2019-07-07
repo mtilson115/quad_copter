@@ -143,7 +143,7 @@ bool Accel_Gyro::Init( void )
     SetDLPFMode(2);
 
     /*
-     * Set the update rate to be 200Hz
+     * Set the update rate to be 50Hz 
      */
     SetRate(19);
     return TestConnection();
