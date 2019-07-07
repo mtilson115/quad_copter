@@ -141,7 +141,7 @@ endif
 flash:
 ifneq ("$(wildcard $(BIN))","")
 	@echo 'Flashing the .hex file'
-	cd $(BIN) && $(FLASHTOOL) -P$(DEVICE) -TP$(HWTOOL) -M -F$(PROJECT).hex
+	$(FLASHTOOL) -P$(DEVICE) -TP$(HWTOOL) -M -Y -F$(BIN)/$(PROJECT).hex
 else
 	@echo 'No valid binaries.  Call make first?'
 endif

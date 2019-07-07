@@ -23,6 +23,7 @@ extern "C" {
 #define COMMS_SET_THROTTLE (0x01)
 #define COMMS_SET_PID (0x02)
 #define COMMS_CALIBRATE (0x03)
+#define COMMS_PITCH_ROLL (0x04)
 
 // TX Messages
 #define COMMS_DBG_HDR_MOTOR_PITCH_ROLL (17)

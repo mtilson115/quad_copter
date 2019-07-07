@@ -27,7 +27,7 @@
 #define XBEE_MAX_TX         (128)
 #define XBEE_MAX_RX         (XBEE_MAX_TX + XBEE_MAX_HDR + XBEE_CKSM_SZ)
 #define XBEE_MAX_IPV4_RX    (64)
-#define XBEE_MAX_CB         (3)
+#define XBEE_MAX_CB         (4)
 
 /*******************************************************************************
  * XBEE states
