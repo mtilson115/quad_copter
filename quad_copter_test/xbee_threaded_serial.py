@@ -26,7 +26,6 @@ def print_motor_speeds_pitch_roll_P_I():
     I       = struct.unpack('<f', data[32:36])[0]
     D       = struct.unpack('<f', data[36:40])[0]
     print ("{:.3f},{:.3f},{:.3f},{:.3f},{:.3f},{:.3f},{:.3f},{:.3f},{:.3f},{:.3f}".format(timestamp,motor1,motor2,motor3,motor4,pitch,roll,P,I,D))
-#    print "%f,%f,%f,%f,%f,%f,%f,%f,%f" % (motor1,motor2,motor3,motor4,pitch,roll,P,I,D)
 
 def print_battery_voltage():
     data = ser.read(4)
@@ -42,79 +41,77 @@ def print_calibration():
     GY = struct.unpack('<h', data[8:10])[0]
     GZ = struct.unpack('<h', data[10:12])[0]
     print ("AX = {},AY = {},AZ = {},GX = {},GY = {},GZ = {}".format(AX,AY,AZ,GX,GY,GZ))
-#    print "AX = %d,AY = %d,AZ = %d,GX = %d,GY = %d,GZ = %d" % (AX,AY,AZ,GX,GY,GZ)
 
 def msg_thread():
-    global thread_stop
     if ser.is_open:
-        while True:
-            if thread_stop == True:
-                return
-            msg = msg_queue.get(block=True)
-            if msg[0] == COMMS_SET_THROTTLE or msg[0] == COMMS_SET_PID or msg[0] == COMMS_CALIBRATE:
-                ser.write(msg)
+        try:
+            while True:
+                msg = msg_queue.get(block=True)
+                if msg[0] == COMMS_SET_THROTTLE or msg[0] == COMMS_SET_PID or msg[0] == COMMS_CALIBRATE:
+                    ser.write(msg)
+        except:
+            struct.pack_into('B',msg,0,COMMS_SET_THROTTLE)
+            struct.pack_into('<f',msg,1,0.0)
+            ser.write(msg)
+            return
 
 def rx_thread():
-    global thread_stop
     if ser.is_open:
-        while True:
-            if thread_stop == True:
-                return
-            hdr = ser.read(1)
-            hdr = struct.unpack('B',hdr)[0]
-            if hdr == 17:
-                print_motor_speeds_pitch_roll_P_I()
-            elif hdr == 20:
-                print_battery_voltage()
-            elif hdr == 1:
-                print_calibration()
-            else:
-                print (hdr)
+        try:
+            while True:
+                hdr = ser.read(1)
+                hdr = struct.unpack('B',hdr)[0]
+                if hdr == 17:
+                    print_motor_speeds_pitch_roll_P_I()
+                elif hdr == 20:
+                    print_battery_voltage()
+                elif hdr == 1:
+                    print_calibration()
+                else:
+                    print (hdr)
+        except:
+            return
 
 def input_thread():
-    global thread_stop
-    while True:
-        if thread_stop == True:
-            return
-        print("Commands:")
-        print("s: set the speed as a percentage (0 - 100)")
-        print("p: set PID constants")
-        print("c: Run Calibration")
-        print("e: exit")
-        cmd = input()
-        if cmd == 's':
-            speed = input()
-            speed = float(speed)
-            if speed >= 0.0 and speed <= 100:
-                msg = bytearray(5)
-                struct.pack_into('B',msg,0,COMMS_SET_THROTTLE)
-                struct.pack_into('<f',msg,1,speed)
-                print (("Set throttle to: {}").format(speed))
+    try:
+        while True:
+            print("Commands:")
+            print("s: set the speed as a percentage (0 - 100)")
+            print("p: set PID constants")
+            print("c: Run Calibration")
+            cmd = input()
+            if cmd == 's':
+                speed = input()
+                speed = float(speed)
+                if speed >= 0.0 and speed <= 100:
+                    msg = bytearray(5)
+                    struct.pack_into('B',msg,0,COMMS_SET_THROTTLE)
+                    struct.pack_into('<f',msg,1,speed)
+                    print (("Set throttle to: {}").format(speed))
+                    msg_queue.put(msg)
+            if cmd == 'p':
+                print ("Enter the P value:")
+                P = input()
+                P = float(P)
+                print ("Enter the I value:")
+                I = input()
+                I = float(I)
+                print ("Enter the D value:")
+                D = input()
+                D = float(D)
+                msg = bytearray(13)
+                struct.pack_into('B',msg,0,COMMS_SET_PID)
+                struct.pack_into('<f',msg,1,P)
+                struct.pack_into('<f',msg,5,I)
+                struct.pack_into('<f',msg,9,D)
+                print (("Set P = {} I = {} D = {}").format(P,I,D))
                 msg_queue.put(msg)
-        if cmd == 'p':
-            print ("Enter the P value:")
-            P = input()
-            P = float(P)
-            print ("Enter the I value:")
-            I = input()
-            I = float(I)
-            print ("Enter the D value:")
-            D = input()
-            D = float(D)
-            msg = bytearray(13)
-            struct.pack_into('B',msg,0,COMMS_SET_PID)
-            struct.pack_into('<f',msg,1,P)
-            struct.pack_into('<f',msg,5,I)
-            struct.pack_into('<f',msg,9,D)
-            print (("Set P = {} I = {} D = {}").format(P,I,D))
-            msg_queue.put(msg)
-        if cmd == 'c':
-            msg = bytearray(1)
-            struct.pack_into('B',msg,0,COMMS_CALIBRATE)
-            msg_queue.put(msg)
-        if cmd == 'e':
-            thread_stop = True
-
+            if cmd == 'c':
+                msg = bytearray(1)
+                struct.pack_into('B',msg,0,COMMS_CALIBRATE)
+                msg_queue.put(msg)
+    except:
+        return
 
 if __name__ == "__main__":
     if ser.is_open:
@@ -125,6 +122,10 @@ if __name__ == "__main__":
         input_thrd.start()
         msg_thrd.start()
         rx_thrd.start()
+        input_thrd.join()
+        msg_thrd.join()
+        rx_thrd.join()
+        quit()
     else:
         print ("No serial device found")
         quit()

@@ -22,6 +22,8 @@ BIN/
 *.mk
 *.xml
 .DS_Store
+MPLABXLog*
+log*
 
 # Tags
 tags
