@@ -142,7 +142,6 @@ int16_t driver_analog_get_10bit( unsigned int pin )
     // Set up pin in mux for reading
     AD1CHSbits.CH0SA = pin;
 
-
     // Start the reading using auto sampling mode
     AD1CON1bits.ON = 1;
     IFS1bits.AD1IF = 0;
