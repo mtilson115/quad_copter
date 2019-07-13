@@ -148,7 +148,18 @@ int16_t driver_analog_get_10bit( unsigned int pin )
     AD1CON1bits.ASAM = 1;
 
     // Wait for the result
-    while(!IFS1bits.AD1IF);
+    for( uint32_t i = 0; i < 10000; i++ ) 
+    {
+        if( IFS1bits.AD1IF )
+        {
+            break;
+        }
+    }
+    if( !IFS1bits.AD1IF )
+    {
+        AD1CON1bits.ON = 0;
+        return 0.0;
+    }
 
     // Get the reading
     int32_t tmp_result = 0;

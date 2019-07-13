@@ -194,7 +194,7 @@ static uint8_t comms_xbee_rx_buff[XBEE_MAX_RX];
 // Msg queue memory
 OS_MEM comms_xbee_tx_mem_ctrl_blk;
 #define TX_MEM_BLK_SIZE (sizeof(comms_xbee_tx_frame_ipv4_t)+sizeof(comms_xbee_api_msg_t))
-#define TX_Q_DEPTH (20)
+#define TX_Q_DEPTH (80)
 static uint8_t comms_tx_xbee_mem[TX_MEM_BLK_SIZE*TX_Q_DEPTH];
 
 /*******************************************************************************

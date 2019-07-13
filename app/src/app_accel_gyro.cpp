@@ -139,7 +139,8 @@ void AppAccelGyroClass::Calibrate( void )
 {
     OS_ERR err;
     motion6_data_type offsets;
-	memset(&offsets,0x00,sizeof(offsets));
+    memset(&offsets,0x00,sizeof(offsets));
+    setOffsets(&offsets);
     int32_t ax_s = 0;
     int32_t ay_s = 0;
     int32_t az_s = 0;

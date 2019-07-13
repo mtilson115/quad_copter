@@ -54,12 +54,12 @@ static BSPMotor motor4;
 static float alg_stabilizer_throttle_percent = 0;
 
 // PID constant
-static float asP = 2.0;
-static float asI = 0.001;
-static float asD = 3.0;
+static float asP = 0.2;
+static float asI = 0.0;
+static float asD = 0.0;
 
 // Fitler coefficients
-static float A = 0.80;
+static float A = 0.98;
 static float dt = 20.0e-3; // units s
 
 // Calibration
@@ -232,7 +232,7 @@ static void alg_stabilizer_task( void *p_arg )
     OSTimeDlyHMSM(0u, 0u, 2u, 250u,OS_OPT_TIME_HMSM_STRICT,&err);
 #endif
 
-    TRISEbits.TRISE7 = 0;
+    // TRISEbits.TRISE7 = 0;
 
     // Wait on comms
     BSP_PrintfInit();
@@ -254,7 +254,7 @@ static void alg_stabilizer_task( void *p_arg )
          */
         OSTaskSemPend(0,OS_OPT_PEND_BLOCKING,&ts,&err);
 
-        PORTEINV = (1<<7);
+        // PORTEINV = (1<<7);
 
         /*
          * Check to see if calibration was requested.
@@ -585,15 +585,18 @@ static void alg_stabilizer( float pitch, float roll, float gravity )
     float pitch_d = pitch_error-last_pitch_error;
     float roll_d = roll_error-last_roll_error;
 
-    pitch_error_sum += pitch_error;
-    roll_error_sum += roll_error;
-
     // Get the PID constants
     float P,I,D;
     alg_stabilizer_get_PID_consts(&P,&I,&D);
 
     // Get the desired throttle
     float throttle_percent = alg_stabilizer_get_throttle();
+
+    if( throttle_percent > 40.0 )
+    {
+        pitch_error_sum += pitch_error;
+        roll_error_sum += roll_error;
+    }
 
 
     // Calculate Motor1's desired throttle
@@ -719,7 +722,7 @@ static void alg_stabilizer_compute_pitch_roll( float* pitch, float* roll, float*
         /*
          * Calculate roll and pitch
          */
-        float accel_pitch = atan2f(ax,sqrt(ay*ay+az*az));
+        float accel_pitch = atan2f(ax,az);
         float accel_roll = atan2f(ay,sqrt(ax*ax+az*az));
 
         /*

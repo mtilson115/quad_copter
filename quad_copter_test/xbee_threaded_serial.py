@@ -10,7 +10,7 @@ COMMS_CALIBRATE = 0x03
 thread_stop = False
 
 #ser = serial.Serial('/dev/tty.usbserial-A602TSTD',115200)
-ser = serial.Serial('/dev/ttyUSB0',115200)
+ser = serial.Serial('/dev/ttyUSB5',115200)
 #ser = serial.Serial('/dev/tty.usbserial-DN050LLX',115200)
 
 def print_motor_speeds_pitch_roll_P_I():

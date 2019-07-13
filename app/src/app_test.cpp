@@ -37,6 +37,7 @@ void start_test( void )
     uint32_t pin = 7;
     driver_analog_init_pin( pb, pin );
     driver_analog_init();
+    TRISEbits.TRISE7 = 0;
 }
 
 static void test_task(void  *p_arg)
@@ -45,6 +46,7 @@ static void test_task(void  *p_arg)
     BSP_PrintfInit();
     while(DEF_ON)
     {
+        PORTEINV = (1 << 7);
         // Take a reading every 1s
         int16_t bat_adc = driver_analog_get_10bit(7);
         float voltage = (3.3)*(bat_adc/512.0);
