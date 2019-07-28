@@ -16,6 +16,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <p32xxxx.h>
+#include "bsp.h"
+#include "type_defs.h"
 
 /*******************************************************************************
  * Constants
@@ -197,6 +199,14 @@ OS_MEM comms_xbee_tx_mem_ctrl_blk;
 #define TX_Q_DEPTH (80)
 static uint8_t comms_tx_xbee_mem[TX_MEM_BLK_SIZE*TX_Q_DEPTH];
 
+static uint32_t fault = 0;
+#define NO_MEM                  (1 << 0);
+#define Q_FULL                  (1 << 1);
+#define SEM_OVF                 (1 << 2);
+#define INT_MSG_FAIL            (1 << 3);
+#define IPV4_RX_LEN_FAIL        (1 << 4);
+#define RX_DURING_TX            (1 << 5);
+
 /*******************************************************************************
  * IPV4 Addrs
  ******************************************************************************/
@@ -242,7 +252,6 @@ static uint32_t xbee_cb_count = 0;
  * Local Function Section
  ******************************************************************************/
 static void comms_xbee_task(void *p_arg);
-static void comms_xbee_set_rx_buffer(uint8_t* buffer, size_t len);
 static void comms_xbee_handle_status(comms_xbee_api_msg_t* api_msg);
 static uint8_t comms_xbee_compute_cksum(comms_xbee_api_msg_t* api_msg);
 static comms_xbee_api_msg_t comms_xbee_at_cmd_rd(const char at_cmd[2]);
@@ -278,7 +287,8 @@ void COMMS_xbee_send(comms_xbee_msg_t msg)
         tx_frame_data_t* tx_frame_data = (tx_frame_data_t*)OSMemGet(&comms_xbee_tx_mem_ctrl_blk,&err);
         if( err != OS_ERR_NONE )
         {
-            while(1);
+            fault |= NO_MEM;
+            return;
         }
         comms_xbee_api_msg_t* api_msg = &tx_frame_data->msg;
         comms_xbee_tx_frame_ipv4_t* tx_frame = &tx_frame_data->frame;
@@ -305,17 +315,17 @@ void COMMS_xbee_send(comms_xbee_msg_t msg)
         OSTaskQPost(&comms_xbee_TCB,(void*)api_msg,sizeof(comms_xbee_api_msg_t),OS_OPT_POST_NO_SCHED,&err);
         if( err == OS_ERR_Q_MAX || err == OS_ERR_MSG_POOL_EMPTY )
         {
+            fault |= Q_FULL;
             OSMemPut(&comms_xbee_tx_mem_ctrl_blk,api_msg,&err);
-            while(1);
-            // break;
+            return;
         }
         // Trigger the semaphore
         OSTaskSemPost(&comms_xbee_TCB,OS_OPT_POST_NONE,&err);
         if( err == OS_ERR_SEM_OVF )
         {
+            fault |= SEM_OVF;
             OSMemPut(&comms_xbee_tx_mem_ctrl_blk,api_msg,&err);
-            while(1);
-            // break;
+            return;
         }
         // frame_id++;
     }
@@ -387,6 +397,23 @@ void COMMS_xbee_init(void)
 OS_TCB* COMMS_xbee_get_tcb( void )
 {
     return &comms_xbee_TCB;
+}
+
+/*******************************************************************************
+ * COMMS_xbee_get_fault
+ *
+ * Description: Returns the critical fault reason
+ *
+ * Inputs:      None
+ *
+ * Returns:     uint32_t fault
+ *
+ * Revision:    Initial Creation 07/13/2019 - Mitchell S. Tilson
+ *
+ ******************************************************************************/
+uint32_t COMMS_xbee_get_fault( void )
+{
+    return fault;
 }
 
 /*******************************************************************************
@@ -504,7 +531,8 @@ static void comms_xbee_handle_int_msg( void )
         else
         {
             // critical fault
-            while(1);
+            fault |= INT_MSG_FAIL;
+            return;
         }
 
         api_msg.frame_data_ptr = &comms_xbee_rx_buff[0];
@@ -628,7 +656,8 @@ static void comms_xbee_handle_rx_ipv4(comms_xbee_api_msg_t* api_msg)
      */
     if( len >= (sizeof(comms_xbee_ipv4_rx_t) + 1) )
     {
-        while(1); // critical fault
+        fault |= IPV4_RX_LEN_FAIL;
+        return;
     }
 
     /*
@@ -697,7 +726,8 @@ static void comms_xbee_handle_rx_during_tx( uint16_t bytes_read )
     if( bytes_read > sizeof(comms_xbee_rx_buff) )
     {
         // Critical error
-        while(1);
+        fault |= RX_DURING_TX;
+        return;
     }
 
     comms_xbee_api_msg_t api_msg = {0};

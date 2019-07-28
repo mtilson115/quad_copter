@@ -15,8 +15,8 @@
 /*******************************************************************************
  * Private data
  ******************************************************************************/
-#define LOW_PWM_DUTY_CYCLE (4.0)
-#define MAX_PWM_DUTY_CYCLE (9.0)
+#define LOW_PWM_DUTY_CYCLE (5.0)
+#define MAX_PWM_DUTY_CYCLE (10.0)
 
 const pwm_init_t BSPMotor::pwm_init_data = {
     .period = 6250,

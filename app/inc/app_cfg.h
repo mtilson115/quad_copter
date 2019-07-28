@@ -33,7 +33,7 @@
 */
 
 #define APP_CFG_TASK_START_PRIO     1u
-#define APP_BUTTON_READER_PRIO      6u
+#define APP_BUTTON_READER_PRIO      3u
 #define COMMS_XBEE_PRIO             6u
 #define ALG_STABILIZER_PRIO         5u
 

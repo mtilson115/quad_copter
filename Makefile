@@ -21,7 +21,7 @@ BIN:=$(CURRENT_DIR)/BIN
 # Compiler
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Linux)
-	CC_VERS=v2.10
+	CC_VERS=v2.20
 	export CC=/opt/microchip/xc32/$(CC_VERS)/bin/xc32
 	DEBUGGER=/opt/microchip/mplabx/v5.20/mplab_platform/bin/mdb.sh
 	FLASHTOOL=/opt/microchip/mplabx/v5.20/mplab_platform/mplab_ipe/ipecmd.sh
@@ -44,7 +44,7 @@ CFLAGS=-g -std=c99 -mprocessor=$(DEVICE) -nostartfiles
 CPPFLAGS=-g -mprocessor=$(DEVICE) -nostartfiles
 
 # LD flags --defsym=_min_heap_size=1024
-LDFLAGS= -mprocessor=$(DEVICE) -nostartfiles -Wl,--defsym=_min_heap_size=0x800 -Wl,-Map=$(BIN)/$(PROJECT).map -Wl,--defsym=_vector_spacing=4 -Wl,--report-mem -Wl,--script p32MX795F512L.ld
+LDFLAGS= -mprocessor=$(DEVICE) -nostartfiles -Wl,--defsym=_min_heap_size=0x400 -Wl,-Map=$(BIN)/$(PROJECT).map -Wl,--defsym=_vector_spacing=4 -Wl,--report-mem -Wl,--script p32MX795F512L.ld
 
 # Directories of the project
 DIRS= BSP CPU app drivers uC-CPU uC-LIB uCOS-III algs comms

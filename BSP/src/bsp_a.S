@@ -657,6 +657,7 @@ BSP_EXT3ISR:
 *********************************************************************************************************
 */
 
+/*
     .section .vector_16,code
     .set noreorder
     .ent _bsp_t4int
@@ -674,13 +675,14 @@ BSP_T4ISR:
 
     ISR_PROLOGUE
 
-    la    $8,  BSP_DefaultHandler            /* Call BSP_DefaultHandler() to handle the interrupt  */
+    la    $8,  BSP_DefaultHandler            Call BSP_DefaultHandler() to handle the interrupt
     jalr  $8
     nop
 
     ISR_EPILOGUE    
 
     .end BSP_T4ISR
+*/
 
 /*
 *********************************************************************************************************

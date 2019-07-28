@@ -44,6 +44,7 @@ void COMMS_xbee_send(comms_xbee_msg_t msg);
 void COMMS_xbee_init(void);
 uint8_t COMMS_xbee_ready( void );
 ret_t COMMS_xbee_register_rx_cb( comms_xbee_rx_cb_t cb_data );
+uint32_t COMMS_xbee_get_fault( void );
 
 /*
  * Debug data

@@ -2,6 +2,10 @@ import threading
 import queue as queue
 import serial
 import struct
+import glob
+import sys
+import csv
+import time
 
 msg_queue = queue.Queue()
 COMMS_SET_THROTTLE = 0x01
@@ -9,11 +13,14 @@ COMMS_SET_PID = 0x02
 COMMS_CALIBRATE = 0x03
 thread_stop = False
 
-#ser = serial.Serial('/dev/tty.usbserial-A602TSTD',115200)
-ser = serial.Serial('/dev/ttyUSB5',115200)
-#ser = serial.Serial('/dev/tty.usbserial-DN050LLX',115200)
+ser = glob.glob('/dev/ttyUSB*');
+ser_str = ser[0];
+ser = serial.Serial(ser_str,115200)
+csv_file = None
+stop_threads = False
 
-def print_motor_speeds_pitch_roll_P_I():
+def print_motor_speeds_pitch_roll_P_I(csv_writer):
+    first_iter = False
     data = ser.read(40)
     timestamp = struct.unpack('<I', data[0:4])[0];
     motor1  = struct.unpack('<f', data[4:8])[0]
@@ -25,7 +32,11 @@ def print_motor_speeds_pitch_roll_P_I():
     P       = struct.unpack('<f', data[28:32])[0]
     I       = struct.unpack('<f', data[32:36])[0]
     D       = struct.unpack('<f', data[36:40])[0]
-    print ("{:.3f},{:.3f},{:.3f},{:.3f},{:.3f},{:.3f},{:.3f},{:.3f},{:.3f},{:.3f}".format(timestamp,motor1,motor2,motor3,motor4,pitch,roll,P,I,D))
+    if csv_writer != None:
+        data_str = ("{:.1f},{:.3f},{:.3f},{:.3f},{:.3f},{:.3f},{:.3f},{:.3f},{:.3f},{:.3f}".format(timestamp,motor1,motor2,motor3,motor4,pitch,roll,P,I,D))
+        csv_writer.writerow(data_str)
+    else:
+        print ("{:.3f},{:.3f},{:.3f},{:.3f},{:.3f},{:.3f},{:.3f},{:.3f},{:.3f},{:.3f}".format(timestamp,motor1,motor2,motor3,motor4,pitch,roll,P,I,D))
 
 def print_battery_voltage():
     data = ser.read(4)
@@ -43,42 +54,62 @@ def print_calibration():
     print ("AX = {},AY = {},AZ = {},GX = {},GY = {},GZ = {}".format(AX,AY,AZ,GX,GY,GZ))
 
 def msg_thread():
+    global stop_threads
     if ser.is_open:
         try:
             while True:
-                msg = msg_queue.get(block=True)
-                if msg[0] == COMMS_SET_THROTTLE or msg[0] == COMMS_SET_PID or msg[0] == COMMS_CALIBRATE:
-                    ser.write(msg)
+                try:
+                    msg = msg_queue.get(block=False)
+                    if msg[0] == COMMS_SET_THROTTLE or msg[0] == COMMS_SET_PID or msg[0] == COMMS_CALIBRATE:
+                        ser.write(msg)
+                except queue.Empty:
+                    if stop_threads == True:
+                        msg = bytearray(5)
+                        struct.pack_into('B',msg,0,COMMS_SET_THROTTLE)
+                        struct.pack_into('<f',msg,1,0.0)
+                        ser.write(msg)
+                        return
+                    else:
+                        time.sleep(0.2)
         except:
+            msg = bytearray(5)
             struct.pack_into('B',msg,0,COMMS_SET_THROTTLE)
             struct.pack_into('<f',msg,1,0.0)
             ser.write(msg)
             return
 
-def rx_thread():
+def rx_thread(csvW):
+    global stop_threads
     if ser.is_open:
         try:
             while True:
-                hdr = ser.read(1)
-                hdr = struct.unpack('B',hdr)[0]
-                if hdr == 17:
-                    print_motor_speeds_pitch_roll_P_I()
-                elif hdr == 20:
-                    print_battery_voltage()
-                elif hdr == 1:
-                    print_calibration()
+                if ser.in_waiting > 0:
+                    hdr = ser.read(1)
+                    hdr = struct.unpack('B',hdr)[0]
+                    if hdr == 17:
+                        print_motor_speeds_pitch_roll_P_I(csvW)
+                    elif hdr == 20:
+                        print_battery_voltage()
+                    elif hdr == 1:
+                        print_calibration()
+                    else:
+                        print (hdr)
+                elif stop_threads == True:
+                    return
                 else:
-                    print (hdr)
+                    time.sleep(0.001)
         except:
             return
 
 def input_thread():
+    global stop_threads
     try:
         while True:
             print("Commands:")
             print("s: set the speed as a percentage (0 - 100)")
             print("p: set PID constants")
             print("c: Run Calibration")
+            print("e: exit")
             cmd = input()
             if cmd == 's':
                 speed = input()
@@ -110,22 +141,51 @@ def input_thread():
                 msg = bytearray(1)
                 struct.pack_into('B',msg,0,COMMS_CALIBRATE)
                 msg_queue.put(msg)
+            if cmd == 'e':
+                print("Exiting...");
+                stop_threads = True
+                return
     except:
+        print("Exiting...");
+        stop_threads = True
         return
 
 if __name__ == "__main__":
     if ser.is_open:
-        print ("Serial connected")
-        input_thrd = threading.Thread(target=input_thread)
-        rx_thrd = threading.Thread(target=rx_thread)
-        msg_thrd = threading.Thread(target=msg_thread)
-        input_thrd.start()
-        msg_thrd.start()
-        rx_thrd.start()
-        input_thrd.join()
-        msg_thrd.join()
-        rx_thrd.join()
-        quit()
+        print (("Serial port {} connected").format(ser_str))
+        if len(sys.argv) > 1:
+            csv_file = sys.argv[1]
+            print(("Using {} to data record").format(csv_file))
+            with open(csv_file,'w',newline='') as csvFile:
+                csvWrtier = csv.writer(csvFile, delimiter=',')
+                input_thrd = threading.Thread(target=input_thread)
+                rx_thrd = threading.Thread(target=rx_thread,args=(csvWrtier,))
+                msg_thrd = threading.Thread(target=msg_thread)
+                input_thrd.daemon = True
+                msg_thrd.daemon = True
+                rx_thrd.daemon = True
+                input_thrd.start()
+                msg_thrd.start()
+                rx_thrd.start()
+                input_thrd.join()
+                msg_thrd.join()
+                rx_thrd.join()
+                quit()
+        else:
+            print("No log file passed, will print debug data")
+            input_thrd = threading.Thread(target=input_thread)
+            rx_thrd = threading.Thread(target=rx_thread,args=(None,))
+            msg_thrd = threading.Thread(target=msg_thread)
+            input_thrd.daemon = True
+            msg_thrd.daemon = True
+            rx_thrd.daemon = True
+            input_thrd.start()
+            msg_thrd.start()
+            rx_thrd.start()
+            input_thrd.join()
+            msg_thrd.join()
+            rx_thrd.join()
+            quit()
     else:
         print ("No serial device found")
         quit()

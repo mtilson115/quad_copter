@@ -392,6 +392,9 @@ OS_CPU_SR_Restore:
 
     .ent OSCtxSw
 OSCtxSw:
+    
+    di
+    nop
 
     addi  $29, $29, -STK_CTX_SIZE              /* Adjust the stack pointer                             */                      
 
@@ -437,6 +440,9 @@ OSCtxSw:
 
     mfc0  $8,  $12, 0                          /* Save the Status register                             */
     sw    $8,  STK_OFFSET_SR($29)
+
+    ei
+    nop
                               
     ori   $8,  $0,  0x007C                     /* Switch context only if a syscall exception occurred  */
     mfc0  $9,  $13, 0
@@ -487,6 +493,9 @@ RESTORE_CTX:
     mtlo  $8
     mtlo  $9
 
+    di
+    nop
+
     lw    $31, STK_OFFSET_GPR31($29)           /* Restore the General Purpose Registers                */
     lw    $30, STK_OFFSET_GPR30($29)
     lw    $28, STK_OFFSET_GPR28($29)
@@ -519,6 +528,9 @@ RESTORE_CTX:
     lw    $1,  STK_OFFSET_GPR1($29)
 
     addi  $29, $29, STK_CTX_SIZE               /* Adjust the stack pointer                             */   
+
+    ei
+    nop
 
     eret                                       /* Resume execution in new task                         */
 

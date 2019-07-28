@@ -255,8 +255,10 @@ void  BSP_Except_Handler (void)
     except_cause = (except_cause & 0x7C) >> 2;
     uint32_t bad_var = _CP0_GET_BADVADDR();
     uint32_t excep_addr =_CP0_GET_EPC();
+    uint32_t error_excep_addr = _CP0_GET_ERROREPC();
     OS_TCB* test_tcb = app_test_get_tcb();
     OS_TCB* comms_tcb = COMMS_xbee_get_tcb();
+    uint32_t comms_fault = COMMS_xbee_get_fault();
     CPU_STK* test_stk;
     app_test_get_stack( test_stk );
     switch( except_cause )

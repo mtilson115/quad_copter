@@ -30,7 +30,8 @@
 #define ALG_STB_TX_Q_DEPTH (0)
 #define M_PI (3.14159)
 
-#define SEND_DEBUG 0
+#define SEND_DEBUG 1
+#define DO_THROTTLE_CAL 0
 
 /*******************************************************************************
  * Local Data
@@ -213,7 +214,7 @@ static void alg_stabilizer_task( void *p_arg )
     motor3.Start();
     motor4.Start();
 
-#if DO_THROTTLE_CAL
+#if DO_THROTTLE_CAL == 1
     // Calibrate the motors
     motor1.SetSpeedPercent(1.0);
     motor2.SetSpeedPercent(1.0);
@@ -227,6 +228,8 @@ static void alg_stabilizer_task( void *p_arg )
     motor2.SetSpeedPercent(0.0);
     motor3.SetSpeedPercent(0.0);
     motor4.SetSpeedPercent(0.0);
+
+    while(1);
 
     // Delay 2.25s
     OSTimeDlyHMSM(0u, 0u, 2u, 250u,OS_OPT_TIME_HMSM_STRICT,&err);
@@ -292,6 +295,8 @@ static void alg_stabilizer_task( void *p_arg )
          * Apply the values
          */
         alg_stabilizer(pitch,roll,gravity);
+
+        // OSTimeDlyHMSM(0u, 0u, 0u, 20u,OS_OPT_TIME_HMSM_STRICT,&err);
     }
 }
 

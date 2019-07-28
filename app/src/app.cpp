@@ -13,12 +13,6 @@
 *********************************************************************************************************
 */
 
-#include "includes.h"
-#include "app_test.h"
-#include "comms_xbee.h"
-#include "alg_stabilizer.h"
-#include <p32xxxx.h>
-
 /*
 *********************************************************************************************************
 *                                          CONFIGURATION BITS
@@ -42,6 +36,13 @@
 #pragma config PWP      = OFF           // Program Flash Write Protect
 #pragma config ICESEL   = ICS_PGx1      // ICE/ICD Comm Channel Select
 #pragma config DEBUG    = OFF           // Debugger Disabled for Starter Kit
+
+#include "includes.h"
+#include "app_test.h"
+#include "comms_xbee.h"
+#include "alg_stabilizer.h"
+#include <p32xxxx.h>
+
 
 /*
 *********************************************************************************************************

@@ -243,13 +243,10 @@ spi_ret_e SPI_write_read( spi_num_e spi, uint8_ua_t* wdata, uint8_ua_t* rdata, u
 
     for( i = 0; i < data_len; i++ )
     {
-        CPU_SR_ALLOC();
-        CPU_CRITICAL_ENTER();
         while( curr_spi_cfg_p->SPIxSTAT->SPIBUSY );
         *curr_spi_cfg_p->SPIxBUFF = wdata[i];        // Write the data
         while( curr_spi_cfg_p->SPIxSTAT->SPIBUSY );
         rdata[i] = *curr_spi_cfg_p->SPIxBUFF;        // Read the data
-        CPU_CRITICAL_EXIT();
     }
     return SPI_SUCCESS;
 }

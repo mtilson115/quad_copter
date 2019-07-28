@@ -25,7 +25,8 @@
 /*******************************************************************************
  * Special Pragma for the interrupt handler to use a shadow register set (SRS)
  ******************************************************************************/
-#pragma config FSRSSEL = PRIORITY_6
+#define PWM3_PRIO 2
+#define PWM3_INT_CFG IPL2SOFT
 
 /*******************************************************************************
  * Local Type Defs
@@ -75,6 +76,9 @@ pwm_config_t PWM4_cfg = {
 static BOOL pwm_tmr_initialized = FALSE;
 
 pwm_config_t* curr_pwm_cfg_p;
+
+static uint32_t PWM3_off_time = 0;
+static uint32_t PWM3_on_time = 0;
 
 /*******************************************************************************
  * Local Functions
@@ -228,8 +232,8 @@ void PWM_oc3_work_around_init( void )
      * (Same explanation as above)
      */
     IFS0bits.OC3IF = 0;
-    IPC3bits.OC3IP = 6;
-    IPC3bits.OC3IS = 2;
+    IPC3bits.OC3IP = PWM3_PRIO;
+    IPC3bits.OC3IS = 0;
     IEC0bits.OC3IE = 1;
 }
 

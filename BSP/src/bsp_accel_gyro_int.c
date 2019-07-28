@@ -13,6 +13,7 @@
  ******************************************************************************/
 #include <p32xxxx.h>
 #include "bsp_accel_gyro_int.h"
+#include <stdint.h>
 
 /*******************************************************************************
  * Local Data
@@ -73,10 +74,10 @@ void bsp_accel_gyro_int_en( void )
     IFS0bits.INT1IF = 0;
 
     // Interrupt priority
-    IPC1bits.INT1IP = 4;
+    IPC1bits.INT1IP = 6;
 
     // Interrupt sub-priority
-    IPC1bits.INT1IS = 2;
+    IPC1bits.INT1IS = 0;
 
     // INT1 enable bit
     IEC0bits.INT1IE = 1;
