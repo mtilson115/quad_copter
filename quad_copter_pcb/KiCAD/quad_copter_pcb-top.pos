@@ -1,0 +1,42 @@
+### Module positions - created on Sun 18 Aug 2019 08:27:27 AM PDT ###
+### Printed by Pcbnew version kicad 5.1.2-f72e74a~84~ubuntu18.04.1
+## Unit = inches, Angle = deg.
+## Side : top
+# Ref     Val                                Package                                               PosX       PosY       Rot  Side
+C1        C_10uF                             C_0805_2012Metric_Pad1.15x1.40mm_HandSolder         6.7704    -3.0800  180.0000  top
+C2        C_22uF                             C_1206_3216Metric_Pad1.42x1.75mm_HandSolder         7.0136    -3.0800  180.0000  top
+C4        C26pF                              C_0603_1608Metric_Pad1.05x0.95mm_HandSolder         6.8050    -4.7206   90.0000  top
+C5        C26pF                              C_0603_1608Metric_Pad1.05x0.95mm_HandSolder         6.8050    -5.0644  270.0000  top
+C6        C10uF                              C_0603_1608Metric_Pad1.05x0.95mm_HandSolder         5.9456    -4.3800    0.0000  top
+C7        C.1uF                              C_0603_1608Metric_Pad1.05x0.95mm_HandSolder         6.3200    -4.8956   90.0000  top
+C8        C.1uF                              C_0603_1608Metric_Pad1.05x0.95mm_HandSolder         5.7656    -4.3800  180.0000  top
+C9        C_.1uF                             C_0603_1608Metric_Pad1.05x0.95mm_HandSolder         5.5300    -4.5550   90.0000  top
+C10       C_.1uF                             C_0603_1608Metric_Pad1.05x0.95mm_HandSolder         5.4300    -5.2300   90.0000  top
+C11       C.1uF                              C_0603_1608Metric_Pad1.05x0.95mm_HandSolder         5.6050    -5.3550    0.0000  top
+C12       C.1uF                              C_0603_1608Metric_Pad1.05x0.95mm_HandSolder         6.0550    -5.3550  180.0000  top
+C13       C.1uF                              C_0603_1608Metric_Pad1.05x0.95mm_HandSolder         6.2550    -5.3550  180.0000  top
+C14       C15pF                              C_0603_1608Metric_Pad1.05x0.95mm_HandSolder         5.2800    -4.5300    0.0000  top
+C15       C15pF                              C_0603_1608Metric_Pad1.05x0.95mm_HandSolder         5.2456    -5.0800  180.0000  top
+D1        LED                                LED_1206_3216Metric_Pad1.42x1.75mm_HandSolder       6.2800    -1.8050  180.0000  top
+D2        LED                                LED_1206_3216Metric_Pad1.42x1.75mm_HandSolder       4.2800    -4.3300  180.0000  top
+D3        LED                                LED_1206_3216Metric_Pad1.42x1.75mm_HandSolder       4.0050    -3.1050    0.0000  top
+J12       USB_B_Micro                        USB_Micro-B_Amphenol_10103594-0001LF_Horizontal     7.8200    -4.0918   90.0000  top
+R1        R_56                               R_0805_2012Metric_Pad1.15x1.40mm_HandSolder         6.0204    -1.8050  180.0000  top
+R2        R10K                               R_0805_2012Metric_Pad1.15x1.40mm_HandSolder         7.2081    -2.8781   90.0000  top
+R3        R2.8k                              R_0805_2012Metric_Pad1.15x1.40mm_HandSolder         7.2081    -2.6281   90.0000  top
+R4        R10k                               R_0805_2012Metric_Pad1.15x1.40mm_HandSolder         5.7396    -2.5300    0.0000  top
+R5        R470                               R_0603_1608Metric_Pad1.05x0.95mm_HandSolder         5.7456    -2.7550    0.0000  top
+R6        R10k                               R_0805_2012Metric_Pad1.15x1.40mm_HandSolder         4.2646    -4.7050    0.0000  top
+R7        R470                               R_0603_1608Metric_Pad1.05x0.95mm_HandSolder         4.2550    -4.5050  180.0000  top
+R8        R_56                               R_0805_2012Metric_Pad1.15x1.40mm_HandSolder         3.9800    -4.3300    0.0000  top
+R9        R_56                               R_0805_2012Metric_Pad1.15x1.40mm_HandSolder         4.3550    -3.1050    0.0000  top
+R12       R2.4k                              R_0805_2012Metric_Pad1.15x1.40mm_HandSolder         5.2550    -4.2800    0.0000  top
+R13       R2.4k                              R_0805_2012Metric_Pad1.15x1.40mm_HandSolder         5.5050    -4.2800    0.0000  top
+R14       R10                                R_0805_2012Metric_Pad1.15x1.40mm_HandSolder         5.8146    -5.3550    0.0000  top
+S1        MOMENTARY-SWITCH-SPST-2-SMD-5.2MM  TACTILE_SWITCH_SMD_5.2MM                            6.1050    -2.5800    0.0000  top
+S2        MOMENTARY-SWITCH-SPST-2-SMD-5.2MM  TACTILE_SWITCH_SMD_5.2MM                            4.6050    -4.4050    0.0000  top
+U1        LT1085-3.3                         TO-263-3_TabPin2                                    6.7550    -2.6379   90.0000  top
+U4        PIC32MX795F512L-X_PT               TQFP-100_12x12mm_P0.4mm                             5.9300    -4.8300    0.0000  top
+Y1        Crystal_8MHz                       HC49UP                                              6.5300    -4.8800  270.0000  top
+Y2        Crystal_GND23                      Crystal_SMD_7050-4Pin_7.0x5.0mm                     5.2800    -4.7800    0.0000  top
+## End

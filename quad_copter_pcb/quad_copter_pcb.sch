@@ -1,6 +1,5 @@
 EESchema Schematic File Version 4
-LIBS:quad_copter_pcb-cache
-EELAYER 29 0
+EELAYER 30 0
 EELAYER END
 $Descr C 22000 17000
 encoding utf-8
@@ -322,39 +321,6 @@ Wire Wire Line
 	4550 12100 4900 12100
 Wire Wire Line
 	5200 12100 5450 12100
-$Comp
-L quad_copter_pcb-rescue:MOMENTARY-SWITCH-SPST-2-SMD-5.2MM-SparkFun-Switches S2
-U 1 1 5BFDBEFA
-P 2550 9150
-F 0 "S2" H 2550 9585 45  0000 C CNN
-F 1 "MOMENTARY-SWITCH-SPST-2-SMD-5.2MM" H 2550 9501 45  0000 C CNN
-F 2 "Switches:TACTILE_SWITCH_SMD_5.2MM" H 2550 9400 20  0001 C CNN
-F 3 "https://www.digikey.com/product-detail/en/c-k/RS-187R05A2-DS-MT-RT/CKN10361TR-ND/2747186" H 2550 9150 50  0001 C CNN
-F 4 "SWCH-08247" H 2550 9406 60  0000 C CNN "Field4"
-	1    2550 9150
-	1    0    0    -1  
-$EndComp
-Text GLabel 2350 9150 0    50   Input ~ 0
-GND
-Text GLabel 2350 9250 0    50   Input ~ 0
-GND
-$Comp
-L Device:R R6
-U 1 1 5BFDCCF1
-P 3600 8700
-F 0 "R6" H 3670 8746 50  0000 L CNN
-F 1 "R10k" H 3670 8655 50  0000 L CNN
-F 2 "Resistor_SMD:R_0805_2012Metric_Pad1.15x1.40mm_HandSolder" V 3530 8700 50  0001 C CNN
-F 3 "https://www.digikey.com/product-detail/en/susumu/RR1220P-103-D/RR12P10.0KDTR-ND/432315" H 3600 8700 50  0001 C CNN
-	1    3600 8700
-	1    0    0    -1  
-$EndComp
-Text GLabel 3600 8550 1    50   Input ~ 0
-VDD3.3
-Wire Wire Line
-	3600 8850 3600 9150
-Wire Wire Line
-	3600 9150 2750 9150
 Text GLabel 3150 12000 0    50   Input ~ 0
 XBEE_RESET
 Text GLabel 6650 7150 0    50   Input ~ 0
@@ -380,27 +346,6 @@ Wire Wire Line
 	5450 3700 4800 3700
 Wire Wire Line
 	4800 3700 4800 3650
-$Comp
-L Device:R R7
-U 1 1 5BFE6FB5
-P 3600 9550
-F 0 "R7" H 3670 9596 50  0000 L CNN
-F 1 "R470" H 3670 9505 50  0000 L CNN
-F 2 "Resistor_SMD:R_0603_1608Metric_Pad1.05x0.95mm_HandSolder" V 3530 9550 50  0001 C CNN
-F 3 "https://www.digikey.com/product-detail/en/bourns-inc/CR0603-JW-471ELF/CR0603-JW-471ELFCT-ND/3740990" H 3600 9550 50  0001 C CNN
-	1    3600 9550
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	3600 9400 2750 9400
-Wire Wire Line
-	2750 9400 2750 9250
-Text GLabel 3350 9800 0    50   Input ~ 0
-XBEE_RESET
-Wire Wire Line
-	3600 9700 3600 9800
-Wire Wire Line
-	3600 9800 3350 9800
 Text GLabel 5200 4150 0    50   Input ~ 0
 MCLR
 Wire Wire Line
@@ -559,250 +504,94 @@ Wire Wire Line
 $Comp
 L Device:C C5
 U 1 1 5BFFC7EE
-P 12500 13450
-F 0 "C5" H 12615 13496 50  0000 L CNN
-F 1 "C26pF" H 12615 13405 50  0000 L CNN
-F 2 "Capacitor_SMD:C_0603_1608Metric_Pad1.05x0.95mm_HandSolder" H 12538 13300 50  0001 C CNN
-F 3 "https://www.digikey.com/product-detail/en/avx-corporation/06031A250GAT2A/478-10197-2-ND/1598435" H 12500 13450 50  0001 C CNN
-	1    12500 13450
+P 12000 11400
+F 0 "C5" H 12115 11446 50  0000 L CNN
+F 1 "C26pF" H 12115 11355 50  0000 L CNN
+F 2 "Capacitor_SMD:C_0603_1608Metric_Pad1.05x0.95mm_HandSolder" H 12038 11250 50  0001 C CNN
+F 3 "https://www.digikey.com/product-detail/en/avx-corporation/06031A250GAT2A/478-10197-2-ND/1598435" H 12000 11400 50  0001 C CNN
+	1    12000 11400
 	1    0    0    -1  
 $EndComp
-Text GLabel 12950 13200 2    50   Input ~ 0
+Text GLabel 12450 11150 2    50   Input ~ 0
 GND
 $Comp
 L Device:C C4
 U 1 1 5BFFC786
-P 12500 13000
-F 0 "C4" H 12615 13046 50  0000 L CNN
-F 1 "C26pF" H 12615 12955 50  0000 L CNN
-F 2 "Capacitor_SMD:C_0603_1608Metric_Pad1.05x0.95mm_HandSolder" H 12538 12850 50  0001 C CNN
-F 3 "https://www.digikey.com/product-detail/en/avx-corporation/06031A250GAT2A/478-10197-2-ND/1598435" H 12500 13000 50  0001 C CNN
-	1    12500 13000
+P 12000 10950
+F 0 "C4" H 12115 10996 50  0000 L CNN
+F 1 "C26pF" H 12115 10905 50  0000 L CNN
+F 2 "Capacitor_SMD:C_0603_1608Metric_Pad1.05x0.95mm_HandSolder" H 12038 10800 50  0001 C CNN
+F 3 "https://www.digikey.com/product-detail/en/avx-corporation/06031A250GAT2A/478-10197-2-ND/1598435" H 12000 10950 50  0001 C CNN
+	1    12000 10950
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	11450 12850 11450 13050
+	10950 10800 10950 11000
 Wire Wire Line
-	11450 12850 12500 12850
+	10950 10800 12000 10800
 Wire Wire Line
-	12500 13600 11450 13600
+	12000 11550 10950 11550
 Wire Wire Line
-	11450 13600 11450 13350
+	10950 11550 10950 11300
 Wire Wire Line
-	12500 13300 12500 13200
+	12000 11250 12000 11150
 Wire Wire Line
-	12950 13200 12500 13200
-Connection ~ 12500 13200
+	12450 11150 12000 11150
+Connection ~ 12000 11150
 Wire Wire Line
-	12500 13200 12500 13150
+	12000 11150 12000 11100
 Text GLabel 16250 8650 2    50   Input ~ 0
 OSC2_
 Text GLabel 16250 8750 2    50   Input ~ 0
 OSC1_
-Text GLabel 10500 12850 0    50   Input ~ 0
+Text GLabel 10000 10800 0    50   Input ~ 0
 OSC2_
-Text GLabel 10500 13600 0    50   Input ~ 0
+Text GLabel 10000 11550 0    50   Input ~ 0
 OSC1_
-$Comp
-L Mechanical:MountingHole_Pad H1
-U 1 1 5C01F302
-P 12350 850
-F 0 "H1" H 12450 901 50  0000 L CNN
-F 1 "MountingHole_Pad" H 12450 810 50  0000 L CNN
-F 2 "MountingHole:MountingHole_2.5mm_Pad" H 12350 850 50  0001 C CNN
-F 3 "~" H 12350 850 50  0001 C CNN
-	1    12350 850 
-	1    0    0    -1  
-$EndComp
-$Comp
-L Mechanical:MountingHole_Pad H2
-U 1 1 5C01F679
-P 13300 850
-F 0 "H2" H 13400 901 50  0000 L CNN
-F 1 "MountingHole_Pad" H 13400 810 50  0000 L CNN
-F 2 "MountingHole:MountingHole_2.5mm_Pad" H 13300 850 50  0001 C CNN
-F 3 "~" H 13300 850 50  0001 C CNN
-	1    13300 850 
-	1    0    0    -1  
-$EndComp
-$Comp
-L Mechanical:MountingHole_Pad H3
-U 1 1 5C023806
-P 12350 1300
-F 0 "H3" H 12450 1351 50  0000 L CNN
-F 1 "MountingHole_Pad" H 12450 1260 50  0000 L CNN
-F 2 "MountingHole:MountingHole_2.5mm_Pad" H 12350 1300 50  0001 C CNN
-F 3 "~" H 12350 1300 50  0001 C CNN
-	1    12350 1300
-	1    0    0    -1  
-$EndComp
-$Comp
-L Mechanical:MountingHole_Pad H4
-U 1 1 5C02386C
-P 13300 1300
-F 0 "H4" H 13400 1351 50  0000 L CNN
-F 1 "MountingHole_Pad" H 13400 1260 50  0000 L CNN
-F 2 "MountingHole:MountingHole_2.5mm_Pad" H 13300 1300 50  0001 C CNN
-F 3 "~" H 13300 1300 50  0001 C CNN
-	1    13300 1300
-	1    0    0    -1  
-$EndComp
-$Comp
-L Mechanical:MountingHole_Pad H5
-U 1 1 5C0238D4
-P 12350 1700
-F 0 "H5" H 12450 1751 50  0000 L CNN
-F 1 "MountingHole_Pad" H 12450 1660 50  0000 L CNN
-F 2 "MountingHole:MountingHole_2.5mm_Pad" H 12350 1700 50  0001 C CNN
-F 3 "~" H 12350 1700 50  0001 C CNN
-	1    12350 1700
-	1    0    0    -1  
-$EndComp
-$Comp
-L Mechanical:MountingHole_Pad H6
-U 1 1 5C02393A
-P 13300 1700
-F 0 "H6" H 13400 1751 50  0000 L CNN
-F 1 "MountingHole_Pad" H 13400 1660 50  0000 L CNN
-F 2 "MountingHole:MountingHole_2.5mm_Pad" H 13300 1700 50  0001 C CNN
-F 3 "~" H 13300 1700 50  0001 C CNN
-	1    13300 1700
-	1    0    0    -1  
-$EndComp
-$Comp
-L Mechanical:MountingHole_Pad H7
-U 1 1 5C0239F2
-P 12350 2150
-F 0 "H7" H 12450 2201 50  0000 L CNN
-F 1 "MountingHole_Pad" H 12450 2110 50  0000 L CNN
-F 2 "MountingHole:MountingHole_2.5mm_Pad" H 12350 2150 50  0001 C CNN
-F 3 "~" H 12350 2150 50  0001 C CNN
-	1    12350 2150
-	1    0    0    -1  
-$EndComp
-$Comp
-L Mechanical:MountingHole_Pad H8
-U 1 1 5C023A5E
-P 13300 2150
-F 0 "H8" H 13400 2201 50  0000 L CNN
-F 1 "MountingHole_Pad" H 13400 2110 50  0000 L CNN
-F 2 "MountingHole:MountingHole_2.5mm_Pad" H 13300 2150 50  0001 C CNN
-F 3 "~" H 13300 2150 50  0001 C CNN
-	1    13300 2150
-	1    0    0    -1  
-$EndComp
-$Comp
-L Mechanical:MountingHole_Pad H9
-U 1 1 5C023AD4
-P 12350 2550
-F 0 "H9" H 12450 2601 50  0000 L CNN
-F 1 "MountingHole_Pad" H 12450 2510 50  0000 L CNN
-F 2 "MountingHole:MountingHole_2.5mm_Pad" H 12350 2550 50  0001 C CNN
-F 3 "~" H 12350 2550 50  0001 C CNN
-	1    12350 2550
-	1    0    0    -1  
-$EndComp
-$Comp
-L Mechanical:MountingHole_Pad H10
-U 1 1 5C023B50
-P 13300 2550
-F 0 "H10" H 13400 2601 50  0000 L CNN
-F 1 "MountingHole_Pad" H 13400 2510 50  0000 L CNN
-F 2 "MountingHole:MountingHole_2.5mm_Pad" H 13300 2550 50  0001 C CNN
-F 3 "~" H 13300 2550 50  0001 C CNN
-	1    13300 2550
-	1    0    0    -1  
-$EndComp
 $Comp
 L Mechanical:MountingHole H11
 U 1 1 5C023C9A
-P 15050 850
-F 0 "H11" H 15150 896 50  0000 L CNN
-F 1 "MountingHole" H 15150 805 50  0000 L CNN
-F 2 "MountingHole:MountingHole_3.2mm_M3" H 15050 850 50  0001 C CNN
-F 3 "~" H 15050 850 50  0001 C CNN
-	1    15050 850 
+P 10300 1350
+F 0 "H11" H 10400 1396 50  0000 L CNN
+F 1 "MountingHole" H 10400 1305 50  0000 L CNN
+F 2 "MountingHole:MountingHole_3.2mm_M3" H 10300 1350 50  0001 C CNN
+F 3 "~" H 10300 1350 50  0001 C CNN
+	1    10300 1350
 	1    0    0    -1  
 $EndComp
 $Comp
 L Mechanical:MountingHole H13
 U 1 1 5C023DDB
-P 16200 850
-F 0 "H13" H 16300 896 50  0000 L CNN
-F 1 "MountingHole" H 16300 805 50  0000 L CNN
-F 2 "MountingHole:MountingHole_3.2mm_M3" H 16200 850 50  0001 C CNN
-F 3 "~" H 16200 850 50  0001 C CNN
-	1    16200 850 
+P 11450 1350
+F 0 "H13" H 11550 1396 50  0000 L CNN
+F 1 "MountingHole" H 11550 1305 50  0000 L CNN
+F 2 "MountingHole:MountingHole_3.2mm_M3" H 11450 1350 50  0001 C CNN
+F 3 "~" H 11450 1350 50  0001 C CNN
+	1    11450 1350
 	1    0    0    -1  
 $EndComp
 $Comp
 L Mechanical:MountingHole H12
 U 1 1 5C023E69
-P 15050 1200
-F 0 "H12" H 15150 1246 50  0000 L CNN
-F 1 "MountingHole" H 15150 1155 50  0000 L CNN
-F 2 "MountingHole:MountingHole_3.2mm_M3" H 15050 1200 50  0001 C CNN
-F 3 "~" H 15050 1200 50  0001 C CNN
-	1    15050 1200
+P 10300 1700
+F 0 "H12" H 10400 1746 50  0000 L CNN
+F 1 "MountingHole" H 10400 1655 50  0000 L CNN
+F 2 "MountingHole:MountingHole_3.2mm_M3" H 10300 1700 50  0001 C CNN
+F 3 "~" H 10300 1700 50  0001 C CNN
+	1    10300 1700
 	1    0    0    -1  
 $EndComp
 $Comp
-L Mechanical:MountingHole H_4
+L Mechanical:MountingHole H14
 U 1 1 5C023EEB
-P 16200 1200
-F 0 "H_4" H 16300 1246 50  0000 L CNN
-F 1 "MountingHole" H 16300 1155 50  0000 L CNN
-F 2 "MountingHole:MountingHole_3.2mm_M3" H 16200 1200 50  0001 C CNN
-F 3 "~" H 16200 1200 50  0001 C CNN
-	1    16200 1200
+P 11450 1700
+F 0 "H14" H 11550 1746 50  0000 L CNN
+F 1 "MountingHole" H 11550 1655 50  0000 L CNN
+F 2 "MountingHole:MountingHole_3.2mm_M3" H 11450 1700 50  0001 C CNN
+F 3 "~" H 11450 1700 50  0001 C CNN
+	1    11450 1700
 	1    0    0    -1  
 $EndComp
-Text GLabel 11600 1800 0    50   Input ~ 0
-VBATT
-Text GLabel 14450 1800 2    50   Input ~ 0
-GND
-Wire Wire Line
-	12350 950  11600 950 
-Wire Wire Line
-	12350 2650 11600 2650
-Wire Wire Line
-	11600 950  11600 1400
-Wire Wire Line
-	12350 1400 11600 1400
-Connection ~ 11600 1400
-Wire Wire Line
-	11600 1400 11600 1800
-Wire Wire Line
-	12350 1800 11600 1800
-Connection ~ 11600 1800
-Wire Wire Line
-	11600 1800 11600 2250
-Wire Wire Line
-	12350 2250 11600 2250
-Connection ~ 11600 2250
-Wire Wire Line
-	11600 2250 11600 2650
-Wire Wire Line
-	13300 950  14450 950 
-Wire Wire Line
-	14450 950  14450 1400
-Wire Wire Line
-	13300 1400 14450 1400
-Connection ~ 14450 1400
-Wire Wire Line
-	13300 2650 14450 2650
-Wire Wire Line
-	13300 2250 14450 2250
-Connection ~ 14450 2250
-Wire Wire Line
-	14450 2250 14450 2650
-Wire Wire Line
-	13300 1800 14450 1800
-Wire Wire Line
-	14450 1400 14450 1800
-Connection ~ 14450 1800
-Wire Wire Line
-	14450 1800 14450 2250
 Text GLabel 5750 1500 2    50   Input ~ 0
 GND
 $Comp
@@ -854,12 +643,6 @@ Text GLabel 1750 8050 2    50   Input ~ 0
 RE6
 Text GLabel 1800 5250 2    50   Input ~ 0
 SDO2_MOSI_2
-Text GLabel 1300 7050 0    50   Input ~ 0
-MCLR
-Text GLabel 1300 7150 0    50   Input ~ 0
-VDD3.3
-Text GLabel 1300 7250 0    50   Input ~ 0
-GND
 Text GLabel 1800 5150 2    50   Input ~ 0
 SS2_CSL_2
 Text GLabel 1800 5050 2    50   Input ~ 0
@@ -883,14 +666,6 @@ MOTOR3_PWM
 Text GLabel 16250 7250 2    50   Input ~ 0
 MOTOR4_PWM
 Text GLabel 19050 9150 0    50   Input ~ 0
-MOTOR4_PWM
-Text GLabel 3050 7800 0    50   Input ~ 0
-MOTOR1_PWM
-Text GLabel 3050 7900 0    50   Input ~ 0
-MOTOR2_PWM
-Text GLabel 3550 7800 2    50   Input ~ 0
-MOTOR3_PWM
-Text GLabel 3550 7900 2    50   Input ~ 0
 MOTOR4_PWM
 Text GLabel 3450 6850 0    50   Input ~ 0
 VBATT_SCALED
@@ -938,21 +713,6 @@ Text GLabel 1300 6250 0    50   Input ~ 0
 I2C1_SDA1
 Text GLabel 1800 6350 2    50   Input ~ 0
 I2C1_SCL1
-Text GLabel 1300 6850 0    50   Input ~ 0
-PGC
-Text GLabel 1300 6950 0    50   Input ~ 0
-PGD
-$Comp
-L Connector_Generic:Conn_01x05 J7
-U 1 1 5C0593D3
-P 1500 7050
-F 0 "J7" H 1580 7092 50  0000 L CNN
-F 1 "Conn_01x05" H 1580 7001 50  0000 L CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x05_P2.54mm_Vertical" H 1500 7050 50  0001 C CNN
-F 3 "~" H 1500 7050 50  0001 C CNN
-	1    1500 7050
-	1    0    0    -1  
-$EndComp
 $Comp
 L Connector_Generic:Conn_02x04_Odd_Even J8
 U 1 1 5C059B28
@@ -962,17 +722,6 @@ F 1 "Conn_02x04_Odd_Even" H 1500 8076 50  0000 C CNN
 F 2 "Connector_PinHeader_2.54mm:PinHeader_2x04_P2.54mm_Vertical" H 1450 7850 50  0001 C CNN
 F 3 "~" H 1450 7850 50  0001 C CNN
 	1    1450 7850
-	1    0    0    -1  
-$EndComp
-$Comp
-L Connector_Generic:Conn_02x02_Odd_Even J9
-U 1 1 5C05BA67
-P 3250 7800
-F 0 "J9" H 3300 8017 50  0000 C CNN
-F 1 "Conn_02x02_Odd_Even" H 3300 7926 50  0000 C CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_2x02_P2.54mm_Vertical" H 3250 7800 50  0001 C CNN
-F 3 "~" H 3250 7800 50  0001 C CNN
-	1    3250 7800
 	1    0    0    -1  
 $EndComp
 Text GLabel 2500 4750 0    50   Input ~ 0
@@ -1379,85 +1128,51 @@ Wire Wire Line
 	6000 8850 6300 8850
 Wire Wire Line
 	1800 2750 2200 2750
-$Comp
-L Device:Crystal_GND23 Y2
-U 1 1 5C07B078
-P 11450 11300
-F 0 "Y2" V 11600 11100 50  0000 L CNN
-F 1 "Crystal_GND23" V 11650 11450 50  0000 L CNN
-F 2 "Crystal:Crystal_SMD_7050-4Pin_7.0x5.0mm" H 11450 11300 50  0001 C CNN
-F 3 "https://www.digikey.com/product-detail/en/citizen-finedevice-co-ltd/CM200C32768HZFT/300-8742-1-ND/2108134" H 11450 11300 50  0001 C CNN
-	1    11450 11300
-	0    -1   -1   0   
-$EndComp
-$Comp
-L Device:C C15
-U 1 1 5C07B07F
-P 12500 11550
-F 0 "C15" H 12615 11596 50  0000 L CNN
-F 1 "C15pF" H 12615 11505 50  0000 L CNN
-F 2 "Capacitor_SMD:C_0603_1608Metric_Pad1.05x0.95mm_HandSolder" H 12538 11400 50  0001 C CNN
-F 3 "https://www.digikey.com/product-detail/en/avx-corporation/06033A150JAT2A/478-10804-2-ND/1599104" H 12500 11550 50  0001 C CNN
-	1    12500 11550
-	1    0    0    -1  
-$EndComp
-Text GLabel 12950 11300 2    50   Input ~ 0
-GND
-$Comp
-L Device:C C14
-U 1 1 5C07B087
-P 12500 11100
-F 0 "C14" H 12615 11146 50  0000 L CNN
-F 1 "C15pF" H 12615 11055 50  0000 L CNN
-F 2 "Capacitor_SMD:C_0603_1608Metric_Pad1.05x0.95mm_HandSolder" H 12538 10950 50  0001 C CNN
-F 3 "https://www.digikey.com/product-detail/en/avx-corporation/06033A150JAT2A/478-10804-2-ND/1599104" H 12500 11100 50  0001 C CNN
-	1    12500 11100
-	1    0    0    -1  
-$EndComp
-Text GLabel 11250 11300 0    50   Input ~ 0
-GND
-Text GLabel 11650 11300 2    50   Input ~ 0
-GND
 Wire Wire Line
-	11450 10950 11450 11150
+	10000 10800 10950 10800
+Connection ~ 10950 10800
 Wire Wire Line
-	11450 10950 12500 10950
-Wire Wire Line
-	12500 11700 11450 11700
-Wire Wire Line
-	11450 11700 11450 11450
-Wire Wire Line
-	12500 11400 12500 11300
-Wire Wire Line
-	12950 11300 12500 11300
-Connection ~ 12500 11300
-Wire Wire Line
-	12500 11300 12500 11250
-Text GLabel 10600 10950 0    50   Input ~ 0
-SOSCO
-Text GLabel 10600 11700 0    50   Input ~ 0
-SOSCI
-Wire Wire Line
-	10500 12850 11450 12850
-Connection ~ 11450 12850
-Wire Wire Line
-	10500 13600 11450 13600
-Connection ~ 11450 13600
+	10000 11550 10950 11550
+Connection ~ 10950 11550
 $Comp
 L Device:Crystal Y1
 U 1 1 5C08CF7F
-P 11450 13200
-F 0 "Y1" V 11404 13331 50  0000 L CNN
-F 1 "Crystal_8MHz" V 11495 13331 50  0000 L CNN
-F 2 "Clocks:HC49UP" H 11450 13200 50  0001 C CNN
-F 3 "https://www.digikey.com/product-detail/en/txc-corporation/9C-8.000MEEJ-T/887-1263-2-ND/2207683" H 11450 13200 50  0001 C CNN
-	1    11450 13200
+P 10950 11150
+F 0 "Y1" V 10904 11281 50  0000 L CNN
+F 1 "Crystal_8MHz" V 10995 11281 50  0000 L CNN
+F 2 "Clocks:HC49UP" H 10950 11150 50  0001 C CNN
+F 3 "https://www.digikey.com/product-detail/en/txc-corporation/9C-8.000MEEJ-T/887-1263-2-ND/2207683" H 10950 11150 50  0001 C CNN
+	1    10950 11150
 	0    1    1    0   
 $EndComp
+$Comp
+L Mechanical:MountingHole H16
+U 1 1 5E215BFB
+P 12850 1700
+F 0 "H16" H 12950 1746 50  0000 L CNN
+F 1 "MountingHole" H 12950 1655 50  0000 L CNN
+F 2 "MountingHole:MountingHole_3.2mm_M3" H 12850 1700 50  0001 C CNN
+F 3 "~" H 12850 1700 50  0001 C CNN
+	1    12850 1700
+	1    0    0    -1  
+$EndComp
+Text GLabel 12600 1350 0    50   Input ~ 0
+VBATT
+Text GLabel 12600 1700 0    50   Input ~ 0
+GND
 Wire Wire Line
-	10600 10950 11450 10950
-Connection ~ 11450 10950
+	12850 1350 12600 1350
 Wire Wire Line
-	10600 11700 11450 11700
-Connection ~ 11450 11700
+	12850 1700 12600 1700
+$Comp
+L Mechanical:MountingHole H15
+U 1 1 5E215697
+P 12850 1350
+F 0 "H15" H 12950 1396 50  0000 L CNN
+F 1 "MountingHole" H 12950 1305 50  0000 L CNN
+F 2 "MountingHole:MountingHole_3.2mm_M3" H 12850 1350 50  0001 C CNN
+F 3 "~" H 12850 1350 50  0001 C CNN
+	1    12850 1350
+	1    0    0    -1  
+$EndComp
 $EndSCHEMATC

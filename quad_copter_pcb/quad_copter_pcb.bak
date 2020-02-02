@@ -1,6 +1,6 @@
 EESchema Schematic File Version 4
 LIBS:quad_copter_pcb-cache
-EELAYER 26 0
+EELAYER 29 0
 EELAYER END
 $Descr C 22000 17000
 encoding utf-8
@@ -15,7 +15,7 @@ Comment3 ""
 Comment4 ""
 $EndDescr
 $Comp
-L PIC32:PIC32MX775F512L-X_PT U4
+L quad_copter_pcb-rescue:PIC32MX775F512L-X_PT-PIC32 U4
 U 1 1 5BF9DBC4
 P 6650 5050
 F 0 "U4" H 11450 5543 60  0000 C CNN
@@ -109,7 +109,7 @@ GND
 Text GLabel 16250 8550 2    50   Input ~ 0
 GND
 $Comp
-L SparkFun-RF:XBEE JP2
+L quad_copter_pcb-rescue:XBEE-SparkFun-RF JP2
 U 1 1 5BFB1552
 P 3850 12000
 F 0 "JP2" H 3850 12760 45  0000 C CNN
@@ -121,7 +121,7 @@ F 4 "S6B" H 3850 12581 60  0000 C CNN "Field4"
 	1    0    0    -1  
 $EndComp
 $Comp
-L accel_gyro:accel_gyro_conn U3
+L quad_copter_pcb-rescue:accel_gyro_conn-accel_gyro U3
 U 1 1 5BFB1E23
 P 18900 12050
 F 0 "U3" H 19427 11546 50  0000 L CNN
@@ -214,7 +214,7 @@ GND
 Text GLabel 3150 11600 0    50   Input ~ 0
 VDD3.3
 $Comp
-L SparkFun-Switches:MOMENTARY-SWITCH-SPST-2-SMD-5.2MM S1
+L quad_copter_pcb-rescue:MOMENTARY-SWITCH-SPST-2-SMD-5.2MM-SparkFun-Switches S1
 U 1 1 5BFBCCDC
 P 4600 3550
 F 0 "S1" H 4600 3985 45  0000 C CNN
@@ -323,7 +323,7 @@ Wire Wire Line
 Wire Wire Line
 	5200 12100 5450 12100
 $Comp
-L SparkFun-Switches:MOMENTARY-SWITCH-SPST-2-SMD-5.2MM S2
+L quad_copter_pcb-rescue:MOMENTARY-SWITCH-SPST-2-SMD-5.2MM-SparkFun-Switches S2
 U 1 1 5BFDBEFA
 P 2550 9150
 F 0 "S2" H 2550 9585 45  0000 C CNN
@@ -408,7 +408,7 @@ Wire Wire Line
 Text GLabel 6650 6250 0    50   Input ~ 0
 MCLR
 $Comp
-L SparkFun-Connectors:RJ11-6 JP1
+L quad_copter_pcb-rescue:RJ11-6-SparkFun-Connectors JP1
 U 1 1 5BFEB677
 P 5650 2000
 F 0 "JP1" H 5606 2810 45  0000 C CNN
