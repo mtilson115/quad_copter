@@ -12,12 +12,14 @@
  ******************************************************************************/
 #include "comms_xbee.h"
 #include "bsp_xbee.h"
+#include "bsp_utils.h"
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 #include <p32xxxx.h>
 #include "bsp.h"
 #include "type_defs.h"
+#include <stdbool.h>
 
 /*******************************************************************************
  * Constants
@@ -29,7 +31,8 @@
 #define XBEE_MAX_TX         (128)
 #define XBEE_MAX_RX         (XBEE_MAX_TX + XBEE_MAX_HDR + XBEE_CKSM_SZ)
 #define XBEE_MAX_IPV4_RX    (64)
-#define XBEE_MAX_CB         (4)
+#define XBEE_MAX_RX_CB      (10)
+#define XBEE_MAX_LC_CB      (1)
 
 /*******************************************************************************
  * XBEE states
@@ -55,11 +58,12 @@ enum {
 /*******************************************************************************
  * API IDs
  ******************************************************************************/
-#define XBEE_TX_REQ     (0x20)
-#define XBEE_STATUS     (0x8A)
-#define XBEE_AT_CMD     (0x08)
-#define XBEE_AT_CMD_RSP (0x88)
-#define XBEE_RX_MSG     (0xB0)
+#define XBEE_TX_REQ             (0x20)
+#define XBEE_STATUS             (0x8A)
+#define XBEE_AT_CMD             (0x08)
+#define XBEE_AT_CMD_RSP         (0x88)
+#define XBEE_RX_MSG             (0xB0)
+#define XBEE_FRAME_ERROR_MSG    (0xFE)
 
 /*******************************************************************************
  * AT Commands
@@ -70,6 +74,8 @@ enum {
 #define XBEE_IP_PROTOCOL    ("IP")
 #define XBEE_SSID           ("ID")
 #define XBEE_MY_IP          ("MY")
+#define XBEE_D6             ("D6")
+#define XBEE_D7             ("D7")
 
 // AT status
 #define AT_CMD_STATUS_OK (0)
@@ -140,11 +146,22 @@ typedef struct __attribute__ ((packed)){
     uint8_t     status;
 }comms_xbee_rx_status_t;
 
+typedef struct __attribute__ ((packed)){
+    uint8_t     api_frame_id;
+    uint8_t     status;
+}comms_xbee_frame_error_status_t;
+
 typedef struct __attribute__ ((packed)) {
     uint8_t     api_frame_id;
     uint8_t     frame_id;
     uint8_t     cmd[2];
 }comms_xbee_at_cmd_read_t;
+
+typedef struct __attribute__ ((packed)) {
+    uint8_t     api_frame_id;
+    uint8_t     frame_id;
+    uint8_t     cmd[2];
+}comms_xbee_at_cmd_write_t;
 
 typedef struct __attribute__ ((packed)) {
     uint8_t     api_frame_id;
@@ -164,6 +181,8 @@ typedef struct {
     uint8_t     xbee_dl_ip[4];
     char        xbee_ssid[32];
     uint8_t     xbee_my_ip[4];
+    uint8_t     xbee_d6_cfg;
+    uint8_t     xbee_d7_cfg;
     // TODO: Add power level
 } comms_xbee_status_t;
 
@@ -184,6 +203,8 @@ static comms_xbee_status_t comms_xbee_status = {
     .xbee_dl_ip = {0,0,0,0},
     .xbee_ssid = {0},
     .xbee_my_ip = {0,0,0,0},
+    .xbee_d6_cfg = 0,
+    .xbee_d7_cfg = 0,
 };
 
 // Task Data
@@ -192,20 +213,22 @@ CPU_STK comms_xbee_stack[COMMS_XBEE_STK_SIZE];
 
 // Rx buffer
 static uint8_t comms_xbee_rx_buff[XBEE_MAX_RX];
+static uint8_t comms_xbee_dummy_tx_buff[XBEE_MAX_RX] = {0};
 
 // Msg queue memory
 OS_MEM comms_xbee_tx_mem_ctrl_blk;
-#define TX_MEM_BLK_SIZE (sizeof(comms_xbee_tx_frame_ipv4_t)+sizeof(comms_xbee_api_msg_t))
-#define TX_Q_DEPTH (80)
+#define TX_MEM_BLK_SIZE (sizeof(tx_frame_data_t))
+#define TX_Q_DEPTH (10)
 static uint8_t comms_tx_xbee_mem[TX_MEM_BLK_SIZE*TX_Q_DEPTH];
 
 static uint32_t fault = 0;
-#define NO_MEM                  (1 << 0);
-#define Q_FULL                  (1 << 1);
-#define SEM_OVF                 (1 << 2);
-#define INT_MSG_FAIL            (1 << 3);
-#define IPV4_RX_LEN_FAIL        (1 << 4);
-#define RX_DURING_TX            (1 << 5);
+#define NO_MEM                  (1 << 0)
+#define Q_FULL                  (1 << 1)
+#define SEM_OVF                 (1 << 2)
+#define INT_MSG_FAIL            (1 << 3)
+#define IPV4_RX_LEN_FAIL        (1 << 4)
+#define RX_DURING_TX            (1 << 5)
+#define INT_MSG_MISSED          (1 << 6)
 
 /*******************************************************************************
  * IPV4 Addrs
@@ -245,8 +268,11 @@ uint8_t comms_xbee_dest_port[2] = {0x13,0x8D}; // 5005
 /*******************************************************************************
  * Call back array
  ******************************************************************************/
-comms_xbee_rx_cb_t xbee_rx_cbs[XBEE_MAX_CB];
-static uint32_t xbee_cb_count = 0;
+comms_xbee_rx_cb_t xbee_rx_cbs[XBEE_MAX_RX_CB];
+static uint32_t xbee_rx_cb_count = 0;
+
+comms_xbee_lost_connection_cb_t xbee_lc_cbs[XBEE_MAX_LC_CB] = {0};
+static uint32_t xbee_lc_cb_count = 0;
 
 /*******************************************************************************
  * Local Function Section
@@ -254,6 +280,7 @@ static uint32_t xbee_cb_count = 0;
 static void comms_xbee_task(void *p_arg);
 static void comms_xbee_handle_status(comms_xbee_api_msg_t* api_msg);
 static uint8_t comms_xbee_compute_cksum(comms_xbee_api_msg_t* api_msg);
+static void comms_xbee_at_cmd_wr(const char at_cmd[2], uint8_t* data, uint8_t len);
 static comms_xbee_api_msg_t comms_xbee_at_cmd_rd(const char at_cmd[2]);
 static void comms_xbee_send_api_msg(comms_xbee_api_msg_t* api_msg);
 static void comms_xbee_handle_at_rsp(comms_xbee_api_msg_t* api_msg);

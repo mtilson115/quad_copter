@@ -229,8 +229,6 @@ static void alg_stabilizer_task( void *p_arg )
     motor3.SetSpeedPercent(0.0);
     motor4.SetSpeedPercent(0.0);
 
-    while(1);
-
     // Delay 2.25s
     OSTimeDlyHMSM(0u, 0u, 2u, 250u,OS_OPT_TIME_HMSM_STRICT,&err);
 #endif
@@ -295,8 +293,6 @@ static void alg_stabilizer_task( void *p_arg )
          * Apply the values
          */
         alg_stabilizer(pitch,roll,gravity);
-
-        // OSTimeDlyHMSM(0u, 0u, 0u, 20u,OS_OPT_TIME_HMSM_STRICT,&err);
     }
 }
 
