@@ -4,13 +4,10 @@
 quad_copter.X/
 nbproject/
 build/
-OUT/
-BIN/
 
 # Object Files
 *.o
 *.o.d
-*.map
 *.elf
 *.hex
 
