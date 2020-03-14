@@ -141,7 +141,6 @@ static  void  App_TaskStart (void *p_arg)
     App_ObjCreate();                                            /* Create Applicaiton kernel objects                    */
 
     while (DEF_TRUE) {                                          /* Task body, always written as an infinite loop.       */
-        // LED_Toggle(1);
         OSTimeDlyHMSM(0u, 0u, 2u, 0u,
                       OS_OPT_TIME_HMSM_STRICT,
                       &err);
@@ -166,8 +165,9 @@ static  void  App_TaskStart (void *p_arg)
 
 static void App_TaskCreate(void)
 {
-    battery_read_init();
     comms_xbee_init();
+    while( !comms_xbee_ready() );
+    battery_read_init();
     alg_stabilizer_init();
 }
 
