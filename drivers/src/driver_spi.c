@@ -10,9 +10,7 @@
 /*******************************************************************************
  * Includes
  ******************************************************************************/
-#include "type_defs.h"
 #include "driver_spi.h"
-#include "perif_sfr_map.h"
 #include <p32xxxx.h>
 #include <os.h>
 
@@ -29,20 +27,20 @@ typedef struct {
     volatile uint32_t* SPIxBRG; // SPI baud rate register
     volatile __SPI2STATbits_t* SPIxSTAT; // SPI status register
     spi_num_e spi; // The SPI bus number
-    void (*spi_int_en_func)( BOOL enable);
+    void (*spi_int_en_func)( bool enable);
     void (*spi_int_prio_func)( uint32_t prio, uint32_t sub_prio );
     void (*spi_int_clear_flags_func)( void );
-    BOOL initialized;
+    bool initialized;
 } spi_config_t;
 
 /*******************************************************************************
  * Local Functions
  ******************************************************************************/
 static int32_t spi_set_cfg_pointer( spi_num_e spi );
-static void spi1_int_en( BOOL enable );
+static void spi1_int_en( bool enable );
 static void spi1_int_prio( uint32_t prio, uint32_t sub_prio );
 static void spi1_clear_int_flags( void );
-static void spi2_int_en( BOOL enable );
+static void spi2_int_en( bool enable );
 static void spi2_int_prio( uint32_t prio, uint32_t sub_prio );
 static void spi2_clear_int_flags( void );
 
@@ -58,7 +56,7 @@ spi_config_t SPI1_cfg = {
     &spi1_int_en,
     &spi1_int_prio,
     &spi1_clear_int_flags,
-    FALSE,
+    false,
 };
 
 spi_config_t SPI2_cfg = {
@@ -70,7 +68,7 @@ spi_config_t SPI2_cfg = {
     &spi2_int_en,
     &spi2_int_prio,
     &spi2_clear_int_flags,
-    FALSE,
+    false,
 };
 
 spi_config_t* curr_spi_cfg_p = &SPI2_cfg;
@@ -109,10 +107,10 @@ void SPI_init( spi_num_e spi, spi_init_t spi_settings )
     }
 
     // Set the intialized flag
-    curr_spi_cfg_p->initialized = FALSE;
+    curr_spi_cfg_p->initialized = false;
 
     // Disable interrupts
-    curr_spi_cfg_p->spi_int_en_func( FALSE );
+    curr_spi_cfg_p->spi_int_en_func( false );
 
     // Ensure the peripheral is off
     curr_spi_cfg_p->SPIxCON->ON = 0;
@@ -120,8 +118,8 @@ void SPI_init( spi_num_e spi, spi_init_t spi_settings )
     // Ensure the rx buffer is empty via reading it
     tmp_rx_buff = *curr_spi_cfg_p->SPIxBUFF;
 
-    // Enable enhanced buffer
-    curr_spi_cfg_p->SPIxCON->ENHBUF = 1;
+    // Disable enhanced buffer
+    curr_spi_cfg_p->SPIxCON->ENHBUF = 0;
 
     // Clear the interrupt flags
     curr_spi_cfg_p->spi_int_clear_flags_func();
@@ -130,13 +128,13 @@ void SPI_init( spi_num_e spi, spi_init_t spi_settings )
     curr_spi_cfg_p->spi_int_prio_func( spi_settings.interrupt_prio, spi_settings.interrupt_sub_prio );
 
     // Enable interrupts
-    if( spi_settings.use_interrupts == TRUE )
+    if( spi_settings.use_interrupts == true )
     {
-        curr_spi_cfg_p->spi_int_en_func( TRUE );
+        curr_spi_cfg_p->spi_int_en_func( true );
     }
     else
     {
-        curr_spi_cfg_p->spi_int_en_func( FALSE );
+        curr_spi_cfg_p->spi_int_en_func( false );
     }
 
     // Write the baud rate register
@@ -176,7 +174,7 @@ void SPI_init( spi_num_e spi, spi_init_t spi_settings )
     // curr_spi_cfg_p->SPIxCON->SRXISEL = 3;
 
     // Set the intialized flag
-    curr_spi_cfg_p->initialized = TRUE;
+    curr_spi_cfg_p->initialized = true;
 }
 
 /*******************************************************************************
@@ -185,7 +183,7 @@ void SPI_init( spi_num_e spi, spi_init_t spi_settings )
  * Description: Enables/Disables the selected SPI
  *
  * Inputs:      spi_num_e spi - the spi to enable/disable
- *              BOOL enable - TRUE to enable FALSE to disable
+ *              bool enable - true to enable false to disable
  *
  * Returns:     None
  *
@@ -194,7 +192,7 @@ void SPI_init( spi_num_e spi, spi_init_t spi_settings )
  * Notes:
  *
  ******************************************************************************/
-void SPI_enable( spi_num_e spi, BOOL enable )
+void SPI_enable( spi_num_e spi, bool enable )
 {
     if( -1 == spi_set_cfg_pointer( spi ) )
     {
@@ -206,7 +204,7 @@ void SPI_enable( spi_num_e spi, BOOL enable )
         return;
     }
 
-    // TRUE and FALSE are defined as 1 and 0
+    // true and false are defined as 1 and 0
     curr_spi_cfg_p->SPIxCON->ON = enable;
 }
 
@@ -227,7 +225,7 @@ void SPI_enable( spi_num_e spi, BOOL enable )
  * Notes:       wdata and rdata must be the same size
  *
  ******************************************************************************/
-spi_ret_e SPI_write_read( spi_num_e spi, uint8_ua_t* wdata, uint8_ua_t* rdata, uint32_t data_len )
+spi_ret_e SPI_write_read( spi_num_e spi, uint8_t* wdata, uint8_t* rdata, uint32_t data_len )
 {
     uint32_t i = 0;
 
@@ -290,7 +288,7 @@ static int32_t spi_set_cfg_pointer( spi_num_e spi )
  *
  * Description: Sets the SPI 1 interrupt enable
  *
- * Inputs:      BOOL enable - TRUE to enable FALSE otherwise
+ * Inputs:      bool enable - true to enable false otherwise
  *
  * Returns:     none
  *
@@ -299,7 +297,7 @@ static int32_t spi_set_cfg_pointer( spi_num_e spi )
  * Notes:       None
  *
  ******************************************************************************/
-static void spi1_int_en( BOOL enable )
+static void spi1_int_en( bool enable )
 {
     IEC0bits.SPI1AEIE   = enable;
     IEC0bits.SPI1ARXIE  = enable;
@@ -358,7 +356,7 @@ static void spi1_clear_int_flags( void )
  *
  * Description: Sets the SPI 2 interrupt enable
  *
- * Inputs:      BOOL enable - TRUE to enable FALSE otherwise
+ * Inputs:      bool enable - true to enable false otherwise
  *
  * Returns:     none
  *
@@ -367,7 +365,7 @@ static void spi1_clear_int_flags( void )
  * Notes:       None
  *
  ******************************************************************************/
-static void spi2_int_en( BOOL enable )
+static void spi2_int_en( bool enable )
 {
     IEC1bits.SPI2AEIE   = enable;
     IEC1bits.SPI2ARXIE  = enable;

@@ -17,7 +17,8 @@ extern "C" {
 /*******************************************************************************
  * Includes
  ******************************************************************************/
-#include "type_defs.h"
+#include <stdint.h>
+#include <stdbool.h>
 
 /*******************************************************************************
  * Enumerations
@@ -50,7 +51,7 @@ typedef struct {
     uint32_t interrupt_prio;
     uint32_t interrupt_sub_prio;
     spi_width_e data_width;  // 8bit, 16bit, 32bit
-    BOOL use_interrupts;
+    bool use_interrupts;
 } spi_init_t;
 
 typedef void (*spi_call_back_t)( uint8_t* spi_data, uint32_t data_len );
@@ -59,75 +60,11 @@ typedef void (*spi_call_back_t)( uint8_t* spi_data, uint32_t data_len );
  * Public Functions
  ******************************************************************************/
 
-/*******************************************************************************
- * SPI1_init
- *
- * Description: Initializes the SPI identified by the spi_num_e using the passed
- *              baud rate.
- *
- * Inputs:      spi_num_e spi - the spi to initialize
- *              uint32_t baud - the SPIxBRG value to intialize the SPI to.
- *
- * Returns:     None
- *
- * Revision:    Initial Creation 02/15/2016 - Mitchell S. Tilson
- *
- * Notes:
- *
- ******************************************************************************/
 void SPI_init( spi_num_e spi, spi_init_t spi_settings );
 
-/*******************************************************************************
- * SPI_enable
- *
- * Description: Enables/Disables the selected SPI
- *
- * Inputs:      spi_num_e spi - the spi to enable/disable
- *              BOOL enable - TRUE to enable FALSE to disable
- *
- * Returns:     None
- *
- * Revision:    Initial Creation 02/15/2016 - Mitchell S. Tilson
- *
- * Notes:
- *
- ******************************************************************************/
-void SPI_enable( spi_num_e spi, BOOL enable );
+void SPI_enable( spi_num_e spi, bool enable );
 
-/*******************************************************************************
- * SPI_write_read
- *
- * Description: Writes/reads the selected SPI
- *
- * Inputs:      spi_num_e spi - the spi to use
- *              uint8_t* wdata - a pointer to the data to send
- *              uint8_t* rdata - a pointer to the data to read
- *              uint32_t data_len - the number of bytes to send
- *
- * Returns:     spi_ret_e - ERROR, BUFF_FULL, or SUCCESS.
- *
- * Revision:    Initial Creation 01/18/2018 - Mitchell S. Tilson
- *
- * Notes:       wdata and rdata must be the same size
- *
- ******************************************************************************/
-spi_ret_e SPI_write_read( spi_num_e spi, uint8_ua_t* wdata, uint8_ua_t* rdata, uint32_t data_len );
-
-/*******************************************************************************
- * SPI_register_read_call_back
- *
- * Description: Registers a call back to be called when there is data available.
- *
- * Inputs:      spi_call_back_t spi_read_call_back_func - a call back function
- *
- * Returns:     BOOL TRUE/FALSE - TRUE if the registration worked false otherwise.
- *
- * Revision:    Initial Creation 02/15/2016 - Mitchell S. Tilson
- *
- * Notes:       Only 1 call back is allowed per peripheral.
- *
- ******************************************************************************/
-// BOOL SPI_register_read_call_back( spi_call_back_t* spi_read_call_back_func );
+spi_ret_e SPI_write_read( spi_num_e spi, uint8_t* wdata, uint8_t* rdata, uint32_t data_len );
 
 #ifdef	__cplusplus
 }

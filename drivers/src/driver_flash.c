@@ -23,18 +23,18 @@
  *
  * Description: Unlocks the flash for writting.
  *
- * Inputs:      unsigned int nvmop (least significant nibble) - The options for the programming sequence
- *              1111 = Reserved
- *              •
- *              •
- *              •
- *              0111 = Reserved
- *              0110 = No operation
- *              0101 = Program Flash Memory (PFM) Erase Operation: Erases PFM if all pages are not write-protected 0100 = Page Erase Operation: Erases page selected by NVMADDR(4)
- *              0011 = Row Program Operation: Programs row selected by NVMADDR(4)
- *              0010 = Double-Word Program Operation: Programs word selected by NVMADDR(3,4)
- *              0001 = Word Program Operation: Programs word selected by NVMADDR(3,4)
- *              0000 = No operation
+ * Inputs: unsigned int nvmop (least significant nibble) - The options for the programming sequence
+ *         1111 = Reserved
+ *         •
+ *         •
+ *         •
+ *         0111 = Reserved
+ *         0110 = No operation
+ *         0101 = Program Flash Memory (PFM) Erase Operation: Erases PFM if all pages are not write-protected 0100 = Page Erase Operation: Erases page selected by NVMADDR(4)
+ *         0011 = Row Program Operation: Programs row selected by NVMADDR(4)
+ *         0010 = Double-Word Program Operation: Programs word selected by NVMADDR(3,4)
+ *         0001 = Word Program Operation: Programs word selected by NVMADDR(3,4)
+ *         0000 = No operation
  *
  * Returns:     Return WRERR and LVDERR Error Status Bits
  *

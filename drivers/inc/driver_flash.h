@@ -17,16 +17,15 @@ extern "C" {
 /*******************************************************************************
  * Includes
  ******************************************************************************/
-    #include "type_defs.h"
 
 /*******************************************************************************
  * Public Functions
  ******************************************************************************/
-    unsigned int driver_flash_unlock( unsigned int nvmop );
+unsigned int driver_flash_unlock( unsigned int nvmop );
 
-    unsigned int driver_flash_write_word( unsigned int address, unsigned int data );
+unsigned int driver_flash_write_word( unsigned int address, unsigned int data );
 
-    unsigned int driver_flash_erase_page( unsigned int address );
+unsigned int driver_flash_erase_page( unsigned int address );
 
 
 #ifdef	__cplusplus

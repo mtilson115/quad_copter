@@ -17,17 +17,17 @@ extern "C" {
 /*******************************************************************************
  * Includes
  ******************************************************************************/
-    #include "type_defs.h"
+#include <stdint.h>
 
 /*******************************************************************************
  * Public Functions
  ******************************************************************************/
 
-    void driver_analog_init( void );
+void driver_analog_init( void );
 
-    void driver_analog_init_pin( unsigned int port, unsigned int pin );
+void driver_analog_init_pin( uint32_t port, uint32_t pin );
 
-    int16_t driver_analog_get_10bit( unsigned int pin );
+int16_t driver_analog_get_10bit( uint32_t pin );
 
 #ifdef	__cplusplus
 }

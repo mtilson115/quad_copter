@@ -43,7 +43,7 @@ void driver_analog_init( void )
     AD1CON1bits.ON = 0;
 
     // The next instruction can't write an SFR for the peripheral
-    __asm__ volatile("nop");
+    Nop();
 
     // Set the format to signed integer 16 bit
     AD1CON1bits.FORM = 1;
@@ -84,8 +84,8 @@ void driver_analog_init( void )
  *
  * Description: Initializes a pin to be analog
  *
- * Inputs:      unsigned int port - the port the pin is on (0 == PORTA, 1 == PORTB, etc.)
- *              unsigned int pin - the pin to configure
+ * Inputs:      uint32_t port - the port the pin is on (0 == PORTA, 1 == PORTB, etc.)
+ *              uint32_t pin - the pin to configure
  *
  * Returns:     None
  *
@@ -94,7 +94,7 @@ void driver_analog_init( void )
  * Notes:       None
  *
  ******************************************************************************/
-void driver_analog_init_pin( unsigned int port, unsigned int pin )
+void driver_analog_init_pin( uint32_t port, uint32_t pin )
 {
     // Configure pin
     AD1PCFG &= ~(1 << pin);
@@ -127,7 +127,7 @@ void driver_analog_init_pin( unsigned int port, unsigned int pin )
  *
  * Description: Takes a reading for a given pin
  *
- * Inputs:      unsigned int pin
+ * Inputs:      uint32_t pin
  *
  * Returns:     None
  *
@@ -136,7 +136,7 @@ void driver_analog_init_pin( unsigned int port, unsigned int pin )
  * Notes:       None
  *
  ******************************************************************************/
-int16_t driver_analog_get_10bit( unsigned int pin )
+int16_t driver_analog_get_10bit( uint32_t pin )
 {
 
     // Set up pin in mux for reading
@@ -177,7 +177,7 @@ int16_t driver_analog_get_10bit( unsigned int pin )
     AD1CON1bits.ON = 0;
 
     // The next instruction can't write an SFR for the peripheral
-    __asm__ volatile("nop");
+    Nop();
 
     // Add .5 for rounding
     return (int16_t)(result+.5);

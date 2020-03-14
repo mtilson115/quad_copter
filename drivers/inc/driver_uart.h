@@ -18,17 +18,18 @@ extern "C" {
  ******************************************************************************/
 #include "type_defs.h"
 #include "perif_sfr_map.h"
+#include <stdbool.h>
 
 /*******************************************************************************
  * Defines
  ******************************************************************************/
-#define UART_PERIF_NUM 2
+#define UART_PERIF_NUM 4
 
 /*******************************************************************************
  * Type Defs
  ******************************************************************************/
 typedef struct {
-    BOOL    enabled;
+    bool        enabled;
     int32_t     baud;
     int32_t     data_bits;
     int32_t     parity;
@@ -37,11 +38,11 @@ typedef struct {
 
 typedef struct
 {
-    volatile REG_SET    mode;
-    volatile REG_SET    sta;
-    volatile REG_SET    tx;
-    volatile REG_SET    rx;
-    volatile REG_SET    brg;
+    volatile REG_SET_PTRs   mode;
+    volatile REG_SET_PTRs   sta;
+    volatile uint32_t*      tx;
+    volatile uint32_t*      rx;
+    volatile uint32_t*      brg;
 }UART_REGS;
 
 /*******************************************************************************
@@ -67,23 +68,23 @@ typedef enum {
 /*******************************************************************************
  * Public Data
  ******************************************************************************/
-extern UART_REGS * const UART[UART_PERIF_NUM];
+UART_REGS const UART[UART_PERIF_NUM];
 
 /*******************************************************************************
  * Public Functions
  ******************************************************************************/
 
-extern UART_ID  Uart_init( UART_ID id, int32_t baud, int32_t data_bits, PARITY_type parity, int32_t stop_bits );
+UART_ID Uart_init( UART_ID id, int32_t baud, int32_t data_bits, PARITY_type parity, int32_t stop_bits );
 
-extern void     Uart_enable( UART_ID id );
+void Uart_enable( UART_ID id );
 
-extern void     Uart_disable( UART_ID id );
+void Uart_disable( UART_ID id );
 
-extern int32_t      Uart_read( UART_ID id, int32_t byte_count, uint8_t* buffer, BOOL block );
+int32_t Uart_read( UART_ID id, int32_t byte_count, uint8_t* buffer, bool block );
 
-extern int32_t      Uart_write( UART_ID id, int32_t byte_count, uint8_t* buffer );
+int32_t Uart_write( UART_ID id, int32_t byte_count, uint8_t* buffer );
 
-extern void     Uart_check_baud( UART_ID id );
+void Uart_check_baud( UART_ID id );
 
 
 #ifdef	__cplusplus

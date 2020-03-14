@@ -14,7 +14,8 @@
 /*******************************************************************************
  * Includes
  ******************************************************************************/
-#include "type_defs.h"
+#include <cstdbool>
+#include <stdint.h>
 #include "perif_sfr_map.h"
 
 /*******************************************************************************
@@ -77,81 +78,81 @@ public:
 
     void Init( I2C_ID id, float baud );
 
-    BOOL ReadRegByte( uint8_t dev_addr,
+    bool ReadRegByte( uint8_t dev_addr,
                       uint8_t reg_addr,
                       uint8_t* reg_byte );
 
-    BOOL ReadRegBytes( 	uint8_t dev_addr,
+    bool ReadRegBytes( 	uint8_t dev_addr,
                         uint8_t reg_addr,
                         uint8_t length,
                         uint8_t* buffer );
 
-    BOOL ReadRegWord( uint8_t dev_addr,
+    bool ReadRegWord( uint8_t dev_addr,
                       uint8_t reg_addr,
                       uint16_t* reg_word );
 
-    BOOL ReadRegWords(	uint8_t dev_addr,
+    bool ReadRegWords(	uint8_t dev_addr,
                         uint8_t reg_addr,
                         uint8_t length,
 			uint16_t* buffer );
 
-    BOOL ReadRegBitB( uint8_t dev_addr,
+    bool ReadRegBitB( uint8_t dev_addr,
                       uint8_t reg_addr,
                       uint8_t bit_num,
                       uint8_t* reg_bit );
 
-    BOOL ReadRegBitW( uint8_t dev_addr,
+    bool ReadRegBitW( uint8_t dev_addr,
                       uint8_t reg_addr,
                       uint8_t bit_num,
                       uint16_t* reg_bit );
 
-    BOOL ReadRegBitsB( uint8_t dev_addr,
+    bool ReadRegBitsB( uint8_t dev_addr,
                        uint8_t reg_addr,
                        uint8_t bit_start,
                        uint8_t length,
                        uint8_t* reg_bits );
 
-    BOOL ReadRegBitsW( uint8_t dev_addr,
+    bool ReadRegBitsW( uint8_t dev_addr,
                        uint8_t reg_addr,
                        uint8_t bit_start,
                        uint8_t length,
                        uint16_t* reg_bits );
 
-    BOOL WriteRegByte( uint8_t dev_addr,
+    bool WriteRegByte( uint8_t dev_addr,
                        uint8_t reg_addr,
                        uint8_t reg_byte );
 
-    BOOL WriteRegBytes(	uint8_t dev_addr,
+    bool WriteRegBytes(	uint8_t dev_addr,
 			uint8_t reg_addr,
 			uint8_t length,
 			uint8_t* buffer );
 
-    BOOL WriteRegWord( uint8_t dev_addr,
+    bool WriteRegWord( uint8_t dev_addr,
                        uint8_t reg_addr,
                        uint16_t reg_word );
 
-    BOOL WriteRegWords(	uint8_t dev_addr,
+    bool WriteRegWords(	uint8_t dev_addr,
 			uint8_t reg_addr,
 			uint8_t length,
 			uint16_t* buffer );
 
-    BOOL WriteRegBitB( uint8_t dev_addr,
+    bool WriteRegBitB( uint8_t dev_addr,
                        uint8_t reg_addr,
                        uint8_t bit_num,
                        uint8_t reg_bit );
 
-    BOOL WriteRegBitW( uint8_t dev_addr,
+    bool WriteRegBitW( uint8_t dev_addr,
                        uint8_t reg_addr,
                        uint8_t bit_num,
                        uint8_t reg_bit );
 
-    BOOL WriteRegBitsB( uint8_t dev_addr,
+    bool WriteRegBitsB( uint8_t dev_addr,
                         uint8_t reg_addr,
                         uint8_t bit_start,
                         uint8_t length,
                         uint8_t reg_bits );
 
-    BOOL WriteRegBitsW( uint8_t dev_addr,
+    bool WriteRegBitsW( uint8_t dev_addr,
                         uint8_t reg_addr,
                         uint8_t bit_start,
                         uint8_t length,
@@ -173,11 +174,11 @@ private:
     void    enable( void );
     void    disable( void );
     int32_t communicate( I2C_MSG* msg );
-    BOOL    send_dev_address( I2C_MSG* msg, I2C_start_type start_type );
-    BOOL    send_reg_address( I2C_MSG* msg );
-    BOOL    send_byte( uint8_t byte );
-    BOOL    send_word( uint16_t word );
-    BOOL    read_byte( uint8_t* byte );
+    bool    send_dev_address( I2C_MSG* msg, I2C_start_type start_type );
+    bool    send_reg_address( I2C_MSG* msg );
+    bool    send_byte( uint8_t byte );
+    bool    send_word( uint16_t word );
+    bool    read_byte( uint8_t* byte );
     void    wait_idle( void );
 
 /*******************************************************************************
@@ -186,10 +187,10 @@ private:
 private:
 
     // Prevents functionality if not initialized
-    BOOL    initialized_;
+    bool    initialized_;
 
     // Prevents functionality if the physical interface is not enabled
-    BOOL    enabled_;
+    bool    enabled_;
 
     // Baud rate (can be 100kHz or 400kHz)
     float   baud_;

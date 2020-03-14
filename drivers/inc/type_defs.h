@@ -16,28 +16,8 @@ extern "C" {
 #endif
 
 /*******************************************************************************
- * Boolean
- ******************************************************************************/
-typedef enum {
-    FALSE,
-    TRUE,
-} BOOL;
-
-/*******************************************************************************
  * Definitions for uintX_t
  ******************************************************************************/
-/*
-#ifdef CC_VERS1p00
-    typedef unsigned int uint32_t;
-    typedef unsigned char uint8_t;
-    typedef unsigned short uint16_t;
-    typedef unsigned long uint64_t;
-    typedef int int32_t;
-    typedef char int8_t;
-    typedef short int16_t;
-    typedef long int64_t;
-#endif
-*/
 
 /*******************************************************************************
  * Common return types

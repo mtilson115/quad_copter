@@ -44,6 +44,14 @@ typedef struct
   volatile uint32_t	inv;
 }REG_SET;
 
+typedef struct
+{
+  volatile uint32_t*    reg;
+  volatile uint32_t*	clr;
+  volatile uint32_t*	set;
+  volatile uint32_t*	inv;
+}REG_SET_PTRs;
+
 /*******************************************************************************
  * Registers (Public definitions)
  ******************************************************************************/
