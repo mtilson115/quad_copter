@@ -537,6 +537,56 @@ void COMMS_xbee_send_ack(uint32_t rx_id)
 }
 
 /*******************************************************************************
+ * COMMS_xbee_register_lost_connection_cb
+ *
+ * Description: Registers a function to be called when comms are lost
+ *
+ * Inputs:      comms_xbee_lost_connection_cb_t cb_func - the void function to
+ *              be called.
+ *
+ * Returns:     ret_t - rSUCCESS if the registration succeeded and rFAILURE if
+ *              there is too many registered return functions
+ *
+ * Revision:    Initial Creation 11/29/2019 - Mitchell S. Tilson
+ *
+ ******************************************************************************/
+ret_t COMMS_xbee_register_lost_connection_cb( comms_xbee_lost_connection_cb_t cb_func )
+{
+    xbee_lc_cb_count++;
+    if( xbee_lc_cb_count <= XBEE_MAX_LC_CB )
+    {
+        xbee_lc_cbs[xbee_lc_cb_count-1] = cb_func;
+        return rSUCCESS;
+    }
+    return rFAILURE;
+}
+
+/*******************************************************************************
+ * COMMS_xbee_send_ack
+ *
+ * Description: Sends an ack for a given RX ID.  This is necessary to allow the
+ *              message sender from a remote host that a message has been processed
+ *              and a new one can be sent.
+ *
+ * Inputs:      uint32_t - rx_id
+ *
+ * Returns:     void
+ *
+ * Revision:    Initial Creation 12/06/2019 - Mitchell S. Tilson
+ *
+ ******************************************************************************/
+void COMMS_xbee_send_ack(uint32_t rx_id)
+{
+    uint8_t buff[2] = {0};
+    buff[0] = COMMS_ACK;
+    buff[1] = rx_id;
+    comms_xbee_msg_t msg;
+    msg.data = buff;
+    msg.len = sizeof(buff);
+    COMMS_xbee_send(msg);
+}
+
+/*******************************************************************************
  * Local Function Section
  ******************************************************************************/
 static void comms_xbee_task(void *p_arg)
@@ -546,26 +596,24 @@ static void comms_xbee_task(void *p_arg)
     {
         /*
          * Wait here until either the interrupt signals or a message is inteneded to be sent
-         */
-        uint32_t time_stamp = 0;
-        OSTaskSemPend(0,OS_OPT_PEND_BLOCKING,&time_stamp,&err);
-
-        /*
          * Check for any messages in the queue.
          */
         uint16_t msg_size_bytes = 0;
         time_stamp = 0;
-        void* msg = OSTaskQPend(0,OS_OPT_PEND_NON_BLOCKING,&msg_size_bytes,&time_stamp,&err);
+        void* msg = OSTaskQPend(0,OS_OPT_PEND_BLOCKING,&msg_size_bytes,&time_stamp,&err);
 
         /*
-         * There were no messages.  Read from the xbee.
+         * Interrupt message (RX)
          */
-        if( !msg || err == OS_ERR_PEND_WOULD_BLOCK )
+        if( msg && msg_size_bytes == 1 )
         {
             comms_xbee_handle_int_msg();
         }
 
-        if( err == OS_ERR_NONE && msg )
+        /*
+         * TX message
+         */
+        if( err == OS_ERR_NONE && msg && msg_size_bytes == sizeof(comms_xbee_api_msg_t))
         {
             comms_xbee_api_msg_t* api_msg = (comms_xbee_api_msg_t*)msg;
             comms_xbee_send_api_msg(api_msg);
