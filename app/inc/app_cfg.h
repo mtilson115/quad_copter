@@ -67,8 +67,8 @@
 *********************************************************************************************************
 */
 
-#define  APP_CFG_COMMS_USE_UART (0)
-#define  APP_CFG_COMMS_USE_SPI  (1)
+#define  APP_CFG_COMMS_USE_UART (1)
+#define  APP_CFG_COMMS_USE_SPI  (0)
 
 #endif
 

@@ -14,6 +14,7 @@
 #include <p32xxxx.h>
 #include "bsp_utils.h"
 #include "comms_xbee.h"
+#include "driver_analog.h"
 
 /*******************************************************************************
  * Local static data
@@ -96,7 +97,7 @@ static void battery_task(void  *p_arg)
         comms_xbee_msg_t msg;
         msg.data = data_buff;
         msg.len = sizeof(data_buff);
-        COMMS_xbee_send(msg);
+        comms_xbee_send(msg);
         BSP_Printf("Battery = %f\n\r",voltage);
 
         // Delay 1s

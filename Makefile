@@ -38,10 +38,10 @@ endif
 LD=$(CC)-g++
 
 # CC Compiler directives
-CFLAGS=-g -std=c99 -G 0 -mprocessor=$(DEVICE)
-CPPFLAGS=-g -G 0 -mprocessor=$(DEVICE)
+CFLAGS=-g -std=c99 -G 0 -mprocessor=$(DEVICE) -nostartfiles
+CPPFLAGS=-g -G 0 -mprocessor=$(DEVICE) -nostartfiles
 
-LDFLAGS= -mprocessor=$(DEVICE) -G 0 -Wl,--defsym=_min_heap_size=0x400 -Wl,-Map=$(BIN)/$(PROJECT).map -Wl,--report-mem -Wl,--script p32MX795F512L.ld
+LDFLAGS= -mprocessor=$(DEVICE) -G 0 -Wl,--defsym=_min_heap_size=0x400 -Wl,-Map=$(BIN)/$(PROJECT).map -Wl,--report-mem -Wl,--script p32MX795F512L.ld -Wl, -nostartfiles
 
 # Directories of the project
 DIRS= bsp CPU app drivers uC-CPU uC-LIB uCOS-III algs comms

@@ -55,7 +55,7 @@ void bsp_cal_init( void )
         .cb = bsp_cal_erase_cb,
         .msg_id = COMMS_ERASE_CAL,
     };
-    ret_t ret = COMMS_xbee_register_rx_cb(bsp_cal_erase_rx_cb);
+    ret_t ret = comms_xbee_register_rx_cb(bsp_cal_erase_rx_cb);
     assert(ret==rSUCCESS);
 }
 

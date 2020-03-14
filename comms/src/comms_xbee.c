@@ -305,7 +305,7 @@ static void comms_xbee_parse_rx( comms_xbee_api_msg_t* api_msg );
  * Revision:    Initial Creation 01/20/2019 - Mitchell S. Tilson
  *
  ******************************************************************************/
-void COMMS_xbee_send(comms_xbee_msg_t msg)
+void comms_xbee_send(comms_xbee_msg_t msg)
 {
     static uint8_t frame_id = 0;
     OS_ERR err;
@@ -370,7 +370,7 @@ void COMMS_xbee_send(comms_xbee_msg_t msg)
  * Revision:    Initial Creation 01/20/2019 - Mitchell S. Tilson
  *
  ******************************************************************************/
-void COMMS_xbee_init(void)
+void comms_xbee_init(void)
 {
     OS_ERR err;
 
@@ -404,14 +404,14 @@ void COMMS_xbee_init(void)
     assert(err==OS_ERR_NONE);
 
     // Register the TCB with the xbee bsp code
-    BSP_xbee_register_tcb(&comms_xbee_TCB);
+    bsp_xbee_register_tcb(&comms_xbee_TCB);
 
     // Initialize the SPI, set up interrupts, and put the xbee in SPI mode
     bsp_xbee_init();
 }
 
 /*******************************************************************************
- * COMMS_xbee_get_tcb
+ * comms_xbee_get_tcb
  *
  * Description: Returns a pointer to the task control block.  This is used in the
  *              exception handler.
@@ -423,13 +423,13 @@ void COMMS_xbee_init(void)
  * Revision:    Initial Creation 01/20/2019 - Mitchell S. Tilson
  *
  ******************************************************************************/
-OS_TCB* COMMS_xbee_get_tcb( void )
+OS_TCB* comms_xbee_get_tcb( void )
 {
     return &comms_xbee_TCB;
 }
 
 /*******************************************************************************
- * COMMS_xbee_get_fault
+ * comms_xbee_get_fault
  *
  * Description: Returns the critical fault reason
  *
@@ -440,13 +440,13 @@ OS_TCB* COMMS_xbee_get_tcb( void )
  * Revision:    Initial Creation 07/13/2019 - Mitchell S. Tilson
  *
  ******************************************************************************/
-uint32_t COMMS_xbee_get_fault( void )
+uint32_t comms_xbee_get_fault( void )
 {
     return fault;
 }
 
 /*******************************************************************************
- * COMMS_xbee_ready
+ * comms_xbee_ready
  *
  * Description: Informs the system if the xbee module is ready for writting
  *
@@ -457,13 +457,13 @@ uint32_t COMMS_xbee_get_fault( void )
  * Revision:    Initial Creation 01/20/2019 - Mitchell S. Tilson
  *
  ******************************************************************************/
-uint8_t COMMS_xbee_ready( void )
+uint8_t comms_xbee_ready( void )
 {
     return (uint8_t)(comms_xbee_status.xbee_state == XBEE_JOINED);
 }
 
 /*******************************************************************************
- * COMMS_xbee_register_rx_cb
+ * comms_xbee_register_rx_cb
  *
  * Description: Registers a function to be called for a specific RX message
  *
@@ -476,7 +476,7 @@ uint8_t COMMS_xbee_ready( void )
  * Revision:    Initial Creation 03/02/2019 - Mitchell S. Tilson
  *
  ******************************************************************************/
-ret_t COMMS_xbee_register_rx_cb( comms_xbee_rx_cb_t cb_data )
+ret_t comms_xbee_register_rx_cb( comms_xbee_rx_cb_t cb_data )
 {
     xbee_rx_cb_count++;
     if( xbee_rx_cb_count <= XBEE_MAX_RX_CB )
@@ -487,7 +487,7 @@ ret_t COMMS_xbee_register_rx_cb( comms_xbee_rx_cb_t cb_data )
     return rFAILURE;
 }
 /*******************************************************************************
- * COMMS_xbee_register_lost_connection_cb
+ * comms_xbee_register_lost_connection_cb
  *
  * Description: Registers a function to be called when comms are lost
  *
@@ -500,7 +500,7 @@ ret_t COMMS_xbee_register_rx_cb( comms_xbee_rx_cb_t cb_data )
  * Revision:    Initial Creation 11/29/2019 - Mitchell S. Tilson
  *
  ******************************************************************************/
-ret_t COMMS_xbee_register_lost_connection_cb( comms_xbee_lost_connection_cb_t cb_func )
+ret_t comms_xbee_register_lost_connection_cb( comms_xbee_lost_connection_cb_t cb_func )
 {
     xbee_lc_cb_count++;
     if( xbee_lc_cb_count <= XBEE_MAX_LC_CB )
@@ -512,7 +512,7 @@ ret_t COMMS_xbee_register_lost_connection_cb( comms_xbee_lost_connection_cb_t cb
 }
 
 /*******************************************************************************
- * COMMS_xbee_send_ack
+ * comms_xbee_send_ack
  *
  * Description: Sends an ack for a given RX ID.  This is necessary to allow the
  *              message sender from a remote host that a message has been processed
@@ -525,7 +525,7 @@ ret_t COMMS_xbee_register_lost_connection_cb( comms_xbee_lost_connection_cb_t cb
  * Revision:    Initial Creation 12/06/2019 - Mitchell S. Tilson
  *
  ******************************************************************************/
-void COMMS_xbee_send_ack(uint32_t rx_id)
+void comms_xbee_send_ack(uint32_t rx_id)
 {
     uint8_t buff[2] = {0};
     buff[0] = COMMS_ACK;
@@ -533,57 +533,7 @@ void COMMS_xbee_send_ack(uint32_t rx_id)
     comms_xbee_msg_t msg;
     msg.data = buff;
     msg.len = sizeof(buff);
-    COMMS_xbee_send(msg);
-}
-
-/*******************************************************************************
- * COMMS_xbee_register_lost_connection_cb
- *
- * Description: Registers a function to be called when comms are lost
- *
- * Inputs:      comms_xbee_lost_connection_cb_t cb_func - the void function to
- *              be called.
- *
- * Returns:     ret_t - rSUCCESS if the registration succeeded and rFAILURE if
- *              there is too many registered return functions
- *
- * Revision:    Initial Creation 11/29/2019 - Mitchell S. Tilson
- *
- ******************************************************************************/
-ret_t COMMS_xbee_register_lost_connection_cb( comms_xbee_lost_connection_cb_t cb_func )
-{
-    xbee_lc_cb_count++;
-    if( xbee_lc_cb_count <= XBEE_MAX_LC_CB )
-    {
-        xbee_lc_cbs[xbee_lc_cb_count-1] = cb_func;
-        return rSUCCESS;
-    }
-    return rFAILURE;
-}
-
-/*******************************************************************************
- * COMMS_xbee_send_ack
- *
- * Description: Sends an ack for a given RX ID.  This is necessary to allow the
- *              message sender from a remote host that a message has been processed
- *              and a new one can be sent.
- *
- * Inputs:      uint32_t - rx_id
- *
- * Returns:     void
- *
- * Revision:    Initial Creation 12/06/2019 - Mitchell S. Tilson
- *
- ******************************************************************************/
-void COMMS_xbee_send_ack(uint32_t rx_id)
-{
-    uint8_t buff[2] = {0};
-    buff[0] = COMMS_ACK;
-    buff[1] = rx_id;
-    comms_xbee_msg_t msg;
-    msg.data = buff;
-    msg.len = sizeof(buff);
-    COMMS_xbee_send(msg);
+    comms_xbee_send(msg);
 }
 
 /*******************************************************************************
@@ -599,7 +549,7 @@ static void comms_xbee_task(void *p_arg)
          * Check for any messages in the queue.
          */
         uint16_t msg_size_bytes = 0;
-        time_stamp = 0;
+        uint32_t time_stamp = 0;
         void* msg = OSTaskQPend(0,OS_OPT_PEND_BLOCKING,&msg_size_bytes,&time_stamp,&err);
 
         /*
@@ -871,7 +821,7 @@ static uint16_t comms_xbee_handle_rx_ipv4(comms_xbee_api_msg_t* api_msg)
     for( uint32_t cb_idx = 0; cb_idx < xbee_rx_cb_count; cb_idx++ )
     {
         /*
-         * The message ID is set when COMMS_xbee_register_rx_cb is called.
+         * The message ID is set when comms_xbee_register_rx_cb is called.
          * It's then checked here to see if the call back should be called.
          */
         if( xbee_rx_cbs[cb_idx].msg_id == ipv4_rx_msg->rx_data[0] )

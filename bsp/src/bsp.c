@@ -10,6 +10,7 @@
 *********************************************************************************************************
 */
 
+#define _SUPPRESS_PLIB_WARNING
 #include "includes.h"
 #include "osc.h"
 #include "system.h"
@@ -257,10 +258,10 @@ void  BSP_Except_Handler (void)
     uint32_t excep_addr =_CP0_GET_EPC();
     uint32_t error_excep_addr = _CP0_GET_ERROREPC();
     OS_TCB* battery_tcb = app_battery_get_tcb();
-    OS_TCB* comms_tcb = COMMS_xbee_get_tcb();
-    uint32_t comms_fault = COMMS_xbee_get_fault();
+    OS_TCB* comms_tcb = comms_xbee_get_tcb();
+    uint32_t comms_fault = comms_xbee_get_fault();
     CPU_STK* test_stk;
-    app_test_get_stack( test_stk );
+    app_battery_get_stack( test_stk );
     switch( except_cause )
     {
         case 0x04: // addr error (load or fetch)

@@ -706,7 +706,7 @@ void I2C_Class::enable( void )
 void I2C_Class::disable( void )
 {
     // Check if not initialized or not enabled
-    if( false == initialized_ || FALSE == enabled_ ) {
+    if( false == initialized_ || false == enabled_ ) {
         return;
     }
 

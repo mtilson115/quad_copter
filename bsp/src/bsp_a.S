@@ -6,7 +6,7 @@
 *                                           All Rights Reserved
 *
 *                                               Microchip
-*                                      PIC32 Ethernet Starter Kit     
+*                                      PIC32 Ethernet Starter Kit
 *
 * File    : bsp_a.S
 * Version : v1.00
@@ -16,7 +16,7 @@
     .section .text,code
     .set noreorder
     .set noat
-    
+
 /*
 *********************************************************************************************************
 *                           CONSTANTS USED TO ACCESS TASK CONTEXT STACK
@@ -56,15 +56,15 @@
 .equ    STK_OFFSET_GPR27,   STK_OFFSET_GPR26 + 4
 .equ    STK_OFFSET_GPR28,   STK_OFFSET_GPR27 + 4
 .equ    STK_OFFSET_GPR30,   STK_OFFSET_GPR28 + 4
-.equ    STK_OFFSET_GPR31,   STK_OFFSET_GPR30 + 4 
+.equ    STK_OFFSET_GPR31,   STK_OFFSET_GPR30 + 4
 .equ    STK_CTX_SIZE,       STK_OFFSET_GPR31 + 4
 
 
 .MACRO   ISR_PROLOGUE
 
-    addi  $29, $29, -STK_CTX_SIZE                          
+    addi  $29, $29, -STK_CTX_SIZE
 
-    sw    $1,  STK_OFFSET_GPR1($29)      
+    sw    $1,  STK_OFFSET_GPR1($29)
     sw    $2,  STK_OFFSET_GPR2($29)
     sw    $3,  STK_OFFSET_GPR3($29)
     sw    $4,  STK_OFFSET_GPR4($29)
@@ -94,33 +94,33 @@
     sw    $28, STK_OFFSET_GPR28($29)
     sw    $30, STK_OFFSET_GPR30($29)
     sw    $31, STK_OFFSET_GPR31($29)
-                                              
+
     mflo  $8
     mfhi  $9
     sw    $8,  STK_OFFSET_LO($29)
     sw    $9,  STK_OFFSET_HI($29)
 
-    mfc0  $8,  $14, 0                     
+    mfc0  $8,  $14, 0
     sw    $8,  STK_OFFSET_EPC($29)
-  
+
     mfc0  $8,  $12, 0
     sw    $8,  STK_OFFSET_SR($29)
 
     la    $8,  OSIntNestingCtr
-    lbu   $9,  0($8) 
+    lbu   $9,  0($8)
     bne   $0,  $9, 1f
-    nop   
+    nop
 
     la    $10, OSTCBCurPtr
     lw    $11, 0($10)
     sw    $29, 0($11)
-  
+
 1:
 
-    addi  $9,  $9, 1                        
+    addi  $9,  $9, 1
     sb    $9,  0($8)
 
-    mfc0  $8, $12, 0                          
+    mfc0  $8, $12, 0
     mfc0  $9, $13, 0
     andi  $9, $9,  0xFC00
     ins   $8, $0,  10, 6
@@ -131,22 +131,22 @@
 
 .MACRO  ISR_EPILOGUE
 
-    la    $8,  OSIntExit              
+    la    $8,  OSIntExit
     jalr  $8
     nop
 
-    lw    $8,  STK_OFFSET_SR($29)     
+    lw    $8,  STK_OFFSET_SR($29)
     mtc0  $8,  $12, 0
 
-    lw    $8,  STK_OFFSET_EPC($29)      
+    lw    $8,  STK_OFFSET_EPC($29)
     mtc0  $8,  $14, 0
 
-    lw    $8,  STK_OFFSET_LO($29)         
+    lw    $8,  STK_OFFSET_LO($29)
     lw    $9,  STK_OFFSET_HI($29)
     mtlo  $8
     mthi  $9
 
-    lw    $31, STK_OFFSET_GPR31($29)        
+    lw    $31, STK_OFFSET_GPR31($29)
     lw    $30, STK_OFFSET_GPR30($29)
     lw    $28, STK_OFFSET_GPR28($29)
     lw    $27, STK_OFFSET_GPR27($29)
@@ -177,9 +177,9 @@
     lw    $2,  STK_OFFSET_GPR2($29)
     lw    $1,  STK_OFFSET_GPR1($29)
 
-    addi  $29, $29, STK_CTX_SIZE           
+    addi  $29, $29, STK_CTX_SIZE
 
-    eret     
+    eret
 
 .ENDM
 
@@ -196,11 +196,11 @@
 
 _bsp_cs0int:
     la  $26,BSP_CS0ISR
-    jr  $26 
+    jr  $26
     nop
-    
+
     .end _bsp_cs0int
-    
+
     .section .bsp_cs0isr,code
     .ent BSP_CS0ISR
 BSP_CS0ISR:
@@ -211,7 +211,7 @@ BSP_CS0ISR:
     jalr  $8
     nop
 
-    ISR_EPILOGUE    
+    ISR_EPILOGUE
 
     .end BSP_CS0ISR
 
@@ -227,11 +227,11 @@ BSP_CS0ISR:
 
 _bsp_cs1int:
     la  $26,BSP_CS1ISR
-    jr  $26 
+    jr  $26
     nop
-    
+
     .end _bsp_cs1int
-    
+
     .section .bsp_cs1isr,code
     .ent BSP_CS1ISR
 BSP_CS1ISR:
@@ -242,7 +242,7 @@ BSP_CS1ISR:
     jalr  $8
     nop
 
-    ISR_EPILOGUE    
+    ISR_EPILOGUE
 
     .end BSP_CS1ISR
 
@@ -258,11 +258,11 @@ BSP_CS1ISR:
 
 _bsp_ext0int:
     la  $26,BSP_EXT0ISR
-    jr  $26 
+    jr  $26
     nop
-    
+
     .end _bsp_ext0int
-    
+
     .section .bsp_ext0isr,code
     .ent BSP_EXT0ISR
 BSP_EXT0ISR:
@@ -273,7 +273,7 @@ BSP_EXT0ISR:
     jalr  $8
     nop
 
-    ISR_EPILOGUE    
+    ISR_EPILOGUE
 
     .end BSP_EXT0ISR
 
@@ -289,11 +289,11 @@ BSP_EXT0ISR:
 
 _bsp_t1int:
     la  $26,BSP_T1ISR
-    jr  $26 
+    jr  $26
     nop
-    
+
     .end _bsp_t1int
-    
+
     .section .bsp_t1isr,code
     .ent BSP_T1ISR
 BSP_T1ISR:
@@ -304,7 +304,7 @@ BSP_T1ISR:
     jalr  $8
     nop
 
-    ISR_EPILOGUE    
+    ISR_EPILOGUE
 
     .end BSP_T1ISR
 
@@ -320,11 +320,11 @@ BSP_T1ISR:
 
 _bsp_ic1int:
     la  $26,BSP_IC1ISR
-    jr  $26 
+    jr  $26
     nop
-    
+
     .end _bsp_ic1int
-    
+
     .section .bsp_ic1isr,code
     .ent BSP_IC1ISR
 BSP_IC1ISR:
@@ -335,7 +335,7 @@ BSP_IC1ISR:
     jalr  $8
     nop
 
-    ISR_EPILOGUE    
+    ISR_EPILOGUE
 
     .end BSP_IC1ISR
 
@@ -351,11 +351,11 @@ BSP_IC1ISR:
 
 _bsp_oc1int:
     la  $26,BSP_OC1ISR
-    jr  $26 
+    jr  $26
     nop
-    
+
     .end _bsp_oc1int
-    
+
     .section .bsp_oc1isr,code
     .ent BSP_OC1ISR
 BSP_OC1ISR:
@@ -366,7 +366,7 @@ BSP_OC1ISR:
     jalr  $8
     nop
 
-    ISR_EPILOGUE    
+    ISR_EPILOGUE
 
     .end BSP_OC1ISR
 
@@ -382,11 +382,11 @@ BSP_OC1ISR:
 
 _bsp_ext1int:
     la  $26,BSP_EXT1ISR
-    jr  $26 
+    jr  $26
     nop
-    
+
     .end _bsp_ext1int
-    
+
     .section .bsp_ext1isr,code
     .ent BSP_EXT1ISR
 BSP_EXT1ISR:
@@ -397,7 +397,7 @@ BSP_EXT1ISR:
     jalr  $8
     nop
 
-    ISR_EPILOGUE    
+    ISR_EPILOGUE
 
     .end BSP_EXT1ISR
 
@@ -413,11 +413,11 @@ BSP_EXT1ISR:
 
 _bsp_t2int:
     la  $26,BSP_T2ISR
-    jr  $26 
+    jr  $26
     nop
-    
+
     .end _bsp_t2int
-    
+
     .section .bsp_t2isr,code
     .ent BSP_T2ISR
 BSP_T2ISR:
@@ -428,7 +428,7 @@ BSP_T2ISR:
     jalr  $8
     nop
 
-    ISR_EPILOGUE    
+    ISR_EPILOGUE
 
     .end BSP_T2ISR
 */
@@ -445,11 +445,11 @@ BSP_T2ISR:
 
 _bsp_ic2int:
     la  $26,BSP_IC2ISR
-    jr  $26 
+    jr  $26
     nop
-    
+
     .end _bsp_ic2int
-    
+
     .section .bsp_ic2isr,code
     .ent BSP_IC2ISR
 BSP_IC2ISR:
@@ -460,7 +460,7 @@ BSP_IC2ISR:
     jalr  $8
     nop
 
-    ISR_EPILOGUE    
+    ISR_EPILOGUE
 
     .end BSP_IC2ISR
 
@@ -476,11 +476,11 @@ BSP_IC2ISR:
 
 _bsp_oc2int:
     la  $26,BSP_OC2ISR
-    jr  $26 
+    jr  $26
     nop
-    
+
     .end _bsp_oc2int
-    
+
     .section .bsp_oc2isr,code
     .ent BSP_OC2ISR
 BSP_OC2ISR:
@@ -491,7 +491,7 @@ BSP_OC2ISR:
     jalr  $8
     nop
 
-    ISR_EPILOGUE    
+    ISR_EPILOGUE
 
     .end BSP_OC2ISR
 
@@ -507,22 +507,22 @@ BSP_OC2ISR:
 
 _bsp_ext2int:
     la  $26,BSP_EXT2ISR
-    jr  $26 
+    jr  $26
     nop
-    
+
     .end _bsp_ext2int
-    
+
     .section .bsp_ext2isr,code
     .ent BSP_EXT2ISR
 BSP_EXT2ISR:
 
     ISR_PROLOGUE
 
-    la    $8,  BSP_xbee_int_handler         /* Call BSP_xbee_int_handler() to handle the interrupt  */
+    la    $8,  bsp_xbee_int_handler         /* Call bsp_xbee_int_handler() to handle the interrupt  */
     jalr  $8
     nop
 
-    ISR_EPILOGUE    
+    ISR_EPILOGUE
 
     .end BSP_EXT2ISR
 
@@ -538,11 +538,11 @@ BSP_EXT2ISR:
 
 _bsp_t3int:
     la  $26,BSP_T3ISR
-    jr  $26 
+    jr  $26
     nop
-    
+
     .end _bsp_t3int
-    
+
     .section .bsp_t3isr,code
     .ent BSP_T3ISR
 BSP_T3ISR:
@@ -553,7 +553,7 @@ BSP_T3ISR:
     jalr  $8
     nop
 
-    ISR_EPILOGUE    
+    ISR_EPILOGUE
 
     .end BSP_T3ISR
 
@@ -569,11 +569,11 @@ BSP_T3ISR:
 
 _bsp_ic3int:
     la  $26,BSP_IC3ISR
-    jr  $26 
+    jr  $26
     nop
-    
+
     .end _bsp_ic3int
-    
+
     .section .bsp_ic3isr,code
     .ent BSP_IC3ISR
 BSP_IC3ISR:
@@ -584,7 +584,7 @@ BSP_IC3ISR:
     jalr  $8
     nop
 
-    ISR_EPILOGUE    
+    ISR_EPILOGUE
 
     .end BSP_IC3ISR
 
@@ -600,11 +600,11 @@ BSP_IC3ISR:
 
 _bsp_oc3int:
     la  $26,BSP_OC3ISR
-    jr  $26 
+    jr  $26
     nop
-    
+
     .end _bsp_oc3int
-    
+
     .section .bsp_oc3isr,code
     .ent BSP_OC3ISR
 BSP_OC3ISR:
@@ -615,7 +615,7 @@ BSP_OC3ISR:
     jalr  $8
     nop
 
-    ISR_EPILOGUE    
+    ISR_EPILOGUE
 
     .end BSP_OC3ISR
 */
@@ -632,11 +632,11 @@ BSP_OC3ISR:
 
 _bsp_ext3int:
     la  $26,BSP_EXT3ISR
-    jr  $26 
+    jr  $26
     nop
-    
+
     .end _bsp_ext3int
-    
+
     .section .bsp_ext3isr,code
     .ent BSP_EXT3ISR
 BSP_EXT3ISR:
@@ -647,7 +647,7 @@ BSP_EXT3ISR:
     jalr  $8
     nop
 
-    ISR_EPILOGUE    
+    ISR_EPILOGUE
 
     .end BSP_EXT3ISR
 
@@ -664,11 +664,11 @@ BSP_EXT3ISR:
 
 _bsp_t4int:
     la  $26,BSP_T4ISR
-    jr  $26 
+    jr  $26
     nop
-    
+
     .end _bsp_t4int
-    
+
     .section .bsp_t4isr,code
     .ent BSP_T4ISR
 BSP_T4ISR:
@@ -679,7 +679,7 @@ BSP_T4ISR:
     jalr  $8
     nop
 
-    ISR_EPILOGUE    
+    ISR_EPILOGUE
 
     .end BSP_T4ISR
 */
@@ -696,11 +696,11 @@ BSP_T4ISR:
 
 _bsp_ic4int:
     la  $26,BSP_IC4ISR
-    jr  $26 
+    jr  $26
     nop
-    
+
     .end _bsp_ic4int
-    
+
     .section .bsp_ic4isr,code
     .ent BSP_IC4ISR
 BSP_IC4ISR:
@@ -711,7 +711,7 @@ BSP_IC4ISR:
     jalr  $8
     nop
 
-    ISR_EPILOGUE    
+    ISR_EPILOGUE
 
     .end BSP_IC4ISR
 
@@ -727,11 +727,11 @@ BSP_IC4ISR:
 
 _bsp_oc4int:
     la  $26,BSP_OC4ISR
-    jr  $26 
+    jr  $26
     nop
-    
+
     .end _bsp_oc4int
-    
+
     .section .bsp_oc4isr,code
     .ent BSP_OC4ISR
 BSP_OC4ISR:
@@ -742,7 +742,7 @@ BSP_OC4ISR:
     jalr  $8
     nop
 
-    ISR_EPILOGUE    
+    ISR_EPILOGUE
 
     .end BSP_OC4ISR
 
@@ -758,11 +758,11 @@ BSP_OC4ISR:
 
 _bsp_ext4int:
     la  $26,BSP_EXT4ISR
-    jr  $26 
+    jr  $26
     nop
-    
+
     .end _bsp_ext4int
-    
+
     .section .bsp_ext4isr,code
     .ent BSP_EXT4ISR
 BSP_EXT4ISR:
@@ -773,7 +773,7 @@ BSP_EXT4ISR:
     jalr  $8
     nop
 
-    ISR_EPILOGUE    
+    ISR_EPILOGUE
 
     .end BSP_EXT4ISR
 
@@ -789,11 +789,11 @@ BSP_EXT4ISR:
 
 _bsp_t5int:
     la  $26,BSP_T5ISR
-    jr  $26 
+    jr  $26
     nop
-    
+
     .end _bsp_t5int
-    
+
     .section .bsp_t5isr,code
     .ent BSP_T5ISR
 BSP_T5ISR:
@@ -804,7 +804,7 @@ BSP_T5ISR:
     jalr  $8
     nop
 
-    ISR_EPILOGUE    
+    ISR_EPILOGUE
 
     .end BSP_T5ISR
 
@@ -820,11 +820,11 @@ BSP_T5ISR:
 
 _bsp_ic5int:
     la  $26,BSP_IC5ISR
-    jr  $26 
+    jr  $26
     nop
-    
+
     .end _bsp_ic5int
-    
+
     .section .bsp_ic5isr,code
     .ent BSP_IC5ISR
 BSP_IC5ISR:
@@ -835,7 +835,7 @@ BSP_IC5ISR:
     jalr  $8
     nop
 
-    ISR_EPILOGUE    
+    ISR_EPILOGUE
 
     .end BSP_IC5ISR
 
@@ -851,11 +851,11 @@ BSP_IC5ISR:
 
 _bsp_oc5int:
     la  $26,BSP_OC5ISR
-    jr  $26 
+    jr  $26
     nop
-    
+
     .end _bsp_oc5int
-    
+
     .section .bsp_oc5isr,code
     .ent BSP_OC5ISR
 BSP_OC5ISR:
@@ -866,7 +866,7 @@ BSP_OC5ISR:
     jalr  $8
     nop
 
-    ISR_EPILOGUE    
+    ISR_EPILOGUE
 
     .end BSP_OC5ISR
 
@@ -882,11 +882,11 @@ BSP_OC5ISR:
 
 _bsp_spi1int:
     la  $26,BSP_SPI1ISR
-    jr  $26 
+    jr  $26
     nop
-    
+
     .end _bsp_spi1int
-    
+
     .section .bsp_spi1isr,code
     .ent BSP_SPI1ISR
 BSP_SPI1ISR:
@@ -897,7 +897,7 @@ BSP_SPI1ISR:
     jalr  $8
     nop
 
-    ISR_EPILOGUE    
+    ISR_EPILOGUE
 
     .end BSP_SPI1ISR
 
@@ -913,11 +913,11 @@ BSP_SPI1ISR:
 
 _bsp_uart1aint:
     la  $26,BSP_UART1AISR
-    jr  $26 
+    jr  $26
     nop
-    
+
     .end _bsp_uart1aint
-    
+
     .section .bsp_uart1aisr,code
     .ent BSP_UART1AISR
 BSP_UART1AISR:
@@ -928,7 +928,7 @@ BSP_UART1AISR:
     jalr  $8
     nop
 
-    ISR_EPILOGUE    
+    ISR_EPILOGUE
 
     .end BSP_UART1AISR
 
@@ -944,11 +944,11 @@ BSP_UART1AISR:
 
 _bsp_i2c1int:
     la  $26,BSP_I2C1ISR
-    jr  $26 
+    jr  $26
     nop
-    
+
     .end _bsp_i2c1int
-    
+
     .section .bsp_i2c1isr,code
     .ent BSP_I2C1ISR
 BSP_I2C1ISR:
@@ -959,7 +959,7 @@ BSP_I2C1ISR:
     jalr  $8
     nop
 
-    ISR_EPILOGUE    
+    ISR_EPILOGUE
 
     .end BSP_I2C1ISR
 
@@ -975,22 +975,22 @@ BSP_I2C1ISR:
 
 _bsp_cnint:
     la  $26,BSP_CNISR
-    jr  $26 
+    jr  $26
     nop
-    
+
     .end _bsp_cnint
-    
+
     .section .bsp_cnisr,code
     .ent BSP_CNISR
 BSP_CNISR:
 
     ISR_PROLOGUE
 
-    la    $8,  BSP_DefaultHandler              
+    la    $8,  BSP_DefaultHandler
     jalr  $8
     nop
 
-    ISR_EPILOGUE    
+    ISR_EPILOGUE
 
     .end BSP_CNISR
 
@@ -1006,11 +1006,11 @@ BSP_CNISR:
 
 _bsp_ad1int:
     la  $26,BSP_AD1ISR
-    jr  $26 
+    jr  $26
     nop
-    
+
     .end _bsp_ad1int
-    
+
     .section .bsp_ad1isr,code
     .ent BSP_AD1ISR
 BSP_AD1ISR:
@@ -1021,7 +1021,7 @@ BSP_AD1ISR:
     jalr  $8
     nop
 
-    ISR_EPILOGUE    
+    ISR_EPILOGUE
 
     .end BSP_AD1ISR
 
@@ -1037,11 +1037,11 @@ BSP_AD1ISR:
 
 _bsp_pmpint:
     la  $26,BSP_PMPISR
-    jr  $26 
+    jr  $26
     nop
-    
+
     .end _bsp_pmpint
-    
+
     .section .bsp_pmpisr,code
     .ent BSP_PMPISR
 BSP_PMPISR:
@@ -1052,7 +1052,7 @@ BSP_PMPISR:
     jalr  $8
     nop
 
-    ISR_EPILOGUE    
+    ISR_EPILOGUE
 
     .end BSP_PMPISR
 
@@ -1068,11 +1068,11 @@ BSP_PMPISR:
 
 _bsp_cmp1int:
     la  $26,BSP_CMP1ISR
-    jr  $26 
+    jr  $26
     nop
-    
+
     .end _bsp_cmp1int
-    
+
     .section .bsp_cmp1isr,code
     .ent BSP_CMP1ISR
 BSP_CMP1ISR:
@@ -1083,7 +1083,7 @@ BSP_CMP1ISR:
     jalr  $8
     nop
 
-    ISR_EPILOGUE    
+    ISR_EPILOGUE
 
     .end BSP_CMP1ISR
 
@@ -1099,11 +1099,11 @@ BSP_CMP1ISR:
 
 _bsp_cmp2int:
     la  $26,BSP_CMP2ISR
-    jr  $26 
+    jr  $26
     nop
-    
+
     .end _bsp_cmp2int
-    
+
     .section .bsp_cmp2isr,code
     .ent BSP_CMP2ISR
 BSP_CMP2ISR:
@@ -1114,7 +1114,7 @@ BSP_CMP2ISR:
     jalr  $8
     nop
 
-    ISR_EPILOGUE    
+    ISR_EPILOGUE
 
     .end BSP_CMP2ISR
 
@@ -1130,11 +1130,11 @@ BSP_CMP2ISR:
 
 _bsp_uart2aint:
     la  $26,BSP_UART2AISR
-    jr  $26 
+    jr  $26
     nop
-    
+
     .end _bsp_uart2aint
-    
+
     .section .bsp_uart2aisr,code
     .ent BSP_UART2AISR
 BSP_UART2AISR:
@@ -1145,7 +1145,7 @@ BSP_UART2AISR:
     jalr  $8
     nop
 
-    ISR_EPILOGUE    
+    ISR_EPILOGUE
 
     .end BSP_UART2AISR
 
@@ -1161,11 +1161,11 @@ BSP_UART2AISR:
 
 _bsp_uart3aint:
     la  $26,BSP_UART3AISR
-    jr  $26 
+    jr  $26
     nop
-    
+
     .end _bsp_uart3aint
-    
+
     .section .bsp_uart3aisr,code
     .ent BSP_UART3AISR
 BSP_UART3AISR:
@@ -1176,7 +1176,7 @@ BSP_UART3AISR:
     jalr  $8
     nop
 
-    ISR_EPILOGUE    
+    ISR_EPILOGUE
 
     .end BSP_UART3AISR
 
@@ -1192,11 +1192,11 @@ BSP_UART3AISR:
 
 _bsp_i2c2int:
     la  $26,BSP_I2C2ISR
-    jr  $26 
+    jr  $26
     nop
-    
+
     .end _bsp_i2c2int
-    
+
     .section .bsp_i2c2isr,code
     .ent BSP_I2C2ISR
 BSP_I2C2ISR:
@@ -1207,7 +1207,7 @@ BSP_I2C2ISR:
     jalr  $8
     nop
 
-    ISR_EPILOGUE    
+    ISR_EPILOGUE
 
     .end BSP_I2C2ISR
 
@@ -1223,11 +1223,11 @@ BSP_I2C2ISR:
 
 _bsp_fscmint:
     la  $26,BSP_FSCMISR
-    jr  $26 
+    jr  $26
     nop
-    
+
     .end _bsp_fscmint
-    
+
     .section .bsp_fscmisr,code
     .ent BSP_FSCMISR
 BSP_FSCMISR:
@@ -1238,7 +1238,7 @@ BSP_FSCMISR:
     jalr  $8
     nop
 
-    ISR_EPILOGUE    
+    ISR_EPILOGUE
 
     .end BSP_FSCMISR
 
@@ -1254,11 +1254,11 @@ BSP_FSCMISR:
 
 _bsp_rtccint:
     la  $26,BSP_RTCCISR
-    jr  $26 
+    jr  $26
     nop
-    
+
     .end _bsp_rtccint
-    
+
     .section .bsp_rtccisr,code
     .ent BSP_RTCCISR
 BSP_RTCCISR:
@@ -1269,7 +1269,7 @@ BSP_RTCCISR:
     jalr  $8
     nop
 
-    ISR_EPILOGUE    
+    ISR_EPILOGUE
 
     .end BSP_RTCCISR
 
@@ -1285,11 +1285,11 @@ BSP_RTCCISR:
 
 _bsp_dma0int:
     la  $26,BSP_DMA0ISR
-    jr  $26 
+    jr  $26
     nop
-    
+
     .end _bsp_dma0int
-    
+
     .section .bsp_dma0isr,code
     .ent BSP_DMA0ISR
 BSP_DMA0ISR:
@@ -1300,7 +1300,7 @@ BSP_DMA0ISR:
     jalr  $8
     nop
 
-    ISR_EPILOGUE    
+    ISR_EPILOGUE
 
     .end BSP_DMA0ISR
 
@@ -1316,11 +1316,11 @@ BSP_DMA0ISR:
 
 _bsp_dma1int:
     la  $26,BSP_DMA1ISR
-    jr  $26 
+    jr  $26
     nop
-    
+
     .end _bsp_dma1int
-    
+
     .section .bsp_dma1isr,code
     .ent BSP_DMA1ISR
 BSP_DMA1ISR:
@@ -1331,7 +1331,7 @@ BSP_DMA1ISR:
     jalr  $8
     nop
 
-    ISR_EPILOGUE    
+    ISR_EPILOGUE
 
     .end BSP_DMA1ISR
 
@@ -1347,11 +1347,11 @@ BSP_DMA1ISR:
 
 _bsp_dma2int:
     la  $26,BSP_CNISR
-    jr  $26 
+    jr  $26
     nop
-    
+
     .end _bsp_dma2int
-    
+
     .section .bsp_dma2isr,code
     .ent BSP_DMA2ISR
 BSP_DMA2ISR:
@@ -1362,7 +1362,7 @@ BSP_DMA2ISR:
     jalr  $8
     nop
 
-    ISR_EPILOGUE    
+    ISR_EPILOGUE
 
     .end BSP_DMA2ISR
 
@@ -1378,11 +1378,11 @@ BSP_DMA2ISR:
 
 _bsp_dma3int:
     la  $26,BSP_DMA3ISR
-    jr  $26 
+    jr  $26
     nop
-    
+
     .end _bsp_dma3int
-    
+
     .section .bsp_dma3isr,code
     .ent BSP_DMA3ISR
 BSP_DMA3ISR:
@@ -1393,7 +1393,7 @@ BSP_DMA3ISR:
     jalr  $8
     nop
 
-    ISR_EPILOGUE    
+    ISR_EPILOGUE
 
     .end BSP_DMA3ISR
 
@@ -1409,11 +1409,11 @@ BSP_DMA3ISR:
 
 _bsp_dma4int:
     la  $26,BSP_DMA4ISR
-    jr  $26 
+    jr  $26
     nop
-    
+
     .end _bsp_dma4int
-    
+
     .section .bsp_dma4isr,code
     .ent BSP_DMA4ISR
 BSP_DMA4ISR:
@@ -1424,7 +1424,7 @@ BSP_DMA4ISR:
     jalr  $8
     nop
 
-    ISR_EPILOGUE    
+    ISR_EPILOGUE
 
     .end BSP_DMA4ISR
 
@@ -1440,11 +1440,11 @@ BSP_DMA4ISR:
 
 _bsp_dma5int:
     la  $26,BSP_DMA5ISR
-    jr  $26 
+    jr  $26
     nop
-    
+
     .end _bsp_dma5int
-    
+
     .section .bsp_dma5isr,code
     .ent BSP_DMA5ISR
 BSP_DMA5ISR:
@@ -1455,7 +1455,7 @@ BSP_DMA5ISR:
     jalr  $8
     nop
 
-    ISR_EPILOGUE    
+    ISR_EPILOGUE
 
     .end BSP_DMA5ISR
 
@@ -1471,11 +1471,11 @@ BSP_DMA5ISR:
 
 _bsp_dma6int:
     la  $26,BSP_DMA6ISR
-    jr  $26 
+    jr  $26
     nop
-    
+
     .end _bsp_dma6int
-    
+
     .section .bsp_dma6isr,code
     .ent BSP_DMA6ISR
 BSP_DMA6ISR:
@@ -1486,7 +1486,7 @@ BSP_DMA6ISR:
     jalr  $8
     nop
 
-    ISR_EPILOGUE    
+    ISR_EPILOGUE
 
     .end BSP_DMA6ISR
 
@@ -1502,11 +1502,11 @@ BSP_DMA6ISR:
 
 _bsp_dma7int:
     la  $26,BSP_DMA7ISR
-    jr  $26 
+    jr  $26
     nop
-    
+
     .end _bsp_dma7int
-    
+
     .section .bsp_dma6isr,code
     .ent BSP_DMA7ISR
 BSP_DMA7ISR:
@@ -1517,7 +1517,7 @@ BSP_DMA7ISR:
     jalr  $8
     nop
 
-    ISR_EPILOGUE    
+    ISR_EPILOGUE
 
     .end BSP_DMA7ISR
 
@@ -1533,11 +1533,11 @@ BSP_DMA7ISR:
 
 _bsp_fceint:
     la  $26,BSP_FCEISR
-    jr  $26 
+    jr  $26
     nop
-    
+
     .end _bsp_fceint
-    
+
     .section .bsp_fceisr,code
     .ent BSP_FCEISR
 BSP_FCEISR:
@@ -1548,7 +1548,7 @@ BSP_FCEISR:
     jalr  $8
     nop
 
-    ISR_EPILOGUE    
+    ISR_EPILOGUE
 
     .end BSP_FCEISR
 
@@ -1564,11 +1564,11 @@ BSP_FCEISR:
 
 _bsp_usbint:
     la  $26,BSP_USBISR
-    jr  $26 
+    jr  $26
     nop
-    
+
     .end _bsp_usbint
-    
+
     .section .bsp_usbisr,code
     .ent BSP_USBISR
 BSP_USBISR:
@@ -1579,7 +1579,7 @@ BSP_USBISR:
     jalr  $8
     nop
 
-    ISR_EPILOGUE    
+    ISR_EPILOGUE
 
     .end BSP_USBISR
 
@@ -1595,11 +1595,11 @@ BSP_USBISR:
 
 _bsp_can1int:
     la  $26,BSP_CAN1ISR
-    jr  $26 
+    jr  $26
     nop
-    
+
     .end _bsp_can1int
-    
+
     .section .bsp_can1isr,code
     .ent BSP_CAN1ISR
 BSP_CAN1ISR:
@@ -1610,7 +1610,7 @@ BSP_CAN1ISR:
     jalr  $8
     nop
 
-    ISR_EPILOGUE    
+    ISR_EPILOGUE
 
     .end BSP_CAN1ISR
 
@@ -1626,11 +1626,11 @@ BSP_CAN1ISR:
 
 _bsp_can2int:
     la  $26,BSP_CAN2ISR
-    jr  $26 
+    jr  $26
     nop
-    
+
     .end _bsp_can2int
-    
+
     .section .bsp_can2isr,code
     .ent BSP_CAN2ISR
 BSP_CAN2ISR:
@@ -1641,7 +1641,7 @@ BSP_CAN2ISR:
     jalr  $8
     nop
 
-    ISR_EPILOGUE    
+    ISR_EPILOGUE
 
     .end BSP_CAN2ISR
 
@@ -1657,11 +1657,11 @@ BSP_CAN2ISR:
 
 _bsp_ethint:
     la  $26,BSP_ETHISR
-    jr  $26 
+    jr  $26
     nop
-    
+
     .end _bsp_ethint
-    
+
     .section .bsp_ethisr,code
     .ent BSP_ETHISR
 BSP_ETHISR:
@@ -1672,7 +1672,7 @@ BSP_ETHISR:
     jalr  $8
     nop
 
-    ISR_EPILOGUE    
+    ISR_EPILOGUE
 
     .end BSP_ETHISR
 
@@ -1688,11 +1688,11 @@ BSP_ETHISR:
 
 _bsp_uart1bint:
     la  $26,BSP_UART1BISR
-    jr  $26 
+    jr  $26
     nop
-    
+
     .end _bsp_uart1bint
-    
+
     .section .bsp_uart1bisr,code
     .ent BSP_UART1BISR
 BSP_UART1BISR:
@@ -1703,7 +1703,7 @@ BSP_UART1BISR:
     jalr  $8
     nop
 
-    ISR_EPILOGUE    
+    ISR_EPILOGUE
 
     .end BSP_UART1BISR
 
@@ -1719,11 +1719,11 @@ BSP_UART1BISR:
 
 _bsp_uart2bint:
     la  $26,BSP_UART2BISR
-    jr  $26 
+    jr  $26
     nop
-    
+
     .end _bsp_uart2bint
-    
+
     .section .bsp_uart2bisr,code
     .ent BSP_UART2BISR
 BSP_UART2BISR:
@@ -1734,7 +1734,7 @@ BSP_UART2BISR:
     jalr  $8
     nop
 
-    ISR_EPILOGUE    
+    ISR_EPILOGUE
 
     .end BSP_UART2BISR
 
@@ -1750,11 +1750,11 @@ BSP_UART2BISR:
 
 _bsp_uart3bint:
     la  $26,BSP_UART3BISR
-    jr  $26 
+    jr  $26
     nop
-    
+
     .end _bsp_uart3bint
-    
+
     .section .bsp_uart3bisr,code
     .ent BSP_UART3BISR
 BSP_UART3BISR:
@@ -1765,7 +1765,7 @@ BSP_UART3BISR:
     jalr  $8
     nop
 
-    ISR_EPILOGUE    
+    ISR_EPILOGUE
 
     .end BSP_UART3BISR
 

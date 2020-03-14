@@ -21,6 +21,7 @@
 #include <string.h>
 #include <math.h>
 #include <sys/kmem.h>
+#include <os.h>
 
 /*******************************************************************************
  * Private data
@@ -151,6 +152,7 @@ void AppAccelGyroClass::Calibrate( void )
     int32_t gz_s = 0;
     int32_t t_s = 0;
     motion6_data_type data;
+    OS_ERR err;
     for( uint32_t cal_idx = 0; cal_idx < CAL_SUM_CNT; cal_idx++ )
     {
         AccelGyro.GetMotion6( &data.ax, &data.ay, &data.az, &data.gx, &data.gy, &data.gz );
@@ -161,7 +163,8 @@ void AppAccelGyroClass::Calibrate( void )
         gx_s += data.gx;
         gy_s += data.gy;
         gz_s += data.gz;
-        bsp_delay_ms( 20 );
+        // Delay 20ms
+        OSTimeDlyHMSM(0u, 0u, 0u, 20u,OS_OPT_TIME_HMSM_STRICT,&err);
     }
     offsets.ax = int16_t(((float)ax_s)/((float)CAL_SUM_CNT));
     offsets.ay = int16_t(((float)ay_s)/((float)CAL_SUM_CNT));
@@ -204,7 +207,7 @@ void AppAccelGyroClass::PrintOffsets( motion6_data_type offsets, int16_t tempera
     comms_xbee_msg_t msg;
     msg.data = data_buff;
     msg.len = sizeof(data_buff);
-    COMMS_xbee_send(msg);
+    comms_xbee_send(msg);
 }
 
 /*******************************************************************************
@@ -291,7 +294,7 @@ void AppAccelGyroClass::PrintMotion6Data( void )
     comms_xbee_msg_t msg;
     msg.data = data_buff;
     msg.len = sizeof(data_buff);
-    COMMS_xbee_send(msg);
+    comms_xbee_send(msg);
 }
 
 /*******************************************************************************

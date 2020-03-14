@@ -18,6 +18,7 @@
 #include "bsp_utils.h"
 #include "bsp_motor.h"
 #include "bsp_accel_gyro.h"
+#include "cfg.h"
 #include <math.h>
 #include <string.h>
 #include <assert.h>
@@ -177,15 +178,6 @@ void alg_stabilizer_init( void )
                  (OS_ERR      *)&err);
     assert(err==OS_ERR_NONE);
 
-    OSMutexCreate(&alg_stabilizer_throttle_mutex,(CPU_CHAR*)"Throttle Mutex",&err);
-    assert(err==OS_ERR_NONE);
-    OSMutexCreate(&alg_stabilizer_PID_mutex,(CPU_CHAR*)"PID Mutex",&err);
-    assert(err==OS_ERR_NONE);
-    OSMutexCreate(&alg_stabilizer_calibrate_mutex,(CPU_CHAR*)"Cal Mutex",&err);
-    assert(err==OS_ERR_NONE);
-    OSMutexCreate(&alg_stabilizer_pitch_roll_yaw_mutex,(CPU_CHAR*)"Pitch Roll Mutex",&err);
-    assert(err==OS_ERR_NONE);
-
     // Register the TCB with the accel bsp code
     bsp_accel_gyro_int_register(&alg_stabilizer_TCB);
 
@@ -196,7 +188,7 @@ void alg_stabilizer_init( void )
         .cb = alg_stabilizer_throttle_msg_cb,
         .msg_id = COMMS_SET_THROTTLE,
     };
-    ret_t ret = COMMS_xbee_register_rx_cb(throttle_rx_cb);
+    ret_t ret = comms_xbee_register_rx_cb(throttle_rx_cb);
     assert(ret==rSUCCESS);
 
     /*
@@ -206,7 +198,7 @@ void alg_stabilizer_init( void )
         .cb = alg_stabilizer_PID_msg_cb,
         .msg_id = COMMS_SET_PID,
     };
-    ret = COMMS_xbee_register_rx_cb(pi_rx_cb);
+    ret = comms_xbee_register_rx_cb(pi_rx_cb);
     assert(ret==rSUCCESS);
 
     /*
@@ -216,7 +208,7 @@ void alg_stabilizer_init( void )
         .cb = alg_stabilizer_calibrate_msg_cb,
         .msg_id = COMMS_CALIBRATE,
     };
-    ret = COMMS_xbee_register_rx_cb(calibrate_cb);
+    ret = comms_xbee_register_rx_cb(calibrate_cb);
     assert(ret==rSUCCESS);
 
     /*
@@ -226,7 +218,7 @@ void alg_stabilizer_init( void )
         .cb = alg_stabilizer_debug_m_pr_cb,
         .msg_id = COMMS_DEBUG_M_PR,
     };
-    ret = COMMS_xbee_register_rx_cb(debug_m_pr_cb);
+    ret = comms_xbee_register_rx_cb(debug_m_pr_cb);
     assert(ret==rSUCCESS);
 
     /*
@@ -236,7 +228,7 @@ void alg_stabilizer_init( void )
         .cb = alg_stabilizer_filter_coef_cb,
         .msg_id = COMMS_SET_COMP_FILT_CONST,
     };
-    ret = COMMS_xbee_register_rx_cb(filter_coef_cb);
+    ret = comms_xbee_register_rx_cb(filter_coef_cb);
     assert(ret==rSUCCESS);
 
     /*
@@ -246,13 +238,13 @@ void alg_stabilizer_init( void )
         .cb = alg_stabilizer_pitch_roll_yaw_msg_cb,
         .msg_id = COMMS_PITCH_ROLL,
     };
-    ret = COMMS_xbee_register_rx_cb(pitch_roll_yaw_cb);
+    ret = comms_xbee_register_rx_cb(pitch_roll_yaw_cb);
     assert(ret==rSUCCESS);
 
     /*
      * Register the function responsible for handling a lost comms connection
      */
-    COMMS_xbee_register_lost_connection_cb( alg_stabilizer_lost_connection_cb );
+    comms_xbee_register_lost_connection_cb( alg_stabilizer_lost_connection_cb );
 }
 
 /*******************************************************************************
@@ -807,7 +799,6 @@ static void alg_stabilizer( float pitch, float roll, float yaw, float gravity )
     last_pitch_error = pitch_error;
     last_roll_error = roll_error;
     last_yaw_error = yaw_error;
-    last_time_ms = time_ms;
 
     /*
      * Debug data
@@ -816,7 +807,7 @@ static void alg_stabilizer( float pitch, float roll, float yaw, float gravity )
     {
         alg_stabilizer_debug_t debug_msg = {
             .hdr = COMMS_DBG_HDR_MOTOR_PITCH_ROLL,
-            .ts = time_ms,
+            .ts = 0,
             .m1 = motor1_throttle,
             .m2 = motor2_throttle,
             .m3 = motor3_throttle,
@@ -833,8 +824,7 @@ static void alg_stabilizer( float pitch, float roll, float yaw, float gravity )
         comms_xbee_msg_t msg;
         msg.data = (uint8_t*)&debug_msg;
         msg.len = sizeof(debug_msg);
-        COMMS_xbee_send(msg);
-        frame_idx++;;
+        comms_xbee_send(msg);
     }
 
 }
@@ -919,8 +909,6 @@ static void alg_stabilizer_compute_pitch_roll_yaw( float* pitch, float* roll, fl
         accel_roll = accel_roll*180.0/M_PI;
     }
 
-    loc_A = A;
-
     /*
      * This uses a complimentary filter where gyro is
      * prioritized over accel.
@@ -928,8 +916,8 @@ static void alg_stabilizer_compute_pitch_roll_yaw( float* pitch, float* roll, fl
     static float loc_roll = 0;
     static float loc_pitch = 0;
     float loc_yaw = 0;
-    loc_roll = loc_A*(loc_roll+gx*loc_dt)+(1-loc_A)*accel_roll;
-    loc_pitch = loc_A*(loc_pitch+gy*loc_dt)+(1-loc_A)*accel_pitch;
+    loc_roll = A*(loc_roll+gx*loc_dt)+(1-A)*accel_roll;
+    loc_pitch = A*(loc_pitch+gy*loc_dt)+(1-A)*accel_pitch;
     loc_yaw = gz;
 
     float throttle_percent = alg_stabilizer_get_throttle();
@@ -958,7 +946,7 @@ static void alg_stabilizer_compute_pitch_roll_yaw( float* pitch, float* roll, fl
     comms_xbee_msg_t msg;
     msg.data = data_buff;
     msg.len = sizeof(data_buff);
-    COMMS_xbee_send(msg);
+    comms_xbee_send(msg);
 #endif
 }
 
@@ -1081,27 +1069,27 @@ static void alg_stabilizer_ack_msgs( void )
 {
     if( throttle_rcvd )
     {
-        COMMS_xbee_send_ack(COMMS_SET_THROTTLE);
+        comms_xbee_send_ack(COMMS_SET_THROTTLE);
         throttle_rcvd = false;
     }
     if( pid_rcvd )
     {
-        COMMS_xbee_send_ack(COMMS_SET_PID);
+        comms_xbee_send_ack(COMMS_SET_PID);
         pid_rcvd = false;
     }
     if( cal_req_rcvd )
     {
-        COMMS_xbee_send_ack(COMMS_CALIBRATE);
+        comms_xbee_send_ack(COMMS_CALIBRATE);
         cal_req_rcvd = false;
     }
     if( debug_rcvd )
     {
-        COMMS_xbee_send_ack(COMMS_DEBUG_M_PR);
+        comms_xbee_send_ack(COMMS_DEBUG_M_PR);
         debug_rcvd = false;
     }
     if( pitch_roll_yaw_rcvd )
     {
-        COMMS_xbee_send_ack(COMMS_PITCH_ROLL);
+        comms_xbee_send_ack(COMMS_PITCH_ROLL);
         pitch_roll_yaw_rcvd = false;
     }
 }

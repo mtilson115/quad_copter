@@ -14,6 +14,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <os.h>
 #include "app_cfg.h"
 #if APP_CFG_COMMS_USE_UART
@@ -64,7 +65,7 @@ void BSP_PrintfInit( void )
 {
 #if APP_CFG_COMMS_USE_SPI
     OS_ERR err;
-    while( !COMMS_xbee_ready() )
+    while( !comms_xbee_ready() )
     {
         // Delay 100ms (this part isn't really time sensitive)
         OSTimeDlyHMSM(0u, 0u, 0u, 100u,OS_OPT_TIME_HMSM_STRICT,&err);
@@ -104,7 +105,7 @@ void BSP_Printf( const char* format, ... )
     comms_xbee_msg_t msg;
     msg.data = printf_buff;
     msg.len = len;
-    COMMS_xbee_send(msg);
+    comms_xbee_send(msg);
 #elif APP_CFG_COMMS_USE_UART
     if( uart_initialized )
     {

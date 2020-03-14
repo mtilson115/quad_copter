@@ -80,8 +80,8 @@ void BSPMotor::InitTmr( void )
  ******************************************************************************/
 void BSPMotor::Init( pwm_num_e pwm )
 {
-    pwm_ = pwm;
-    PWM_init( pwm_, pwm_init_data );
+    _pwm = pwm;
+    PWM_init( _pwm, pwm_init_data );
 }
 
 /*******************************************************************************
