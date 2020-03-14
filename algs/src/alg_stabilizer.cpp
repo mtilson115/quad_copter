@@ -12,12 +12,11 @@
  * Includes
  ******************************************************************************/
 #include "alg_stabilizer.h"
-#include "app_accel_gyro.h"
+#include "bsp_ag.h"
 #include "comms_xbee.h"
 #include "bsp_accel_gyro_int.h"
 #include "bsp_utils.h"
 #include "bsp_motor.h"
-#include "bsp_motor_cal.h"
 #include "bsp_accel_gyro.h"
 #include <math.h>
 #include <string.h>

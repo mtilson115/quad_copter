@@ -28,3 +28,4 @@ void bsp_xbee_reset( void );
 #ifdef	__cplusplus
 }
 #endif
+#endif  /* BSP_XBEE_H */

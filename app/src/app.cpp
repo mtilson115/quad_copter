@@ -38,7 +38,7 @@
 #pragma config DEBUG    = OFF           // Debugger Disabled for Starter Kit
 
 #include "includes.h"
-#include "app_battery.h"
+#include "app_battery_read.h"
 #include "comms_xbee.h"
 #include "alg_stabilizer.h"
 #include <p32xxxx.h>

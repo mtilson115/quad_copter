@@ -44,7 +44,7 @@ CPPFLAGS=-g -G 0 -mprocessor=$(DEVICE)
 LDFLAGS= -mprocessor=$(DEVICE) -G 0 -Wl,--defsym=_min_heap_size=0x400 -Wl,-Map=$(BIN)/$(PROJECT).map -Wl,--report-mem -Wl,--script p32MX795F512L.ld
 
 # Directories of the project
-DIRS= bsp CPU app drivers uC-CPU uC-LIB uCOS-III algs comms cal
+DIRS= bsp CPU app drivers uC-CPU uC-LIB uCOS-III algs comms
 INC:=$(DIRS:%=-I./%/inc)
 VSRC:=$(DIRS:%=./%/src)
 VINC:=$(DIRS:%=./%/inc)
