@@ -15,12 +15,17 @@
 /*******************************************************************************
  * Private data
  ******************************************************************************/
-#define LOW_PWM_DUTY_CYCLE (5.0)
-#define MAX_PWM_DUTY_CYCLE (10.0)
+#define LOW_PWM_DUTY_CYCLE (50.0)
+#define MAX_PWM_DUTY_CYCLE (95.0)
 
 const pwm_init_t BSPMotor::pwm_init_data = {
-    .period = 6250,
+    // (1/80e6)*313*64 = 0.0002504s ~250us
+    .period = 313,
+#if DO_THROTTLE_CAL == 1
+    .duty = MAX_PWM_DUTY_CYCLE,
+#else
     .duty = LOW_PWM_DUTY_CYCLE,
+#endif
 };
 
 /*******************************************************************************
@@ -75,12 +80,8 @@ void BSPMotor::InitTmr( void )
  ******************************************************************************/
 void BSPMotor::Init( pwm_num_e pwm )
 {
-    _pwm = pwm;
-    PWM_init( _pwm, pwm_init_data );
-    if( _pwm == PWM3 )
-    {
-        PWM_oc3_work_around_init();
-    }
+    pwm_ = pwm;
+    PWM_init( pwm_, pwm_init_data );
 }
 
 /*******************************************************************************
@@ -97,7 +98,7 @@ void BSPMotor::Init( pwm_num_e pwm )
  ******************************************************************************/
 void BSPMotor::TmrEn( void )
 {
-    PWM_tmr_en( TRUE );
+    PWM_tmr_en( true );
 }
 
 /*******************************************************************************

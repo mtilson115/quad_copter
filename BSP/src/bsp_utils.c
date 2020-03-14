@@ -9,7 +9,8 @@
 /*******************************************************************************
  * Includes
  ******************************************************************************/
-#include "type_defs.h"
+#include "bsp_utils.h"
+#include <p32xxxx.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -23,7 +24,7 @@
 
 
 /*******************************************************************************
- * Local Type Defs
+ * Local definitions
  ******************************************************************************/
 
 /*******************************************************************************
@@ -33,6 +34,7 @@
 /*******************************************************************************
  * Local Data
  ******************************************************************************/
+static bool uart_initialized = false;
 static uint8_t printf_buff[128];
 #if APP_CFG_COMMS_USE_UART
     UART_ID id_;
@@ -68,8 +70,9 @@ void BSP_PrintfInit( void )
         OSTimeDlyHMSM(0u, 0u, 0u, 100u,OS_OPT_TIME_HMSM_STRICT,&err);
     }
 #elif APP_CFG_COMMS_USE_UART
-    id_ = Uart_init(UART_1, 115200, 8, PARITY_NONE, 1);
+    id_ = Uart_init(UART_4, 115200, 8, PARITY_NONE, 1);
     Uart_enable(id_);
+    uart_initialized = true;
 #endif
 }
 
@@ -103,6 +106,9 @@ void BSP_Printf( const char* format, ... )
     msg.len = len;
     COMMS_xbee_send(msg);
 #elif APP_CFG_COMMS_USE_UART
-    Uart_write(id_,len,printf_buff);
+    if( uart_initialized )
+    {
+        Uart_write(id_,len,&printf_buff[1]);
+    }
 #endif
 }

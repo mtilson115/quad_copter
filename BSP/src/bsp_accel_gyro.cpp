@@ -138,14 +138,14 @@ bool Accel_Gyro::Init( void )
     SetExternalFrameSync(0);
 
     /*
-     * 94, 98Hz, 1khz
+     * Set up the filter
      */
-    SetDLPFMode(2);
+    SetDLPFMode(1);
 
     /*
-     * Set the update rate to be 50Hz 
+     * Set the update rate to be 200Hz
      */
-    SetRate(19);
+    SetRate(4);
     return TestConnection();
 }
 
@@ -227,7 +227,7 @@ void Accel_Gyro::GetFullRangeDivisor( float* accel, float* gyro )
 bool Accel_Gyro::TestConnection( void )
 {
     uint8_t device_id = GetDeviceID();
-    BSP_Printf( "0x%X",device_id );
+    BSP_Printf( "0x%X\n",device_id );
     return ( device_id == 0x34);
 }
 

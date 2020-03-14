@@ -18,7 +18,7 @@
 /*******************************************************************************
  * Local Data
  ******************************************************************************/
-#define TCB_LIST_LEN (2)
+#define TCB_LIST_LEN (1)
 OS_TCB* tcb_list[TCB_LIST_LEN];
 static uint32_t tcb_cnt = 0;
 
@@ -74,7 +74,7 @@ void bsp_accel_gyro_int_en( void )
     IFS0bits.INT1IF = 0;
 
     // Interrupt priority
-    IPC1bits.INT1IP = 6;
+    IPC1bits.INT1IP = 5;
 
     // Interrupt sub-priority
     IPC1bits.INT1IS = 0;
