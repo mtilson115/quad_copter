@@ -38,7 +38,7 @@
 #pragma config DEBUG    = OFF           // Debugger Disabled for Starter Kit
 
 #include "includes.h"
-#include "app_test.h"
+#include "app_battery.h"
 #include "comms_xbee.h"
 #include "alg_stabilizer.h"
 #include <p32xxxx.h>
@@ -166,10 +166,8 @@ static  void  App_TaskStart (void *p_arg)
 
 static void App_TaskCreate(void)
 {
-    start_test();
-#if APP_CFG_COMMS_USE_SPI
-    COMMS_xbee_init();
-#endif
+    battery_read_init();
+    comms_xbee_init();
     alg_stabilizer_init();
 }
 

@@ -63,18 +63,18 @@ typedef struct {
 
 typedef void (*comms_xbee_lost_connection_cb_t)(void);
 
-void COMMS_xbee_send(comms_xbee_msg_t msg);
-void COMMS_xbee_init(void);
-uint8_t COMMS_xbee_ready( void );
-ret_t COMMS_xbee_register_rx_cb( comms_xbee_rx_cb_t cb_data );
-ret_t COMMS_xbee_register_lost_connection_cb( comms_xbee_lost_connection_cb_t cb_func );
-uint32_t COMMS_xbee_get_fault( void );
-void COMMS_xbee_send_ack(uint32_t rx_id);
+void comms_xbee_send(comms_xbee_msg_t msg);
+void comms_xbee_init(void);
+uint8_t comms_xbee_ready( void );
+ret_t comms_xbee_register_rx_cb( comms_xbee_rx_cb_t cb_data );
+ret_t comms_xbee_register_lost_connection_cb( comms_xbee_lost_connection_cb_t cb_func );
+uint32_t comms_xbee_get_fault( void );
+void comms_xbee_send_ack(uint32_t rx_id);
 
 /*
  * Debug data
  */
-OS_TCB* COMMS_xbee_get_tcb( void );
+OS_TCB* comms_xbee_get_tcb( void );
 extern CPU_STK comms_xbee_stack[COMMS_XBEE_STK_SIZE];
 
 #ifdef	__cplusplus
