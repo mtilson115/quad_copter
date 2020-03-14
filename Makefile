@@ -23,28 +23,25 @@ UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Linux)
 	CC_VERS=v2.20
 	export CC=/opt/microchip/xc32/$(CC_VERS)/bin/xc32
-	DEBUGGER=/opt/microchip/mplabx/v5.20/mplab_platform/bin/mdb.sh
-	FLASHTOOL=/opt/microchip/mplabx/v5.20/mplab_platform/mplab_ipe/ipecmd.sh
+	DEBUGGER=/opt/microchip/mplabx/v5.30/mplab_platform/bin/mdb.sh
+	FLASHTOOL=/opt/microchip/mplabx/v5.30/mplab_platform/mplab_ipe/ipecmd.sh
 endif
 
 ifeq ($(UNAME_S),Darwin)
-	CC_VERS=v2.20
+	CC_VERS=v2.40
 	export CC=/Applications/microchip/xc32/$(CC_VERS)/bin/xc32
-	DEBUGGER=/Applications/microchip/mplabx/v5.20/mplab_platform/bin/mdb.sh
-	FLASHTOOL=/Applications/microchip/mplabx/v5.20/mplab_platform/mplab_ipe/bin/ipecmd.sh
+	DEBUGGER=/Applications/microchip/mplabx/v5.30/mplab_platform/bin/mdb.sh
+	FLASHTOOL=/Applications/microchip/mplabx/v5.30/mplab_platform/mplab_ipe/bin/ipecmd.sh
 endif
 
 # Linker
 LD=$(CC)-g++
-# LD=$(CC)-ld
-
 
 # CC Compiler directives
-CFLAGS=-g -std=c99 -mprocessor=$(DEVICE) -nostartfiles
-CPPFLAGS=-g -mprocessor=$(DEVICE) -nostartfiles
+CFLAGS=-g -std=c99 -G 0 -mprocessor=$(DEVICE)
+CPPFLAGS=-g -G 0 -mprocessor=$(DEVICE)
 
-# LD flags --defsym=_min_heap_size=1024
-LDFLAGS= -mprocessor=$(DEVICE) -nostartfiles -Wl,--defsym=_min_heap_size=0x400 -Wl,-Map=$(BIN)/$(PROJECT).map -Wl,--defsym=_vector_spacing=4 -Wl,--report-mem -Wl,--script p32MX795F512L.ld
+LDFLAGS= -mprocessor=$(DEVICE) -G 0 -Wl,--defsym=_min_heap_size=0x400 -Wl,-Map=$(BIN)/$(PROJECT).map -Wl,--report-mem -Wl,--script p32MX795F512L.ld
 
 # Directories of the project
 DIRS= BSP CPU app drivers uC-CPU uC-LIB uCOS-III algs comms
@@ -142,6 +139,8 @@ flash:
 ifneq ("$(wildcard $(BIN))","")
 	@echo 'Flashing the .hex file'
 	$(FLASHTOOL) -P$(DEVICE) -TP$(HWTOOL) -M -Y -F$(BIN)/$(PROJECT).hex
+	$(RM) *xml*
+	$(RM) log.*
 else
 	@echo 'No valid binaries.  Call make first?'
 endif

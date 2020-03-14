@@ -1,5 +1,5 @@
 /*******************************************************************************
- * File:    alg_stabilizer.c
+ * File:    alg_stabilizer.cpp
  * Author:  Mitchell S. Tilson
  * Created: 02/12/2019
  *
@@ -17,6 +17,7 @@
 #include "bsp_accel_gyro_int.h"
 #include "bsp_utils.h"
 #include "bsp_motor.h"
+#include "bsp_motor_cal.h"
 #include "bsp_accel_gyro.h"
 #include <math.h>
 #include <string.h>
@@ -30,8 +31,33 @@
 #define ALG_STB_TX_Q_DEPTH (0)
 #define M_PI (3.14159)
 
-#define SEND_DEBUG 1
-#define DO_THROTTLE_CAL 0
+/*******************************************************************************
+ * Typedefs
+ ******************************************************************************/
+typedef struct __attribute__ ((packed)) {
+    uint8_t hdr;
+    uint64_t ts;
+    float m1;
+    float m2;
+    float m3;
+    float m4;
+    float pitch;
+    float pitch_sp;
+    float roll;
+    float roll_sp;
+    float yaw;
+    float yaw_sp;
+} alg_stabilizer_debug_t;
+
+typedef struct __attribute__ ((packed)) {
+    float pP;
+    float pI;
+    float pD;
+    float rP;
+    float rI;
+    float rD;
+    float A;
+} alg_stabilizer_tuning_debug_t;
 
 /*******************************************************************************
  * Local Data
@@ -40,10 +66,6 @@
 // Task data
 CPU_STK alg_stabilizer_stack[ALG_STABILIZER_STK_SIZE];
 OS_TCB alg_stabilizer_TCB;
-OS_MUTEX alg_stabilizer_throttle_mutex;
-OS_MUTEX alg_stabilizer_PID_mutex;
-OS_MUTEX alg_stabilizer_calibrate_mutex;
-OS_MUTEX alg_stabilizer_pitch_roll_yaw_mutex;
 
 // Motor objects
 static BSPMotor motor1;
@@ -52,24 +74,43 @@ static BSPMotor motor3;
 static BSPMotor motor4;
 
 // Throttle
-static float alg_stabilizer_throttle_percent = 0;
+static float alg_stabilizer_throttle_percent = 0.0;
+static float alg_stabilizer_throttle_percent_target = 0.0;
 
 // PID constant
-static float asP = 0.2;
-static float asI = 0.0;
-static float asD = 0.0;
+static float pitch_asP = 0.2;
+static float pitch_asI = 0.0045;
+static float pitch_asD = 0.002;
+
+static float roll_asP = 0.1;
+static float roll_asI = 0.003;
+static float roll_asD = 0.0015;
 
 // Fitler coefficients
-static float A = 0.98;
-static float dt = 20.0e-3; // units s
+static float A = 0.985;
+static float dt = 5e-3; // units s
 
 // Calibration
 static bool do_calibration = false;
 
 // Pitch and roll
-static float pitch_set_point = 0;
-static float roll_set_point = 0;
-static float yaw_set_point = 0;
+static float pitch_target_set_point = 0;
+static float roll_target_set_point = 0;
+static float yaw_target_set_point = 0;
+
+static float pitch_actual_set_point = 0;
+static float roll_actual_set_point = 0;
+static float yaw_actual_set_point = 0;
+
+// Send Debug info
+static bool send_debug_m_pr = false;
+
+// Message tracking
+static bool throttle_rcvd = false;
+static bool pid_rcvd = false;
+static bool cal_req_rcvd = false;
+static bool debug_rcvd = false;
+static bool pitch_roll_yaw_rcvd = false;
 
 /*******************************************************************************
  * Local Function Section
@@ -78,17 +119,27 @@ static void alg_stabilizer_task( void *p_arg );
 static void alg_stabilizer_throttle_msg_cb(uint8_t* data,uint16_t len);
 static void alg_stabilizer_PID_msg_cb(uint8_t* data,uint16_t len);
 static void alg_stabilizer_calibrate_msg_cb(uint8_t* data,uint16_t len);
+static void alg_stabilizer_debug_m_pr_cb(uint8_t* data,uint16_t len);
+static void alg_stabilizer_filter_coef_cb(uint8_t* data,uint16_t len);
 static void alg_stabilizer_set_throttle( float throttle );
 static float alg_stabilizer_get_throttle( void );
-static void alg_stabilizer_set_PID_consts( float P, float I, float D );
-static void alg_stabilizer_get_PID_consts( float* P, float* I, float *D );
-static void alg_stabilizer( float pitch, float roll, float gravity );
-static void alg_stabilizer_compute_pitch_roll( float* pitch, float* roll, float* gravity );
+static void alg_stabilizer_set_pitch_PID_consts( float P, float I, float D );
+static void alg_stabilizer_set_roll_PID_consts( float P, float I, float D );
+static void alg_stabilizer_get_pitch_PID_consts( float* P, float* I, float *D );
+static void alg_stabilizer_get_roll_PID_consts( float* P, float* I, float *D );
+static void alg_stabilizer( float pitch, float roll, float yaw, float gravity );
+static void alg_stabilizer_compute_pitch_roll_yaw( float* pitch, float* roll, float* yaw, float* gravity );
 static void alg_stabilizer_set_calibrate( bool en );
 static bool alg_stabilizer_get_calibrate( void );
+static void alg_stabilizer_set_debug_m_pr( uint8_t en );
+static bool alg_stabilizer_get_debug_m_pr( void );
 static void alg_stabilizer_pitch_roll_yaw_msg_cb( uint8_t* data, uint16_t len );
 static void alg_stabilizer_set_pitch_roll_yaw( float pitch, float roll, float yaw );
 static void alg_stabilizer_get_pitch_roll_yaw( float* pitch, float* roll, float* yaw );
+static void alg_stabilizer_update_throttle( void );
+static void alg_stabilizer_update_ypr_sp( void );
+static void alg_stabilizer_lost_connection_cb( void );
+static void alg_stabilizer_ack_msgs( void );
 
 /*******************************************************************************
  * Public Function Section
@@ -170,6 +221,26 @@ void alg_stabilizer_init( void )
     assert(ret==rSUCCESS);
 
     /*
+     * Send motor, pitch, and roll debug info
+     */
+    comms_xbee_rx_cb_t debug_m_pr_cb = {
+        .cb = alg_stabilizer_debug_m_pr_cb,
+        .msg_id = COMMS_DEBUG_M_PR,
+    };
+    ret = COMMS_xbee_register_rx_cb(debug_m_pr_cb);
+    assert(ret==rSUCCESS);
+
+    /*
+     * Adjust the complimentary filter coeficient
+     */
+    comms_xbee_rx_cb_t filter_coef_cb = {
+        .cb = alg_stabilizer_filter_coef_cb,
+        .msg_id = COMMS_SET_COMP_FILT_CONST,
+    };
+    ret = COMMS_xbee_register_rx_cb(filter_coef_cb);
+    assert(ret==rSUCCESS);
+
+    /*
      * Set pitch and roll setpoints
      */
     comms_xbee_rx_cb_t pitch_roll_yaw_cb = {
@@ -178,6 +249,11 @@ void alg_stabilizer_init( void )
     };
     ret = COMMS_xbee_register_rx_cb(pitch_roll_yaw_cb);
     assert(ret==rSUCCESS);
+
+    /*
+     * Register the function responsible for handling a lost comms connection
+     */
+    COMMS_xbee_register_lost_connection_cb( alg_stabilizer_lost_connection_cb );
 }
 
 /*******************************************************************************
@@ -233,10 +309,6 @@ static void alg_stabilizer_task( void *p_arg )
     OSTimeDlyHMSM(0u, 0u, 2u, 250u,OS_OPT_TIME_HMSM_STRICT,&err);
 #endif
 
-    // TRISEbits.TRISE7 = 0;
-
-    // Wait on comms
-    BSP_PrintfInit();
 
     // Initialize the AccelGyro
     AclGyro.Init();
@@ -244,8 +316,6 @@ static void alg_stabilizer_task( void *p_arg )
     // Start the accel gyro interrupt
     AclGyro.Start();
 
-    // Print the offsets
-    AclGyro.PrintOffsets();
 
     uint32_t ts = 0;
     while (DEF_ON)
@@ -255,12 +325,9 @@ static void alg_stabilizer_task( void *p_arg )
          */
         OSTaskSemPend(0,OS_OPT_PEND_BLOCKING,&ts,&err);
 
-        // PORTEINV = (1<<7);
-
         /*
          * Check to see if calibration was requested.
-         * The throttle should be off.  The motors don't turn
-         * on until 35 percent.
+         * The throttle should be off.
          */
         if( alg_stabilizer_get_throttle() < 5.0 )
         {
@@ -281,18 +348,36 @@ static void alg_stabilizer_task( void *p_arg )
         }
 
         /*
+         * This is called to ramp the user set throttle to avoid
+         * fast changes leading to noise spikes and unstable operation
+         * of the CPU and accel gyro.
+         */
+        alg_stabilizer_update_throttle();
+
+        /*
+         * This is called to ramp the user set angle to avoid
+         * fast changes and instability
+         */
+        alg_stabilizer_update_ypr_sp();
+
+        /*
          * Get the pitch and roll
          * gravity is included for error conditions.
          * If -gravity is detected, somethings wrong in this design as
          * the quad copter is upside down.
          */
-        float pitch, roll, gravity;
-        alg_stabilizer_compute_pitch_roll(&pitch,&roll,&gravity);
+        float pitch, roll, yaw, gravity;
+        alg_stabilizer_compute_pitch_roll_yaw(&pitch,&roll,&yaw,&gravity);
 
         /*
          * Apply the values
          */
-        alg_stabilizer(pitch,roll,gravity);
+        alg_stabilizer(pitch,roll,yaw,gravity);
+
+        /*
+         * Ack all messages that we acted on.
+         */
+        alg_stabilizer_ack_msgs();
     }
 }
 
@@ -322,6 +407,7 @@ static void alg_stabilizer_throttle_msg_cb(uint8_t* data,uint16_t len)
             if( throttle_percent >= 0.0 && throttle_percent <= 100.0 )
             {
                 alg_stabilizer_set_throttle(throttle_percent);
+                throttle_rcvd = true;
             }
         }
     }
@@ -342,18 +428,27 @@ static void alg_stabilizer_throttle_msg_cb(uint8_t* data,uint16_t len)
  ******************************************************************************/
 static void alg_stabilizer_PID_msg_cb( uint8_t* data, uint16_t len )
 {
-    float loc_P;
-    float loc_I;
-    float loc_D;
+    float loc_pitch_P;
+    float loc_pitch_I;
+    float loc_pitch_D;
+    float loc_roll_P;
+    float loc_roll_I;
+    float loc_roll_D;
+    unsigned int loc_len = sizeof(float)*6;
     if( data[0] == COMMS_SET_PID )
     {
         len -= 1;
-        if( len == sizeof(loc_P)+sizeof(loc_I)+sizeof(loc_D) )
+        if( len == loc_len )
         {
-            memcpy(&loc_P,&data[1],sizeof(loc_P));
-            memcpy(&loc_I,&data[sizeof(loc_P)+1],sizeof(loc_I));
-            memcpy(&loc_D,&data[sizeof(loc_P)+sizeof(loc_I)+1],sizeof(loc_D));
-            alg_stabilizer_set_PID_consts(loc_P,loc_I,loc_D);
+            memcpy(&loc_pitch_P,&data[1],sizeof(float));
+            memcpy(&loc_pitch_I,&data[sizeof(float)+1],sizeof(float));
+            memcpy(&loc_pitch_D,&data[2*sizeof(float)+1],sizeof(float));
+            memcpy(&loc_roll_P,&data[3*sizeof(float)+1],sizeof(float));
+            memcpy(&loc_roll_I,&data[4*sizeof(float)+1],sizeof(float));
+            memcpy(&loc_roll_D,&data[5*sizeof(float)+1],sizeof(float));
+            alg_stabilizer_set_pitch_PID_consts(loc_pitch_P,loc_pitch_I,loc_pitch_D);
+            alg_stabilizer_set_roll_PID_consts(loc_roll_P,loc_roll_I,loc_roll_D);
+            pid_rcvd = true;
         }
     }
 }
@@ -376,6 +471,55 @@ static void alg_stabilizer_calibrate_msg_cb( uint8_t* data, uint16_t len )
     if( data[0] == COMMS_CALIBRATE )
     {
         alg_stabilizer_set_calibrate( true );
+        cal_req_rcvd = true;
+    }
+}
+
+/*******************************************************************************
+ * alg_stabilizer_debug_m_pr_cb
+ *
+ * Description: This function is called when a message is recieved and has the
+ *              msg_id = COMMS_DEBUG_M_PR (0x05)
+ *
+ * Inputs:      None
+ *
+ * Returns:     None
+ *
+ * Revision:    Initial Creation 09/01/2019 - Mitchell S. Tilson
+ *
+ ******************************************************************************/
+static void alg_stabilizer_debug_m_pr_cb(uint8_t* data,uint16_t len)
+{
+    if( data[0] == COMMS_DEBUG_M_PR )
+    {
+        alg_stabilizer_set_debug_m_pr( data[1] );
+        debug_rcvd = true;
+    }
+}
+
+/*******************************************************************************
+ * alg_stabilizer_filter_coef_cb
+ *
+ * Description: This function is called when a message is recieved and has the
+ *              msg_id = COMMS_SET_COMP_FILT_CONST (0x09) and is used to adjust
+ *              the complimentary filter coefficient
+ *
+ * Inputs:      None
+ *
+ * Returns:     None
+ *
+ * Revision:    Initial Creation 01/19/2020 - Mitchell S. Tilson
+ *
+ ******************************************************************************/
+static void alg_stabilizer_filter_coef_cb(uint8_t* data,uint16_t len)
+{
+    if( data[0] == COMMS_SET_COMP_FILT_CONST )
+    {
+        len -= 1;
+        if( len == sizeof(A) )
+        {
+            memcpy(&A,&data[1],len);
+        }
     }
 }
 
@@ -403,6 +547,7 @@ static void alg_stabilizer_pitch_roll_yaw_msg_cb( uint8_t* data, uint16_t len )
         memcpy(&loc_roll_set_point,&data[sizeof(loc_pitch_set_point)+1],sizeof(loc_roll_set_point));
         memcpy(&loc_yaw_set_point,&data[sizeof(loc_pitch_set_point)+sizeof(loc_roll_set_point)+1],sizeof(loc_yaw_set_point));
         alg_stabilizer_set_pitch_roll_yaw(loc_pitch_set_point,loc_roll_set_point,loc_yaw_set_point);
+        pitch_roll_yaw_rcvd = true;
     }
 }
 
@@ -423,21 +568,11 @@ static void alg_stabilizer_pitch_roll_yaw_msg_cb( uint8_t* data, uint16_t len )
  ******************************************************************************/
 static void alg_stabilizer_set_throttle( float throttle )
 {
-    OS_ERR err;
-    CPU_TS ts = 0;
-    OSMutexPend(&alg_stabilizer_throttle_mutex,0,OS_OPT_PEND_BLOCKING,&ts,&err);
-    alg_stabilizer_throttle_percent = throttle;
-    OSMutexPost(&alg_stabilizer_throttle_mutex,OS_OPT_POST_NONE,&err);
+    alg_stabilizer_throttle_percent_target = throttle;
 }
 static float alg_stabilizer_get_throttle( void )
 {
-    float throttle;
-    OS_ERR err;
-    CPU_TS ts = 0;
-    OSMutexPend(&alg_stabilizer_throttle_mutex,0,OS_OPT_PEND_BLOCKING,&ts,&err);
-    throttle = alg_stabilizer_throttle_percent;
-    OSMutexPost(&alg_stabilizer_throttle_mutex,OS_OPT_POST_NONE,&err);
-    return throttle;
+    return alg_stabilizer_throttle_percent;
 }
 
 /*******************************************************************************
@@ -457,26 +592,29 @@ static float alg_stabilizer_get_throttle( void )
  *              a mutex given it is a float.
  *
  ******************************************************************************/
-static void alg_stabilizer_set_PID_consts( float P, float I, float D )
+static void alg_stabilizer_set_pitch_PID_consts( float P, float I, float D )
 {
-    OS_ERR err;
-    CPU_TS ts = 0;
-    OSMutexPend(&alg_stabilizer_PID_mutex,0,OS_OPT_PEND_BLOCKING,&ts,&err);
-    asP = P;
-    asI = I;
-    asD = D;
-    OSMutexPost(&alg_stabilizer_PID_mutex,OS_OPT_POST_NONE,&err);
+    pitch_asP = P;
+    pitch_asI = I;
+    pitch_asD = D;
 }
-static void alg_stabilizer_get_PID_consts( float* P, float* I, float* D )
+static void alg_stabilizer_get_pitch_PID_consts( float* P, float* I, float* D )
 {
-    float throttle;
-    OS_ERR err;
-    CPU_TS ts = 0;
-    OSMutexPend(&alg_stabilizer_PID_mutex,0,OS_OPT_PEND_BLOCKING,&ts,&err);
-    *P = asP;
-    *I = asI;
-    *D = asD;
-    OSMutexPost(&alg_stabilizer_PID_mutex,OS_OPT_POST_NONE,&err);
+    *P = pitch_asP;
+    *I = pitch_asI;
+    *D = pitch_asD;
+}
+static void alg_stabilizer_set_roll_PID_consts( float P, float I, float D )
+{
+    roll_asP = P;
+    roll_asI = I;
+    roll_asD = D;
+}
+static void alg_stabilizer_get_roll_PID_consts( float* P, float* I, float* D )
+{
+    *P = roll_asP;
+    *I = roll_asI;
+    *D = roll_asD;
 }
 
 /*******************************************************************************
@@ -495,21 +633,35 @@ static void alg_stabilizer_get_PID_consts( float* P, float* I, float* D )
  ******************************************************************************/
 static void alg_stabilizer_set_calibrate( bool en )
 {
-    OS_ERR err;
-    CPU_TS ts = 0;
-    OSMutexPend(&alg_stabilizer_calibrate_mutex,0,OS_OPT_PEND_BLOCKING,&ts,&err);
     do_calibration = en;
-    OSMutexPost(&alg_stabilizer_calibrate_mutex,OS_OPT_POST_NONE,&err);
 }
 static bool alg_stabilizer_get_calibrate( void )
 {
-    OS_ERR err;
-    CPU_TS ts = 0;
-    bool ret = false;
-    OSMutexPend(&alg_stabilizer_calibrate_mutex,0,OS_OPT_PEND_BLOCKING,&ts,&err);
-    ret = do_calibration;
-    OSMutexPost(&alg_stabilizer_calibrate_mutex,OS_OPT_POST_NONE,&err);
-    return ret;
+    return do_calibration;
+}
+
+/*******************************************************************************
+ * alg_stabilizer_set_debug_m_pr/alg_stabilizer_get_debug_m_pr
+ *
+ * Description: This function sets a variable indicating debug information should
+ *              be sent.
+ *
+ * Inputs:      None
+ *
+ * Returns:     None
+ *
+ * Revision:    Initial Creation 09/01/2019 - Mitchell S. Tilson
+ *
+ * Notes:
+ *
+ ******************************************************************************/
+static void alg_stabilizer_set_debug_m_pr( uint8_t en )
+{
+    send_debug_m_pr = (bool)en;
+}
+static bool alg_stabilizer_get_debug_m_pr( void )
+{
+    return send_debug_m_pr;
 }
 
 /*******************************************************************************
@@ -519,7 +671,7 @@ static bool alg_stabilizer_get_calibrate( void )
  *
  * Inputs:      float pitch - the pitch the controller will strive for
  *              float roll - the roll the controller will strive for
- *              float yaw - the yaw the controller will strive for (not supported)        
+ *              float yaw - the yaw the controller will strive for
  *
  * Returns:     None
  *
@@ -530,23 +682,15 @@ static bool alg_stabilizer_get_calibrate( void )
  ******************************************************************************/
 static void alg_stabilizer_set_pitch_roll_yaw( float pitch, float roll, float yaw )
 {
-    OS_ERR err;
-    CPU_TS ts = 0;
-    OSMutexPend(&alg_stabilizer_pitch_roll_yaw_mutex,0,OS_OPT_PEND_BLOCKING,&ts,&err);
-    pitch_set_point = pitch;
-    roll_set_point = roll;
-    yaw_set_point = yaw;
-    OSMutexPost(&alg_stabilizer_pitch_roll_yaw_mutex,OS_OPT_POST_NONE,&err);
+    pitch_target_set_point = pitch;
+    roll_target_set_point = roll;
+    yaw_target_set_point = yaw;
 }
 static void alg_stabilizer_get_pitch_roll_yaw( float* pitch, float* roll, float* yaw )
 {
-    OS_ERR err;
-    CPU_TS ts = 0;
-    OSMutexPend(&alg_stabilizer_pitch_roll_yaw_mutex,0,OS_OPT_PEND_BLOCKING,&ts,&err);
-    *pitch = pitch_set_point;
-    *roll = roll_set_point;
-    *yaw = yaw_set_point;
-    OSMutexPost(&alg_stabilizer_pitch_roll_yaw_mutex,OS_OPT_POST_NONE,&err);
+    *pitch = pitch_actual_set_point;
+    *roll = roll_actual_set_point;
+    *yaw = yaw_actual_set_point;
 }
 
 /*******************************************************************************
@@ -557,6 +701,7 @@ static void alg_stabilizer_get_pitch_roll_yaw( float* pitch, float* roll, float*
  *
  * Inputs:      float - pitch
  *              float - roll
+ *              float - yaw
  *              float - gravity (for error detection if negative or upside down)
  *
  * Returns:     None
@@ -566,7 +711,7 @@ static void alg_stabilizer_get_pitch_roll_yaw( float* pitch, float* roll, float*
  * Notes:       Right now this function assumes the desired pitch and roll is 0.
  *
  ******************************************************************************/
-static void alg_stabilizer( float pitch, float roll, float gravity )
+static void alg_stabilizer( float pitch, float roll, float yaw, float gravity )
 {
     // Read the set points
     float loc_pitch_sp = 0;
@@ -577,63 +722,83 @@ static void alg_stabilizer( float pitch, float roll, float gravity )
     // Calculate the errors
     float pitch_error = pitch - loc_pitch_sp;
     float roll_error = roll - loc_roll_sp;
+    float yaw_error = yaw - loc_yaw_sp;
 
     // Integral and derivative variables
     static float pitch_error_sum = 0;
     static float roll_error_sum = 0;
+    static float yaw_error_sum = 0;
     static float last_pitch_error = 0;
     static float last_roll_error = 0;
+    static float last_yaw_error = 0;
     float pitch_d = pitch_error-last_pitch_error;
     float roll_d = roll_error-last_roll_error;
+    float yaw_d = yaw_error-last_yaw_error;
 
-    // Get the PID constants
-    float P,I,D;
-    alg_stabilizer_get_PID_consts(&P,&I,&D);
+    float loc_dt = dt;
+
+    // Get the PID control parameters
+    float pitchP,pitchI,pitchD;
+    alg_stabilizer_get_pitch_PID_consts(&pitchP,&pitchI,&pitchD);
+    pitchI = pitchI*loc_dt;
+    pitchD = pitchD/loc_dt;
+    float rollP,rollI,rollD;
+    alg_stabilizer_get_roll_PID_consts(&rollP,&rollI,&rollD);
+    rollI = rollI*loc_dt;
+    rollD = rollD/loc_dt;
 
     // Get the desired throttle
     float throttle_percent = alg_stabilizer_get_throttle();
 
-    if( throttle_percent > 40.0 )
+    /*
+     * 7 inch props start to fly at 39%
+     */
+    if( throttle_percent > 39 )
     {
         pitch_error_sum += pitch_error;
         roll_error_sum += roll_error;
+        yaw_error_sum += yaw_error;
+    }
+    else
+    {
+        pitch_error_sum = 0;
+        roll_error_sum = 0;
+        yaw_error_sum = 0;
     }
 
 
     // Calculate Motor1's desired throttle
-    float motor1_throttle_err = P*(-pitch_error)+P*(-roll_error)+I*(-pitch_error_sum)+I*(-roll_error_sum)+D*(pitch_d)+D*(roll_d);
+    float motor1_throttle_err = pitchP*(pitch_error)-rollP*(roll_error)+pitchI*(pitch_error_sum)-rollI*(roll_error_sum)+pitchD*(pitch_d)-rollD*(roll_d);
     motor1_throttle_err = max(motor1_throttle_err,-throttle_percent);
     float motor1_throttle = throttle_percent + motor1_throttle_err;
     motor1_throttle = min(motor1_throttle,100);
 
     // Calculate Motor2's desired speed
-    float motor2_throttle_err = P*(pitch_error)+P*(-roll_error)+I*(pitch_error_sum)+I*(-roll_error_sum)+D*(-pitch_d)+D*(roll_d);
+    float motor2_throttle_err = -1.0*pitchP*(pitch_error)-rollP*(roll_error)-pitchI*(pitch_error_sum)-rollI*(roll_error_sum)-pitchD*(pitch_d)-rollD*(roll_d);
     motor2_throttle_err = max(motor2_throttle_err,-throttle_percent);
     float motor2_throttle = throttle_percent + motor2_throttle_err;
     motor2_throttle = min(motor2_throttle,100);
 
     // Calculate Motor3's desired speed
-    float motor3_throttle_err = P*(pitch_error)+P*(roll_error)+I*(pitch_error_sum)+I*(roll_error_sum)+D*(-pitch_d)+D*(-roll_d);
+    float motor3_throttle_err = -1.0*pitchP*(pitch_error)+rollP*(roll_error)-pitchI*(pitch_error_sum)+rollI*(roll_error_sum)-pitchD*(pitch_d)+rollD*(roll_d);
     motor3_throttle_err = max(motor3_throttle_err,-throttle_percent);
     float motor3_throttle = throttle_percent + motor3_throttle_err;
     motor3_throttle = min(motor3_throttle,100);
 
     // Calculate Motor4's desired speed
-    float motor4_throttle_err = P*(-pitch_error)+P*(roll_error)+I*(-pitch_error_sum)+I*(roll_error_sum)+D*(pitch_d)+D*(-roll_d);
+    float motor4_throttle_err = pitchP*(pitch_error)+rollP*(roll_error)+pitchI*(pitch_error_sum)+rollI*(roll_error_sum)+pitchD*(pitch_d)+rollD*(roll_d);
     motor4_throttle_err = max(motor4_throttle_err,-throttle_percent);
     float motor4_throttle = throttle_percent + motor4_throttle_err;
     motor4_throttle = min(motor4_throttle,100);
 
-    /*
-     * Catch moving too much or upside down.
-     */
-    if( pitch > 45 || roll > 45 || pitch < -45 || roll < -45 || gravity < 0 )
-    {
-        motor1_throttle = 1.0;
-        motor2_throttle = 1.0;
-        motor3_throttle = 1.0;
-        motor4_throttle = 1.0;
-    }
+    // Handle yaw error
+    float m24_error = rollP*(yaw_error)+(rollI/2.0)*(yaw_error_sum)+rollD*(yaw_d);
+    float m13_error = -rollP*(yaw_error)-(rollI/2.0)*(yaw_error_sum)-rollD*(yaw_d);
+
+    motor1_throttle += m13_error;
+    motor2_throttle += m24_error;
+    motor3_throttle += m13_error;
+    motor4_throttle += m24_error;
 
     motor1.SetSpeedPercent( motor1_throttle/100.0 );
     motor2.SetSpeedPercent( motor2_throttle/100.0 );
@@ -642,44 +807,48 @@ static void alg_stabilizer( float pitch, float roll, float gravity )
 
     last_pitch_error = pitch_error;
     last_roll_error = roll_error;
+    last_yaw_error = yaw_error;
+    last_time_ms = time_ms;
 
     /*
      * Debug data
      */
-#if SEND_DEBUG == 1 
-    uint8_t msg_hdr = COMMS_DBG_HDR_MOTOR_PITCH_ROLL;
-    uint8_t data_buff[sizeof(msg_hdr)+10*sizeof(float)] = {0};
-    data_buff[0] = msg_hdr;
-    uint32_t ts = CPU_TS_Get32();
-    memcpy(&data_buff[sizeof(msg_hdr)],&ts,sizeof(float));
-    memcpy(&data_buff[sizeof(uint32_t)+sizeof(msg_hdr)],&motor1_throttle,sizeof(float));
-    memcpy(&data_buff[2*sizeof(float)+sizeof(msg_hdr)],&motor2_throttle,sizeof(float));
-    memcpy(&data_buff[3*sizeof(float)+sizeof(msg_hdr)],&motor3_throttle,sizeof(float));
-    memcpy(&data_buff[4*sizeof(float)+sizeof(msg_hdr)],&motor4_throttle,sizeof(float));
-    memcpy(&data_buff[5*sizeof(float)+sizeof(msg_hdr)],&pitch,sizeof(float));
-    memcpy(&data_buff[6*sizeof(float)+sizeof(msg_hdr)],&roll,sizeof(float));
-    memcpy(&data_buff[7*sizeof(float)+sizeof(msg_hdr)],&P,sizeof(float));
-    memcpy(&data_buff[8*sizeof(float)+sizeof(msg_hdr)],&I,sizeof(float));
-    memcpy(&data_buff[9*sizeof(float)+sizeof(msg_hdr)],&D,sizeof(float));
+    if( alg_stabilizer_get_debug_m_pr() )
+    {
+        alg_stabilizer_debug_t debug_msg = {
+            .hdr = COMMS_DBG_HDR_MOTOR_PITCH_ROLL,
+            .ts = time_ms,
+            .m1 = motor1_throttle,
+            .m2 = motor2_throttle,
+            .m3 = motor3_throttle,
+            .m4 = motor4_throttle,
+            .pitch = pitch,
+            .pitch_sp = loc_pitch_sp,
+            .roll = roll,
+            .roll_sp = loc_roll_sp,
+            .yaw = yaw,
+            .yaw_sp = loc_yaw_sp,
+        };
 
-
-    // Send the message
-    comms_xbee_msg_t msg;
-    msg.data = data_buff;
-    msg.len = sizeof(data_buff);
-    COMMS_xbee_send(msg);
-#endif
+        // Send the message
+        comms_xbee_msg_t msg;
+        msg.data = (uint8_t*)&debug_msg;
+        msg.len = sizeof(debug_msg);
+        COMMS_xbee_send(msg);
+        frame_idx++;;
+    }
 
 }
 
 /*******************************************************************************
- * alg_stabilizer_compute_pitch_roll
+ * alg_stabilizer_compute_pitch_roll_yaw
  *
  * Description: This function computes the pitch and roll using the x,y,z accel
  *              and gyroscope data.
  *
  * Outputs:     float - pitch
  *              float - roll
+ *              float - yaw
  *              float - gravity (gravity accel vector)
  *
  * Returns:     None
@@ -691,57 +860,249 @@ static void alg_stabilizer( float pitch, float roll, float gravity )
  *              for the gyroscope outputs.
  *
  ******************************************************************************/
-static void alg_stabilizer_compute_pitch_roll( float* pitch, float* roll, float* gravity )
+static void alg_stabilizer_compute_pitch_roll_yaw( float* pitch, float* roll, float* yaw, float* gravity )
 {
-        /*
-         * Read accel from the hardware
-         */
-        AppAccelGyroClass::motion6_data_type data;
-        AclGyro.GetMotion6Data(&data);
-        float ax = (float)data.ax;
-        float ay = (float)data.ay;
-        float az = (float)data.az;
-        float gx = (float)data.gx;
-        float gy = (float)data.gy;
-        float gz = (float)data.gz;
+    float loc_dt = dt;
 
-        /*
-         * Convert the data to units of g and degrees
-         */
-        float accel_divisor, gyro_divisor;
-        AccelGyro.GetFullRangeDivisor(&accel_divisor,&gyro_divisor);
+    /*
+     * Read accel from the hardware
+     */
+    AppAccelGyroClass::motion6_data_type data;
+    AclGyro.GetMotion6Data(&data);
+    float ax = (float)data.ax;
+    float ay = (float)data.ay;
+    float az = (float)data.az;
+    float gx = (float)data.gx;
+    float gy = (float)data.gy;
+    float gz = (float)data.gz;
 
-        ax /= accel_divisor; // Convert to g
-        ay /= accel_divisor;
-        az /= accel_divisor;
-        *gravity = az;
+    /*
+     * Convert the data to units of g and degrees
+     */
+    float accel_divisor, gyro_divisor;
+    AccelGyro.GetFullRangeDivisor(&accel_divisor,&gyro_divisor);
 
-        gx /= gyro_divisor; // Convert to degrees
-        gy /= gyro_divisor;
-        gz /= gyro_divisor;
+    ax /= accel_divisor; // Convert to g
+    ay /= accel_divisor;
+    az /= accel_divisor;
+    *gravity = az;
 
-        /*
-         * Calculate roll and pitch
-         */
-        float accel_pitch = atan2f(ax,az);
-        float accel_roll = atan2f(ay,sqrt(ax*ax+az*az));
+    gx /= gyro_divisor; // Convert to degrees
+    gy /= gyro_divisor;
+    gz /= gyro_divisor;
 
+    /*
+     * Calculate roll and pitch
+     */
+#if SEND_DEBUG2 == 1
+    static float g_pitch_sum = 0;
+    static float g_roll_sum = 0;
+    g_roll_sum = g_roll_sum + gx*loc_dt;
+    g_pitch_sum = g_pitch_sum + gy*loc_dt;
+#endif
+    float accel_pitch = 0;
+    float accel_roll = 0;
+
+    /*
+     * Avoid using the values if atan2 is going
+     * to be unstable.
+     */
+    if( az > 0.01 )
+    {
+        // accel_pitch = atan2f(-ax,az);
+        accel_pitch = -atan2f(ax,sqrt(ay*ay+az*az));
+        accel_roll = atan2f(ay,sqrt(ax*ax+az*az));
+        // float accel_roll = atan2f(ay,az);
         /*
          * Convert to degrees
          */
         accel_pitch = accel_pitch*180.0/M_PI;
         accel_roll = accel_roll*180.0/M_PI;
+    }
 
-        /*
-         * This uses a complimentary filter where gyro is
-         * prioritized over accel.
-         */
-        static float loc_roll = 0;
-        static float loc_pitch = 0;
-        loc_roll = A*(loc_roll+gx*dt)+(1-A)*accel_roll;
-        loc_pitch = A*(loc_pitch+gy*dt)+(1-A)*accel_pitch;
+    loc_A = A;
 
-        *pitch = loc_pitch;
-        *roll = loc_roll;
+    /*
+     * This uses a complimentary filter where gyro is
+     * prioritized over accel.
+     */
+    static float loc_roll = 0;
+    static float loc_pitch = 0;
+    float loc_yaw = 0;
+    loc_roll = loc_A*(loc_roll+gx*loc_dt)+(1-loc_A)*accel_roll;
+    loc_pitch = loc_A*(loc_pitch+gy*loc_dt)+(1-loc_A)*accel_pitch;
+    loc_yaw = gz;
+
+    float throttle_percent = alg_stabilizer_get_throttle();
+    if( throttle_percent < 10.0 )
+    {
+        loc_pitch = 0;
+        loc_roll = 0;
+        loc_yaw = 0;
+    }
+    *pitch = loc_pitch;
+    *roll = loc_roll;
+    *yaw = loc_yaw;
+
+#if SEND_DEBUG2 == 1
+    uint8_t msg_hdr = COMMS_DBG_HDR_PITCH_ROLL;
+    uint8_t data_buff[sizeof(msg_hdr)+6*sizeof(float)] = {0};
+    data_buff[0] = msg_hdr;
+    memcpy(&data_buff[sizeof(msg_hdr)],&g_pitch_sum,sizeof(float));
+    memcpy(&data_buff[sizeof(float)+sizeof(msg_hdr)],&g_roll_sum,sizeof(float));
+    memcpy(&data_buff[2*sizeof(float)+sizeof(msg_hdr)],&accel_pitch,sizeof(float));
+    memcpy(&data_buff[3*sizeof(float)+sizeof(msg_hdr)],&accel_roll,sizeof(float));
+    memcpy(&data_buff[4*sizeof(float)+sizeof(msg_hdr)],&loc_pitch,sizeof(float));
+    memcpy(&data_buff[5*sizeof(float)+sizeof(msg_hdr)],&loc_roll,sizeof(float));
+
+    // Send the message
+    comms_xbee_msg_t msg;
+    msg.data = data_buff;
+    msg.len = sizeof(data_buff);
+    COMMS_xbee_send(msg);
+#endif
 }
 
+/*******************************************************************************
+ * alg_stabilizer_update_throttle
+ *
+ * Description: Ramps the throttle to avoid power spikes due to braking
+ *
+ * Outputs:     none
+ *
+ * Returns:     None
+ *
+ * Revision:    Initial Creation 09/05/2019 - Mitchell S. Tilson
+ *
+ ******************************************************************************/
+static void alg_stabilizer_update_throttle( void )
+{
+    if( alg_stabilizer_throttle_percent_target > (alg_stabilizer_throttle_percent + THROTTLE_ADJUST_INC ) )
+    {
+        alg_stabilizer_throttle_percent += THROTTLE_ADJUST_INC;
+    }
+    else if( alg_stabilizer_throttle_percent_target < (alg_stabilizer_throttle_percent - THROTTLE_ADJUST_INC ) )
+    {
+        alg_stabilizer_throttle_percent -= THROTTLE_ADJUST_INC;
+    }
+    else
+    {
+        alg_stabilizer_throttle_percent = alg_stabilizer_throttle_percent_target;
+    }
+}
+
+/*******************************************************************************
+ * alg_stabilizer_update_ypr_sp
+ *
+ * Description: Controls how fast the angle can actually change for yaw, pitch, or roll
+ *
+ * Outputs:     none
+ *
+ * Returns:     None
+ *
+ * Revision:    Initial Creation 09/05/2019 - Mitchell S. Tilson
+ *
+ ******************************************************************************/
+static void alg_stabilizer_update_ypr_sp( void )
+{
+    // Pitch
+    if( pitch_target_set_point > (pitch_actual_set_point + ANGLE_RATE_INC ) )
+    {
+        pitch_actual_set_point += ANGLE_RATE_INC;
+    }
+    else if( pitch_target_set_point < (pitch_actual_set_point - ANGLE_RATE_INC) )
+    {
+        pitch_actual_set_point -= ANGLE_RATE_INC;
+    }
+    else
+    {
+        pitch_actual_set_point = pitch_target_set_point;
+    }
+
+    // Roll
+    if( roll_target_set_point > (roll_actual_set_point + ANGLE_RATE_INC ) )
+    {
+        roll_actual_set_point += ANGLE_RATE_INC;
+    }
+    else if( roll_target_set_point < (roll_actual_set_point - ANGLE_RATE_INC) )
+    {
+        roll_actual_set_point -= ANGLE_RATE_INC;
+    }
+    else
+    {
+        roll_actual_set_point = roll_target_set_point;
+    }
+
+    // Yaw
+    if( yaw_target_set_point > (yaw_actual_set_point + ANGLE_RATE_INC ) )
+    {
+        yaw_actual_set_point += ANGLE_RATE_INC;
+    }
+    else if( yaw_target_set_point < (yaw_actual_set_point - ANGLE_RATE_INC) )
+    {
+        yaw_actual_set_point -= ANGLE_RATE_INC;
+    }
+    else
+    {
+        yaw_actual_set_point = yaw_target_set_point;
+    }
+}
+
+/*******************************************************************************
+ * alg_stabilizer_lost_connection_cb
+ *
+ * Description: Handles the event where the comms lose connection
+ *
+ * Outputs:     none
+ *
+ * Returns:     None
+ *
+ * Revision:    Initial Creation 11/29/2019 - Mitchell S. Tilson
+ *
+ ******************************************************************************/
+static void alg_stabilizer_lost_connection_cb( void )
+{
+    alg_stabilizer_set_throttle( 0 );
+}
+
+/*******************************************************************************
+ * alg_stabilizer_ack_msgs
+ *
+ * Description: Sends messages back to the controller indicating a message was
+ *              received.
+ *
+ * Outputs:     none
+ *
+ * Returns:     None
+ *
+ * Revision:    Initial Creation 12/6/2019 - Mitchell S. Tilson
+ *
+ ******************************************************************************/
+static void alg_stabilizer_ack_msgs( void )
+{
+    if( throttle_rcvd )
+    {
+        COMMS_xbee_send_ack(COMMS_SET_THROTTLE);
+        throttle_rcvd = false;
+    }
+    if( pid_rcvd )
+    {
+        COMMS_xbee_send_ack(COMMS_SET_PID);
+        pid_rcvd = false;
+    }
+    if( cal_req_rcvd )
+    {
+        COMMS_xbee_send_ack(COMMS_CALIBRATE);
+        cal_req_rcvd = false;
+    }
+    if( debug_rcvd )
+    {
+        COMMS_xbee_send_ack(COMMS_DEBUG_M_PR);
+        debug_rcvd = false;
+    }
+    if( pitch_roll_yaw_rcvd )
+    {
+        COMMS_xbee_send_ack(COMMS_PITCH_ROLL);
+        pitch_roll_yaw_rcvd = false;
+    }
+}
