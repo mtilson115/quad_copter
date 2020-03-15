@@ -282,19 +282,15 @@ static void alg_stabilizer_task( void *p_arg )
     motor4.Start();
 
 #if DO_THROTTLE_CAL == 1
-    // Calibrate the motors
-    motor1.SetSpeedPercent(1.0);
-    motor2.SetSpeedPercent(1.0);
-    motor3.SetSpeedPercent(1.0);
-    motor4.SetSpeedPercent(1.0);
+    // Motors start at 100% when throttle cal is enabled
 
     // Delay 6s
     OSTimeDlyHMSM(0u, 0u, 6u, 0u,OS_OPT_TIME_HMSM_STRICT,&err);
 
-    motor1.SetSpeedPercent(0.0);
-    motor2.SetSpeedPercent(0.0);
-    motor3.SetSpeedPercent(0.0);
-    motor4.SetSpeedPercent(0.0);
+    motor1.SetSpeedPercent(0.05);
+    motor2.SetSpeedPercent(0.05);
+    motor3.SetSpeedPercent(0.05);
+    motor4.SetSpeedPercent(0.05);
 
     // Delay 2.25s
     OSTimeDlyHMSM(0u, 0u, 2u, 250u,OS_OPT_TIME_HMSM_STRICT,&err);
@@ -805,9 +801,10 @@ static void alg_stabilizer( float pitch, float roll, float yaw, float gravity )
      */
     if( alg_stabilizer_get_debug_m_pr() )
     {
+        OS_ERR err;
         alg_stabilizer_debug_t debug_msg = {
             .hdr = COMMS_DBG_HDR_MOTOR_PITCH_ROLL,
-            .ts = 0,
+            .ts = OSTimeGet(&err),
             .m1 = motor1_throttle,
             .m2 = motor2_throttle,
             .m3 = motor3_throttle,
