@@ -79,6 +79,10 @@ void battery_read_init( void )
 static void battery_task(void  *p_arg)
 {
     OS_ERR err;
+    while( !comms_xbee_ready() )
+    {
+        OSTimeDlyHMSM(0u, 0u, 1u, 0u,OS_OPT_TIME_HMSM_STRICT,&err);
+    }
     while(DEF_ON)
     {
         // Take a reading every 1s

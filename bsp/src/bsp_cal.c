@@ -95,6 +95,7 @@ const uint32_t* bsp_cal_request_space( uint32_t size )
  ******************************************************************************/
 static void bsp_cal_erase_cb( uint8_t* data, uint16_t len )
 {
+    (void)len;
     if( data[0] == COMMS_ERASE_CAL )
     {
         driver_flash_erase_page(KVA_TO_PA(bsp_cal_space));

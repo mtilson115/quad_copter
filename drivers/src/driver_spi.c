@@ -225,8 +225,13 @@ void SPI_enable( spi_num_e spi, bool enable )
  * Notes:       wdata and rdata must be the same size
  *
  ******************************************************************************/
+uint32_t spi_max_len = 0;
 spi_ret_e SPI_write_read( spi_num_e spi, uint8_t* wdata, uint8_t* rdata, uint32_t data_len )
 {
+    if( data_len > spi_max_len )
+    {
+        spi_max_len = data_len;
+    }
     uint32_t i = 0;
 
     if( -1 == spi_set_cfg_pointer( spi ) )
@@ -267,6 +272,7 @@ static int32_t spi_set_cfg_pointer( spi_num_e spi )
 {
     // Get the appropriate configuration
     // to modify
+    int ret = 0;
     switch( spi )
     {
         case SPI1:
@@ -279,8 +285,10 @@ static int32_t spi_set_cfg_pointer( spi_num_e spi )
 
         default:
             curr_spi_cfg_p = &SPI2_cfg;
+            ret = -1;
             break;
     }
+    return ret;
 }
 
 /*******************************************************************************

@@ -701,13 +701,14 @@ static uint16_t comms_xbee_handle_frame_error(comms_xbee_api_msg_t* api_msg)
 {
     comms_xbee_frame_error_status_t* status;
     status = (comms_xbee_frame_error_status_t*)api_msg->frame_data_ptr;
-    uint8_t loc_status;
 #if DEBUG_LOOPS == 1
+    uint8_t loc_status = 0;
     while( 1 )
     {
         loc_status = status->status;
     }
 #endif
+    return sizeof(comms_xbee_frame_error_status_t);
 }
 
 static uint16_t comms_xbee_handle_at_rsp(comms_xbee_api_msg_t* api_msg)

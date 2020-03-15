@@ -266,6 +266,7 @@ static void bsp_xbee_spi_en_seq( void )
 }
 
 // Temp function for testing.  It is called using the default interrupt function
+/*
 static void bsp_xbee_test( void )
 {
     uint8_t wdata = 0x00;
@@ -300,3 +301,4 @@ static void bsp_xbee_test( void )
         }
     }
 }
+*/

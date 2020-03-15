@@ -166,7 +166,6 @@ static  void  App_TaskStart (void *p_arg)
 static void App_TaskCreate(void)
 {
     comms_xbee_init();
-    while( !comms_xbee_ready() );
     battery_read_init();
     alg_stabilizer_init();
 }

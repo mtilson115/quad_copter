@@ -10,7 +10,7 @@
  * CPU Constants
  ****************************************************************/
 #define SYS_CLK_80MHz 80000000
-#define DO_THROTTLE_CAL 0
+#define DO_THROTTLE_CAL 1
 #define SEND_DEBUG 1
 #define SEND_DEBUG2 0
 #define THROTTLE_ADJUST_INC 2.0

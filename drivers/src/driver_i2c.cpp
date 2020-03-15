@@ -161,7 +161,6 @@ bool I2C_Class::ReadRegBytes( uint8_t dev_addr, uint8_t reg_addr, uint8_t length
 {
     // Build the message
     I2C_MSG msg;
-    uint8_t byte_count = 0;
     msg.dev_addr    = dev_addr;
     msg.reg_addr    = reg_addr;
     msg.dir         = kI2C_READ;

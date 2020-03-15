@@ -260,7 +260,7 @@ void  BSP_Except_Handler (void)
     OS_TCB* battery_tcb = app_battery_get_tcb();
     OS_TCB* comms_tcb = comms_xbee_get_tcb();
     uint32_t comms_fault = comms_xbee_get_fault();
-    CPU_STK* test_stk;
+    CPU_STK* test_stk = NULL;
     app_battery_get_stack( test_stk );
     switch( except_cause )
     {

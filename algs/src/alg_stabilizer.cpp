@@ -303,7 +303,10 @@ static void alg_stabilizer_task( void *p_arg )
     // Start the accel gyro interrupt
     AclGyro.Start();
 
-
+    while( !comms_xbee_ready() )
+    {
+        OSTimeDlyHMSM(0u, 0u, 1u, 0u,OS_OPT_TIME_HMSM_STRICT,&err);
+    }
     uint32_t ts = 0;
     while (DEF_ON)
     {

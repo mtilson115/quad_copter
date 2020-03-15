@@ -95,7 +95,7 @@ void BSP_Printf( const char* format, ... )
     uint32_t len = 0;
 
     va_start (arg, format);
-    len = vsnprintf(&printf_buff[0],sizeof(printf_buff)-1,format,arg);
+    len = vsnprintf((char*)&printf_buff[1],sizeof(printf_buff)-1,format,arg);
     if( len > sizeof(printf_buff) )
     {
         while(1);
