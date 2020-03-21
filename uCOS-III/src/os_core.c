@@ -350,7 +350,7 @@ void  OSSafetyCriticalStart (void)
 * Note(s)    : 1) Rescheduling is prevented when the scheduler is locked (see OSSchedLock())
 ************************************************************************************************************************
 */
-
+OS_PRIO OSPrioHighRdy_save = 0;
 void  OSSched (void)
 {
     CPU_SR_ALLOC();
@@ -367,6 +367,11 @@ void  OSSched (void)
 
     CPU_INT_DIS();
     OSPrioHighRdy   = OS_PrioGetHighest();                  /* Find the highest priority ready                        */
+    OSPrioHighRdy_save = OSPrioHighRdy;
+    if( OSPrioHighRdy > 7 )
+    {
+        while(1);
+    }
     OSTCBHighRdyPtr = OSRdyList[OSPrioHighRdy].HeadPtr;
     if (OSTCBHighRdyPtr == OSTCBCurPtr) {                   /* Current task is still highest priority task?           */
         CPU_INT_EN();                                       /* Yes ... no need to context switch                      */

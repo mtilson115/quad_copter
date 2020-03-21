@@ -81,7 +81,7 @@ void  OS_PrioInit (void)
 *                 operation to be done at run-time.
 ************************************************************************************************************************
 */
-
+OS_PRIO os_prio_save = 0;
 OS_PRIO  OS_PrioGetHighest (void)
 {
     CPU_DATA  *p_tbl;
@@ -96,6 +96,7 @@ OS_PRIO  OS_PrioGetHighest (void)
         p_tbl++;
     }
     prio += (OS_PRIO)CPU_CntLeadZeros(*p_tbl);              /* Find the position of the first bit set at the entry    */
+    os_prio_save = prio;
     return (prio);
 }
 

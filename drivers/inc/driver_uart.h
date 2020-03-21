@@ -50,13 +50,11 @@ typedef struct
  ******************************************************************************/
 
 typedef enum {
-    UART_1,
+    UART_1 = 0,
     UART_2,
     UART_3,
     UART_4,
-    UART_5,
-    UART_6,
-    UART_INVALID,
+    UART_SIZE,
 } UART_ID;
 
 typedef enum {

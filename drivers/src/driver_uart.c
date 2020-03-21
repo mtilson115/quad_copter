@@ -95,7 +95,7 @@ UART_REGS const UART[UART_PERIF_NUM] = {
     },
 };
 
-UART_ctrl_type UART_ctrl[UART_PERIF_NUM];
+UART_ctrl_type UART_ctrl[UART_SIZE];
 /*******************************************************************************
  * Local Functions
  ******************************************************************************/
@@ -133,7 +133,7 @@ UART_ID  Uart_init( UART_ID id, int32_t baud, int32_t data_bits, PARITY_type par
     // Ensure the uart number is valid
     if( id < UART_1 || id > UART_4 )
     {
-        return UART_INVALID;
+        return UART_SIZE;
     }
 
     // Set up the variables

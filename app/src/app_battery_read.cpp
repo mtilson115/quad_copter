@@ -76,6 +76,7 @@ void battery_read_init( void )
  * Notes:
  *
  ******************************************************************************/
+uint32_t battery_task_call_cnt = 0;
 static void battery_task(void  *p_arg)
 {
     OS_ERR err;
@@ -102,10 +103,12 @@ static void battery_task(void  *p_arg)
         msg.data = data_buff;
         msg.len = sizeof(data_buff);
         comms_xbee_send(msg);
-        BSP_Printf("Battery = %f\n\r",voltage);
+        // BSP_Printf("Battery = %f\n\r",voltage);
 
         // Delay 1s
         OSTimeDlyHMSM(0u, 0u, 1u, 0u,OS_OPT_TIME_HMSM_STRICT,&err);
+
+        battery_task_call_cnt++;
     }
 }
 #ifdef	__cplusplus
