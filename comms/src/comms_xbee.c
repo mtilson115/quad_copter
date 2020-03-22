@@ -13,6 +13,7 @@
 #include "comms_xbee.h"
 #include "bsp_xbee.h"
 #include "bsp_utils.h"
+#include "type_defs.h"
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
@@ -102,7 +103,7 @@ typedef struct __attribute__ ((packed)) {
     uint8_t     start_delim;
     uint8_t     MSB_len;
     uint8_t     LSB_len;
-    uint8_t*    frame_data_ptr;
+    uint8_ua_t* frame_data_ptr;
     uint8_t     cksum;
 }comms_xbee_api_msg_t;
 
@@ -218,7 +219,7 @@ static uint8_t comms_xbee_dummy_tx_buff[XBEE_MAX_RX] = {0};
 OS_MEM comms_xbee_tx_mem_ctrl_blk;
 #define TX_MEM_BLK_SIZE (sizeof(tx_frame_data_t))
 #define TX_Q_DEPTH (10)
-static uint8_t comms_tx_xbee_mem[TX_MEM_BLK_SIZE*TX_Q_DEPTH];
+void* comms_tx_xbee_mem[TX_MEM_BLK_SIZE][TX_Q_DEPTH];
 
 static uint32_t fault = 0;
 #define NO_MEM                  (1 << 0)
@@ -280,9 +281,9 @@ static void comms_xbee_task(void *p_arg);
 static uint16_t comms_xbee_handle_status(comms_xbee_api_msg_t* api_msg);
 static uint16_t comms_xbee_handle_frame_error(comms_xbee_api_msg_t* api_msg);
 static uint8_t comms_xbee_compute_cksum(comms_xbee_api_msg_t* api_msg);
-static void comms_xbee_at_cmd_wr(const char at_cmd[2], uint8_t* data, uint8_t len);
+static void comms_xbee_at_cmd_wr(const char at_cmd[2], uint8_ua_t* data, uint8_t len);
 static void comms_xbee_at_cmd_rd(const char at_cmd[2]);
-static void comms_xbee_send_api_msg(comms_xbee_api_msg_t* api_msg);
+static void comms_xbee_send_api_msg(bool norm_tx,comms_xbee_api_msg_t* api_msg);
 static uint16_t comms_xbee_handle_at_rsp(comms_xbee_api_msg_t* api_msg);
 static uint16_t comms_xbee_handle_rx_ipv4(comms_xbee_api_msg_t* api_msg);
 static void comms_xbee_handle_int_msg( void );
@@ -335,7 +336,7 @@ void comms_xbee_send(comms_xbee_msg_t msg)
         api_msg->start_delim = XBEE_START_DELIM;
         api_msg->MSB_len = (uint8_t)((len & 0xFF00) >> 8);
         api_msg->LSB_len = (uint8_t)(len & 0xFF);
-        api_msg->frame_data_ptr = (uint8_t*)tx_frame;
+        api_msg->frame_data_ptr = (uint8_ua_t*)tx_frame;
         api_msg->cksum = comms_xbee_compute_cksum(api_msg);
 
         // Queue the message
@@ -343,14 +344,6 @@ void comms_xbee_send(comms_xbee_msg_t msg)
         if( err == OS_ERR_Q_MAX || err == OS_ERR_MSG_POOL_EMPTY )
         {
             fault |= Q_FULL;
-            OSMemPut(&comms_xbee_tx_mem_ctrl_blk,api_msg,&err);
-            return;
-        }
-        // Trigger the semaphore
-        OSTaskSemPost(&comms_xbee_TCB,OS_OPT_POST_NONE,&err);
-        if( err == OS_ERR_SEM_OVF )
-        {
-            fault |= SEM_OVF;
             OSMemPut(&comms_xbee_tx_mem_ctrl_blk,api_msg,&err);
             return;
         }
@@ -374,7 +367,7 @@ void comms_xbee_init(void)
 {
     OS_ERR err;
 
-    memset(comms_tx_xbee_mem,0x00,sizeof(comms_tx_xbee_mem));
+    memset(comms_tx_xbee_mem,0xA5,sizeof(comms_tx_xbee_mem));
     memset(comms_xbee_rx_buff,0x00,sizeof(comms_xbee_rx_buff));
     memset(comms_xbee_dummy_tx_buff,0x00,sizeof(comms_xbee_dummy_tx_buff));
 
@@ -542,15 +535,16 @@ void comms_xbee_send_ack(uint32_t rx_id)
 static void comms_xbee_task(void *p_arg)
 {
     OS_ERR err;
+    uint16_t msg_size_bytes = 0;
+    uint32_t time_stamp = 0;
+    void* msg;
     while(DEF_ON)
     {
         /*
          * Wait here until either the interrupt signals or a message is inteneded to be sent
          * Check for any messages in the queue.
          */
-        uint16_t msg_size_bytes = 0;
-        uint32_t time_stamp = 0;
-        void* msg = OSTaskQPend(0,OS_OPT_PEND_BLOCKING,&msg_size_bytes,&time_stamp,&err);
+        msg = OSTaskQPend(0,OS_OPT_PEND_BLOCKING,&msg_size_bytes,&time_stamp,&err);
 
         /*
          * Interrupt message (RX)
@@ -566,7 +560,7 @@ static void comms_xbee_task(void *p_arg)
         if( err == OS_ERR_NONE && msg && msg_size_bytes == sizeof(comms_xbee_api_msg_t))
         {
             comms_xbee_api_msg_t* api_msg = (comms_xbee_api_msg_t*)msg;
-            comms_xbee_send_api_msg(api_msg);
+            comms_xbee_send_api_msg(true,api_msg);
             OSMemPut(&comms_xbee_tx_mem_ctrl_blk,api_msg,&err);
         }
     }
@@ -870,7 +864,7 @@ static uint16_t comms_xbee_handle_rx_ipv4(comms_xbee_api_msg_t* api_msg)
     return cb_data_len + (sizeof(comms_xbee_ipv4_rx_t) - XBEE_MAX_IPV4_RX);
 }
 
-static void comms_xbee_at_cmd_wr(const char at_cmd[2], uint8_t* data, uint8_t len)
+static void comms_xbee_at_cmd_wr(const char at_cmd[2], uint8_ua_t* data, uint8_t len)
 {
     if( len > 10 - sizeof(comms_xbee_at_cmd_write_t) )
     {
@@ -890,7 +884,7 @@ static void comms_xbee_at_cmd_wr(const char at_cmd[2], uint8_t* data, uint8_t le
     api_msg.LSB_len = (uint8_t)(loc_len & 0xFF);
     api_msg.frame_data_ptr = buffer;
     api_msg.cksum = comms_xbee_compute_cksum(&api_msg);
-    comms_xbee_send_api_msg(&api_msg);
+    comms_xbee_send_api_msg(false,&api_msg);
 }
 
 static void comms_xbee_at_cmd_rd(const char at_cmd[2])
@@ -904,28 +898,34 @@ static void comms_xbee_at_cmd_rd(const char at_cmd[2])
     uint16_t len = (uint16_t)sizeof(at_cmd_rd);
     api_msg.MSB_len = (uint8_t)((len & 0xFF00) >> 8);
     api_msg.LSB_len = (uint8_t)(len & 0xFF);
-    api_msg.frame_data_ptr = (uint8_t*)&at_cmd_rd;
+    api_msg.frame_data_ptr = (uint8_ua_t*)&at_cmd_rd;
     api_msg.cksum = comms_xbee_compute_cksum(&api_msg);
-    comms_xbee_send_api_msg(&api_msg);
+    comms_xbee_send_api_msg(false,&api_msg);
 }
 
-static void comms_xbee_send_api_msg(comms_xbee_api_msg_t* api_msg)
+uint8_ua_t* frame_ptr_save = NULL;
+static void comms_xbee_send_api_msg(bool norm_tx, comms_xbee_api_msg_t* api_msg)
 {
     uint16_t len = ((uint16_t)(api_msg->MSB_len << 8)) | (uint16_t)(api_msg->LSB_len);
     uint32_t header_size = sizeof(api_msg->start_delim)+sizeof(api_msg->MSB_len)+sizeof(api_msg->LSB_len);
-    memset(comms_xbee_rx_buff,0x00, sizeof(comms_xbee_rx_buff));
+    // memset(comms_xbee_rx_buff,0x00, sizeof(comms_xbee_rx_buff));
 
     // Send the start delim and the message length
     bsp_xbee_write_read(&api_msg->start_delim,comms_xbee_rx_buff,header_size);
 
     // Send the actual message
+    frame_ptr_save = api_msg->frame_data_ptr;
+    if( norm_tx && !(frame_ptr_save >= &comms_tx_xbee_mem[0][0] && frame_ptr_save <= &comms_tx_xbee_mem[TX_MEM_BLK_SIZE-1][TX_Q_DEPTH-1]) )
+    {
+        while(1);
+    }
     bsp_xbee_write_read(api_msg->frame_data_ptr,&comms_xbee_rx_buff[header_size],len);
 
     // Send the checksum
     bsp_xbee_write_read(&api_msg->cksum,&comms_xbee_rx_buff[header_size+len],(uint16_t)sizeof(api_msg->cksum));
 
     // Handle any valid data form the xbee that was received while sending the message
-    comms_xbee_handle_rx_during_tx(header_size+len+sizeof(api_msg->cksum));
+    // comms_xbee_handle_rx_during_tx(header_size+len+sizeof(api_msg->cksum));
 }
 
 static void comms_xbee_handle_rx_during_tx( uint16_t bytes_read )

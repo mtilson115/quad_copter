@@ -19,6 +19,7 @@ extern "C" {
  ******************************************************************************/
 #include <stdint.h>
 #include <stdbool.h>
+#include "type_defs.h"
 
 /*******************************************************************************
  * Enumerations
@@ -54,8 +55,6 @@ typedef struct {
     bool use_interrupts;
 } spi_init_t;
 
-typedef void (*spi_call_back_t)( uint8_t* spi_data, uint32_t data_len );
-
 /*******************************************************************************
  * Public Functions
  ******************************************************************************/
@@ -64,7 +63,7 @@ void SPI_init( spi_num_e spi, spi_init_t spi_settings );
 
 void SPI_enable( spi_num_e spi, bool enable );
 
-spi_ret_e SPI_write_read( spi_num_e spi, uint8_t* wdata, uint8_t* rdata, uint32_t data_len );
+spi_ret_e SPI_write_read( spi_num_e spi, uint8_ua_t* wdata, uint8_ua_t* rdata, uint32_t data_len );
 
 #ifdef	__cplusplus
 }

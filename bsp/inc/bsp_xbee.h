@@ -18,10 +18,11 @@ extern "C" {
  ******************************************************************************/
 #include <os.h>
 #include <stdint.h>
+#include "type_defs.h"
 
 void bsp_xbee_init(void);
 void bsp_xbee_register_tcb(OS_TCB* tcb);
-void bsp_xbee_write_read(uint8_t* wdata, uint8_t* rdata, uint16_t len);
+void bsp_xbee_write_read(uint8_ua_t* wdata, uint8_ua_t* rdata, uint16_t len);
 void bsp_xbee_int_handler(void);
 void bsp_xbee_reset( void );
 

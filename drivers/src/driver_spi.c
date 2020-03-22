@@ -214,8 +214,8 @@ void SPI_enable( spi_num_e spi, bool enable )
  * Description: Writes/reads the selected SPI
  *
  * Inputs:      spi_num_e spi - the spi to use
- *              uint8_t* wdata - a pointer to the data to send
- *              uint8_t* rdata - a pointer to the data to read
+ *              uint8_ua_t* wdata - a pointer to the data to send
+ *              uint8_ua_t* rdata - a pointer to the data to read
  *              uint32_t data_len - the number of bytes to send
  *
  * Returns:     spi_ret_e - ERROR, BUFF_FULL, or SUCCESS.
@@ -226,7 +226,7 @@ void SPI_enable( spi_num_e spi, bool enable )
  *
  ******************************************************************************/
 uint32_t spi_max_len = 0;
-spi_ret_e SPI_write_read( spi_num_e spi, uint8_t* wdata, uint8_t* rdata, uint32_t data_len )
+spi_ret_e SPI_write_read( spi_num_e spi, uint8_ua_t* wdata, uint8_ua_t* rdata, uint32_t data_len )
 {
     if( data_len > spi_max_len )
     {

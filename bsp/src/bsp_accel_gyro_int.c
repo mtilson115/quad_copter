@@ -74,7 +74,7 @@ void bsp_accel_gyro_int_en( void )
     IFS0bits.INT1IF = 0;
 
     // Interrupt priority
-    IPC1bits.INT1IP = 5;
+    IPC1bits.INT1IP = 6;
 
     // Interrupt sub-priority
     IPC1bits.INT1IS = 0;

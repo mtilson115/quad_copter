@@ -44,10 +44,10 @@
 *********************************************************************************************************
 */
 
-#define APP_CFG_TASK_START_STK_SIZE     512u
-#define APP_BUTTON_READER_STK_SIZE      512u
-#define COMMS_XBEE_STK_SIZE             512u
-#define ALG_STABILIZER_STK_SIZE         512u
+#define APP_CFG_TASK_START_STK_SIZE     4096u
+#define APP_BUTTON_READER_STK_SIZE      4096u
+#define COMMS_XBEE_STK_SIZE             4096u
+#define ALG_STABILIZER_STK_SIZE         4096u
 
 
 

@@ -125,8 +125,8 @@ void bsp_xbee_register_tcb(OS_TCB* tcb)
  * Description: Sends or receives data from the xbee module over spi
  *
  *
- * Inputs:      uint8_t* wdata - the data to write
- *              uint8_t* rdata - a pointer to the buffer to read data into
+ * Inputs:      uint8_ua_t* wdata - the data to write
+ *              uint8_ua_t* rdata - a pointer to the buffer to read data into
  *              uint16_t len - the length of the data in bytes
  *
  * Returns:     none
@@ -138,7 +138,7 @@ void bsp_xbee_register_tcb(OS_TCB* tcb)
  *              just means the wdata will be overwritten with the result.
  *
  ******************************************************************************/
-void bsp_xbee_write_read( uint8_t* wdata, uint8_t* rdata, uint16_t len )
+void bsp_xbee_write_read( uint8_ua_t* wdata, uint8_ua_t* rdata, uint16_t len )
 {
     spi_ret_e ret_val = SPI_write_read( SPI2, wdata, rdata, len );
     if( ret_val != SPI_SUCCESS )
